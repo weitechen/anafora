@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<data>
+<info>
+  <savetime>10:37:23 04-05-2013</savetime>
+  <progress>completed</progress>
+</info>
+
+<schema path="./" protocol="file">temporal.schema.xml</schema>
+
+<annotations>
+	<entity>
+		<id>1@e@doc22@stylerw</id>
+		<span>45,54</span>
+		<type>Medication/Intervention</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<GenericName>undefined</GenericName>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>2@e@doc22@stylerw</id>
+		<span>58,75</span>
+		<type>Disease/Disorder</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<UMLS_CUI>undefined</UMLS_CUI>
+			<Polarity>Positive</Polarity>
+			<Type>undefined</Type>
+			<Location></Location>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>3@e@doc22@stylerw</id>
+		<span>80,86</span>
+		<type>Disease/Disorder</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<UMLS_CUI>undefined</UMLS_CUI>
+			<Polarity>Positive</Polarity>
+			<Type>undefined</Type>
+			<Location></Location>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>4@e@doc22@stylerw</id>
+		<span>98,160</span>
+		<type>Medication/Intervention</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<GenericName>undefined</GenericName>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>5@e@doc22@stylerw</id>
+		<span>170,182</span>
+		<type>Temporal Expression</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>6@e@doc22@stylerw</id>
+		<span>187,205</span>
+		<type>Disease/Disorder</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<UMLS_CUI>undefined</UMLS_CUI>
+			<Polarity>Positive</Polarity>
+			<Type>undefined</Type>
+			<Location></Location>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>7@e@doc22@stylerw</id>
+		<span>220,226</span>
+		<type>Medication/Intervention</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<GenericName>Fluticasone/salmeterol</GenericName>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>8@e@doc22@stylerw</id>
+		<span>240,246</span>
+		<type>Disease/Disorder</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<UMLS_CUI>undefined</UMLS_CUI>
+			<Polarity>Positive</Polarity>
+			<Type>undefined</Type>
+			<Location></Location>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>9@e@doc22@stylerw</id>
+		<span>282,300</span>
+		<type>Medication/Intervention</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<GenericName>undefined</GenericName>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>10@e@doc22@stylerw</id>
+		<span>317,326</span>
+		<type>Temporal Expression</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>11@e@doc22@stylerw</id>
+		<span>327,335</span>
+		<type>Medication/Intervention</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<GenericName>undefined</GenericName>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>14@e@doc22@stylerw</id>
+		<span>368,381</span>
+		<type>Temporal Expression</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>15@e@doc22@stylerw</id>
+		<span>407,424</span>
+		<type>Disease/Disorder</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<UMLS_CUI>undefined</UMLS_CUI>
+			<Polarity>Positive</Polarity>
+			<Type>Chronic</Type>
+			<Location>22@e@doc22@stylerw</Location>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>16@e@doc22@stylerw</id>
+		<span>453,466</span>
+		<type>Medication/Intervention</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<GenericName>undefined</GenericName>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>17@e@doc22@stylerw</id>
+		<span>492,500</span>
+		<type>Temporal Expression</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>18@e@doc22@stylerw</id>
+		<span>513,523</span>
+		<type>Disease/Disorder</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<UMLS_CUI>undefined</UMLS_CUI>
+			<Polarity>Positive</Polarity>
+			<Type>undefined</Type>
+			<Location>22@e@doc22@stylerw</Location>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>19@e@doc22@stylerw</id>
+		<span>527,535</span>
+		<type>Temporal Expression</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>20@e@doc22@stylerw</id>
+		<span>557,580</span>
+		<type>Medication/Intervention</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<GenericName> Fluticasone</GenericName>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>21@e@doc22@stylerw</id>
+		<span>651,659</span>
+		<type>Disease/Disorder</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<UMLS_CUI>undefined</UMLS_CUI>
+			<Polarity> Negative</Polarity>
+			<Type>undefined</Type>
+			<Location></Location>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>22@e@doc22@stylerw</id>
+		<span>519,523</span>
+		<type>Anatomy</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>23@e@doc22@stylerw</id>
+		<span>746,750</span>
+		<type>Anatomy</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>24@e@doc22@stylerw</id>
+		<span>755,759</span>
+		<type>Disease/Disorder</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<UMLS_CUI>undefined</UMLS_CUI>
+			<Polarity> Negative</Polarity>
+			<Type>undefined</Type>
+			<Location></Location>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>25@e@doc22@stylerw</id>
+		<span>761,765</span>
+		<type>Anatomy</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>26@e@doc22@stylerw</id>
+		<span>775,779</span>
+		<type>Anatomy</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>27@e@doc22@stylerw</id>
+		<span>781,786</span>
+		<type>Disease/Disorder</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<UMLS_CUI>undefined</UMLS_CUI>
+			<Polarity>Positive</Polarity>
+			<Type>undefined</Type>
+			<Location></Location>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>28@e@doc22@stylerw</id>
+		<span>804,808</span>
+		<type>Anatomy</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>29@e@doc22@stylerw</id>
+		<span>818,823</span>
+		<type>Anatomy</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>30@e@doc22@stylerw</id>
+		<span>890,901</span>
+		<type>Anatomy</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>31@e@doc22@stylerw</id>
+		<span>906,911</span>
+		<type>Disease/Disorder</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<UMLS_CUI>undefined</UMLS_CUI>
+			<Polarity>Positive</Polarity>
+			<Type>undefined</Type>
+			<Location></Location>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>32@e@doc22@stylerw</id>
+		<span>915,923</span>
+		<type>Disease/Disorder</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<UMLS_CUI>undefined</UMLS_CUI>
+			<Polarity>Positive</Polarity>
+			<Type>undefined</Type>
+			<Location></Location>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>33@e@doc22@stylerw</id>
+		<span>952,958</span>
+		<type>Disease/Disorder</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<UMLS_CUI>undefined</UMLS_CUI>
+			<Polarity>Positive</Polarity>
+			<Type>undefined</Type>
+			<Location></Location>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>34@e@doc22@stylerw</id>
+		<span>960,977</span>
+		<type>Disease/Disorder</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<UMLS_CUI>undefined</UMLS_CUI>
+			<Polarity>Positive</Polarity>
+			<Type>undefined</Type>
+			<Location></Location>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>35@e@doc22@stylerw</id>
+		<span>1009,1022</span>
+		<type>Medication/Intervention</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<GenericName>undefined</GenericName>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>36@e@doc22@stylerw</id>
+		<span>1023,1033</span>
+		<type>Temporal Expression</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>38@e@doc22@stylerw</id>
+		<span>1035,1059</span>
+		<type>Medication/Intervention</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<GenericName>undefined</GenericName>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>39@e@doc22@stylerw</id>
+		<span>1079,1085</span>
+		<type>Medication/Intervention</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<GenericName>undefined</GenericName>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>40@e@doc22@gold</id>
+		<span>343,357</span>
+		<type>Medication/Intervention</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<GenericName></GenericName>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>41@e@doc22@stylerw</id>
+		<span>1087,1109</span>
+		<type>Medication/Intervention</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+			<GenericName>undefined</GenericName>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>42@e@doc22@stylerw</id>
+		<span>1111,1123</span>
+		<type>Temporal Expression</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<entity>
+		<id>43@e@doc22@stylerw</id>
+		<span>2,13</span>
+		<type>Temporal Expression</type>
+		<parentsType>Entities</parentsType>
+		<properties>
+		</properties>
+	</entity>
+
+	<relation>
+		<id>1@r@doc22@stylerw</id>
+		<type>Treats</type>
+		<parentsType>MedicalRelations</parentsType>
+		<properties>
+			<Treated>15@e@doc22@stylerw</Treated>
+			<Treatment>20@e@doc22@stylerw</Treatment>
+			<Outcome> Success</Outcome>
+		</properties>
+	</relation>
+
+	<relation>
+		<id>2@r@doc22@stylerw</id>
+		<type>Treats</type>
+		<parentsType>MedicalRelations</parentsType>
+		<properties>
+			<Treated>15@e@doc22@stylerw</Treated>
+			<Treatment>40@e@doc22@gold</Treatment>
+			<Outcome>Success</Outcome>
+		</properties>
+	</relation>
+</annotations>
+
+<adjudication>
+</adjudication>
+
+</data>

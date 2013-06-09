@@ -40,8 +40,12 @@ In order to run Anafora as an end user/annotator, you'll need:
 * An account set up on the server hosting Anafora (which is a member of the requisite groups)
 *  For adjudication and access to other annotators' data, you must be a member of the "anaforaadmin" group on the server on which Anafora is installed.
 
-### Download Anafora
+### Get Anafora
 
-Anafora is Free and Open Source, released under the Apache License.  All code is available from [our website](https://github.com/weitechen/anafora).
+#### Download
 
-Our user/administrator manual is available from this site, or at [http://vwl.me/AnaforaManual.pdf](http://vwl.me/AnaforaManual.pdf).
+Anafora is Free and Open Source, released under the Apache License.  All code is available from [our github page](https://github.com/weitechen/anafora).  In addition, we welcome new commits and bugfixes through git.
+
+#### The Anafora User Manual
+
+Our user/administrator manual is available above, containing our FAQ, as well as instructions for Annotators, Administrators, and Installation.  

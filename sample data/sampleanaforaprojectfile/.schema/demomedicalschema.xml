@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema>
+<entities type="MedicalEntities" color="a60000">
+	<entity type="Disease/Disorder" color="103ffb" hotkey="d">
+		<properties>
+			 <property type="UMLS CUI" input="text"></property>
+			 <property type="Polarity" input="choice">Positive, Negative</property>
+			 <property type="Type" input="multichoice">Chronic,Acute,Drug-Resistant</property>
+			 <property type="Location" input="list" maxlink="1" instanceOf="Anatomy"/>
+		</properties>
+	</entity>
+	<entity type="Medication" color="459d1b" hotkey="m">
+		<properties/>
+	</entity>
+	<entity type="Anatomy" color="FF2A1A" hotkey="a">
+		<properties/>
+	</entity>
+</entities>
+<relations type="MedicalRelations" color="006363" >
+	<relation type="Treats" color="522290" hotkey="t">
+		<properties>
+			<property type="Treated" input="link" maxlink="1" instanceOf="Disease/Disorder"/>
+			<property type="Treatment" input="link" maxlink="1" instanceOf="Medication"/>
+		 	<property type="Outcome" input="choice">Unsure, Success, Failure</property>
+		</properties>
+	</relation>
+	
+	<relation type="Causes" color="D97999" hotkey="t">
+		<properties>
+			<property type="Causer" input="link" maxlink="1" instanceOf="Disease/Disorder, Medication"/>
+			<property type="ThingCaused" input="link" maxlink="1" instanceOf="Disease/Disorder"/>
+		</properties>
+	</relation>
+</relations>
+</schema>
