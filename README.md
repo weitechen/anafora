@@ -1,4 +1,4 @@
-<center><img src="http://vwl.me/images/anaforalogo.png" width=400px></center>
+<center><img src="https://raw.github.com/weitechen/anafora/master/documentation/anaforalogo.png" width=400px></center>
 
 [About Anafora](https://github.com/weitechen/anafora#about-anafora) - [How Annotation Works](https://github.com/weitechen/anafora#how-anaforas-web-based-annotation-works) - [Requirements](https://github.com/weitechen/anafora#requirements)  - [Documentation](https://github.com/weitechen/anafora#documentation) - [FAQ](https://github.com/weitechen/anafora#frequently-asked-questions-faq) - [Get Anafora](https://github.com/weitechen/anafora#get-anafora)
 
