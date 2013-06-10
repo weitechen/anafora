@@ -63,6 +63,11 @@ Please see our [Anafora FAQ](https://github.com/weitechen/anafora/wiki/FAQ) for 
 
 To help you get a feel for how Anafora data and schemas look, we've created a few sample documents in Anafora, available here under [sample data](https://github.com/weitechen/anafora/tree/master/sample%20data).
 
+#### Version History and Changelog
+
+For information about iterations of Anafora, view our [version history and changelog](https://github.com/weitechen/anafora/blob/master/versionhistory.md), 
+
+
 ### Get Anafora
 
 #### Download Anafora
