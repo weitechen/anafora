@@ -1,12 +1,13 @@
-### Anafora source file README
-#### Description of the directory
+### Anafora Source Code README
 
-* Templates: store the template file. No need to change it
-* main: store the main Django and JavaScript files
+#### Directory Descriptions
 
-#### Description of the main directory
-* annotate: Django file for the Anafora project
-* css: store the css files
-* image: store the image files
-* js: store the JavaScript code
-* web: Django project setup directory. Change the setting.py 
+* Templates: This folder stores the template files governing the Anafora UI. There's no need to change it
+* main: This stores the main Django and JavaScript files which make up the Anafora codebase.
+
+#### Description of the files 'main' directory
+* annotate: Django files for the Anafora project
+* css: CSS files for Anafora
+* image: Image files used in Anafora
+* js: the JavaScript code which makes up Anafora
+* web: Anafora's Django project setup directory. Change the setting.py to customize Anafora to your server.
