@@ -1,0 +1,36 @@
+
+{% load static %}
+{% get_static_prefix as STATIC_PREFIX %}
+{% load index_extras %}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+{% load static %}
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title>{% block title %}{{ title }}{% endblock %}</title>
+
+<link rel="SHORTCUT ICON" type="image/x-icon" href="{{ root_url }}{{ STATIC_URL }}anaforafavicon.png"/>
+<link rel="icon" type="image/x-icon" href="{{ root_url }}{{ STATIC_URL }}anaforafavicon.png" />
+{% for cssName in css %}
+<link rel="stylesheet" href="{{ root_url }}{{ STATIC_URL }}{{ cssName }}" type="text/css" media="screen" />
+{% endfor %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js" type="text/javascript"></script>
+{% for jsName in js %}
+<script src="{{ root_url }}{{ STATIC_URL }}{{jsName}}" type="text/javascript"></script>
+{% endfor %}
+<script type="text/JavaScript">
+  var _setting = {
+	{% for varKey, value in settingVars.items %}
+		{{ varKey }}:{% if value|type == 'str' %} "{{ value }}",{% elif value|type == 'int' %}{{ value }},{% elif value|type == 'bool' %} {{ value|yesno:"true,false,undefined" }},{% endif %}{% endfor %}
+		root_url: "{{ root_url }}"
+		};
+</script>
+</head>
+<body onload="onLoad()">
+<!--    <div class="container"> -->
+        {% block container %}{% endblock %}
+<!--    </div> -->
+</body>
+</html>

@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block container %}
+{% csrf_token %}
+<div id="headerWrapper">
+<ul class="nav">
+  <li class="dropdown"><a href="#">File</a>
+    <ul>
+      <li><a href="#">Open</a></li>
+      <li class="disable"><a href="#">Save</a></li>
+      <li class="separator"></li>
+      <li class="disable"><a href="#">Mark as Completed</a></li>
+      <li class="separator"></li>
+      <li class="disable"><a href="#">Exit</a></li>
+    </ul>
+  </li>
+  <li id="schemaMenu" class="dropdown"><a href="#">Schema</a></li>
+  <li id="viewMenu"  class="dropdown"><a href="#">View</a>
+    <ul>
+      <li><a href="#">All</a></li>
+      <li class="disable"><a href="#">Gold</a></li>
+      <li class="disable"><a href="#">Disagreement</a></li>
+      <li class="separator"></li>
+      <li><a href="#">Relation Grid</a></li>
+    </ul>
+  </li>
+  <li><a href="#">Help</a></li>
+  
+  <li id="account" style="float:right"><a href="#"></a></li>
+  <li id="taskName" style="float:right"><a href="#"></a></li>
+</ul>
+</div>
+
+<div id="aProjectWrapper">
+  <table>
+    <tr><th>Type</th><th>Relation</th></tr>
+  </table>
+</div>
+
+<div id="schemaWrapper">
+  <div id="schema"></div>
+</div>
+
+<div id="progressWrapper">
+  <div id="progress">
+    <progress></progress>
+    <span></span>
+  </div>
+</div>
+
+<div id="propertyWrapper">
+  <div class="propertyHidden">
+    <div class="propertyBlock">
+      <span class="typeColorBlock jstreeschema"></span>
+      <span class="typeName"></span>
+      <input class="objDeleteBtn" type="button" value="Delete annotation"></input>
+      <input class="goldBtn" type="button" value="Mark as Gold"></input>
+      <input class="cancelGoldBtn" type="button" value="Cancel Gold "></input>
+      <input class="cancelNotGoldBtn" type="button" value="Resume Gold"></input>
+    </div>
+
+    <div class="propertyBlock">
+      <h4>ID</h4>
+      <span class="objID"></span>
+    </div>
+    <div class="propertyBlock">
+      <h4>TEXT</h4>
+        <span class="spanText"></span>
+	<div>
+          <table class="spanTable">
+                <thead>
+		  <tr><th class="delBtnCol">&nbsp;</th><th class="spinCol">Start</th><th class="spinCol">End</th><th>Span</th></tr>
+                </thead>
+                <tbody>
+                </tbody>
+          </table>
+	</div>
+    </div>
+    <div class="propertyBlock">
+      <h4>PROPERTY</h4>
+      <table class="propertyTable">
+        <thead>
+          <tr><th>Name</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="propertyHidden">
+    <div class="propertyBlock">
+      <span class="typeColorBlock jstreeschema"></span>
+      <span class="typeName"></span>
+      <input class="objDeleteBtn" type="button" value="Delete annotation"></input>
+      <input class="goldBtn" type="button" value="Mark as Gold"></input>
+      <input class="cancelGoldBtn" type="button" value="Cancel Gold "></input>
+      <input class="cancelNotGoldBtn" type="button" value="Resume Gold"></input>
+    </div>
+
+    <div class="propertyBlock">
+      <h4>ID</h4>
+      <span class="objID"></span>
+    </div>
+
+    <div class="propertyBlock">
+      <h4>TEXT</h4>
+        <span class="spanText"></span>
+	<div>
+          <table class="spanTable">
+                <thead>
+		  <tr><th class="delBtnCol">&nbsp;</th><th class="spinCol">Start</th><th class="spinCol">End</th><th>Span</th></tr>
+                </thead>
+                <tbody>
+                </tbody>
+          </table>
+	</div>
+    </div>
+    <div class="propertyBlock">
+      <h4>PROPERTY</h4>
+      <table class="propertyTable">
+        <thead>
+          <tr><th>Name</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% autoescape off %}
+<div id="rawText">{{ rawText }}</div>
+{% endautoescape %}
+<div id="mask"></div>
+<div id="projectSelectorWindow">
+  <div id="projectSelector">
+    <h4></h4>
+    <div><h5></h5><ul></ul></div>
+    <div><h5></h5><ul></ul></div>
+    <div><h5></h5><ul></ul></div>
+  </div>
+  <div id="schemaSelector">
+    <h4>Select Schema and Mode</h4>
+    <div><h5 style="display:block">Schema</h5><ul></ul></div>
+    <div><h5 style="display:block">Mode</h5><ul></ul></div>
+    <div><h5 style="display:block">Adjudication</h5><ul><li>Adjudication</li></ul></div>
+  </div>
+  <div class="btnArea">
+    <div class="btnEnable">Cancel</div><div class="btnDisable">Open</div>
+  </div>
+</div>
+<div id="overlapContextMenu"></div>
+<div id="propertyContextMenu"></div>
+{% endblock %}

@@ -1,0 +1,1036 @@
+Array.prototype.repeat = function(value, time) {
+	while(time--)
+		this.push(value);
+}
+
+Array.prototype.max = function() {
+	return Math.max.apply(null, this);
+}
+
+function SpanType(start, end) {
+	this.start = start;
+	this.end = end;
+}
+
+SpanType.sort = function(spanA, spanB) {
+	if(spanA.start == spanB.start) { 
+		var endDiff = (spanA.end - spanB.end);
+		return endDiff < 0 ? -1 : (endDiff > 0 ? 1: 0);
+	}
+	else {
+		var startDiff = spanA.start - spanB.start ;
+
+		return startDiff < 0 ? -1 : (startDiff > 0 ? 1:0);	
+	}
+}
+
+SpanType.prototype.clone = function() {
+	return new SpanType(this.start, this.end);
+}
+
+SpanType.merge = function(span1, span2) {
+	var newSpanList = [];
+	var listIdx1 = 0, listIdx2 = 0;
+	var positIdx1= -1, positIdx2 = -1;
+	var tSpan1 = span1[listIdx1], tSpan2 = span2[listIdx2];
+	var newSpanStart = -1;
+	var newSpanEnd = -1;
+
+	while(listIdx1 < span1.length && listIdx2 < span2.length) {
+		if(newSpanStart == -1)
+			newSpanStart = Math.min(span1[listIdx1].start, span2[listIdx2].start);
+
+		if(span1[listIdx1].end < span2[listIdx2].end) {
+			if(span1[listIdx1].end < span2[listIdx2].start)
+				newSpanEnd = span1[listIdx1].end;
+			listIdx1++;
+		}
+		else if(span2[listIdx2].end < span1[listIdx1].end) {
+			if(span2[listIdx2].end < span1[listIdx1].start)
+				newSpanEnd = span2[listIdx2].end;
+			listIdx2++;
+		}
+		else {
+			newSpanEnd = span1[listIdx1].end;
+			listIdx1++;
+			listIdx2++;
+		}
+
+		if(newSpanEnd != -1) {
+			newSpanList.push(new SpanType(newSpanStart, newSpanEnd));
+
+			newSpanStart = -1;
+			newSpanEnd = -1;
+		}
+	}
+
+
+	if(newSpanStart != -1) {
+		newSpanList.push(new SpanType(newSpanStart, (listIdx1==span1.length ? span2[listIdx2++].end : span1[listIdx1++].end)));	
+	}
+
+	var notCompleteSpan = undefined;
+	var notCompleteIdx = undefined;
+	if(listIdx1 < span1.length) {
+		notCompleteSpan = span1;
+		notCompleteIdx = listIdx1;
+	}
+	else if(listIdx2 < span2.length) {
+		notCompleteSpan = span2;
+		notCompleteIdx = listIdx2;
+	}
+
+	while(notCompleteSpan != undefined && notCompleteIdx < notCompleteSpan.length) {
+		newSpanList.push(new SpanType(notCompleteSpan[notCompleteIdx].start, notCompleteSpan[notCompleteIdx].end));
+		notCompleteIdx++;
+	}
+	return newSpanList;
+}
+
+function IAnaforaObj(id, type, propertyList, additionalList, comment) {
+	if(id != undefined) {
+		this.id = id;
+		this.type = type;
+		this.comment = comment;
+		if(propertyList == undefined){
+			this.propertyList = [];
+			if(type !== undefined)
+				this.propertyList.repeat(undefined, type.propertyTypeList.length);
+		}
+		else
+			this.propertyList = propertyList;
+		
+		this.markElement = [];
+		if(additionalList == undefined)
+			this.additionalData = {};
+		else
+			this.additionalData = additionalList;
+
+		this.linkingAObjList = [];
+	}
+}
+
+IAnaforaObj.prototype.addMarkElement = function(overlap) {
+	for(var idx=0;idx<this.markElement.length;idx++) {
+		if(overlap.span.end <= this.markElement[idx].span.start) {
+			this.markElement.splice(idx, 0, overlap);
+			return ;
+		}
+	}
+
+	this.markElement.push(overlap);
+}
+
+IAnaforaObj.prototype.removeMarkElement = function(overlap) {
+	var idx = this.markElement.indexOf(overlap);
+	if(idx > -1) {
+		this.markElement.splice(idx, 1);
+	}
+}
+
+IAnaforaObj.prototype.toString = function() {
+	return this.id;
+}
+
+IAnaforaObj.prototype.toXMLString = function() {
+	throw('toXMLString not implement yet');
+}
+
+IAnaforaObj.prototype.genElementStr = function() {
+	throw('genElementStr not implement yet');
+}
+
+IAnaforaObj.prototype.getAdditionalData = function(name) {
+	return this.additionalData[name];
+}
+
+IAnaforaObj.prototype.setAdditionalData = function(name, data) {
+	if(data === undefined)
+		delete this.additionalData[name];
+	else
+		this.additionalData[name] = data;
+}
+
+IAnaforaObj.prototype.getSpanRange = function() {
+	throw('getSpanRange not implement yet');
+}
+
+IAnaforaObj.parsePropertyValueFromDOM = function(propertiesDOM, objType) {
+	var propertyList = [];
+	propertyList.repeat(undefined, objType.propertyTypeList.length);
+
+	$(propertiesDOM).children().each( function() {
+		var propertyName = this.tagName;
+		var matchPropertyList = $.grep(objType.propertyTypeList, function(item) {
+			return (item.type == propertyName);
+		});
+		if (matchPropertyList.length != 1)
+			throw "Parsing property error: " + propertyName;
+		var propertyIdx = $(objType.propertyTypeList).index(matchPropertyList[0]);
+		
+		if($(this).text() != "") {
+			if(objType.propertyTypeList[propertyIdx].input == InputType.MULTICHOICE)
+				propertyList[propertyIdx] = $(this).text().replace(' ', '').split(',');
+			else if(objType.propertyTypeList[propertyIdx].input == InputType.LIST) {
+				if(propertyList[propertyIdx] == undefined)
+					propertyList[propertyIdx] = [$(this).text()];
+				else
+					propertyList[propertyIdx].push($(this).text());
+			}
+			else
+				propertyList[propertyIdx] = $(this).text();
+		}
+	} );
+
+
+	return propertyList;
+}
+
+IAnaforaObj.parseAdditionalDataFromDOM = function(additionalDOM) {
+	var additionalList = {};
+	$(additionalDOM).children().each( function() {
+		additionalList[this.tagName] = $(this).text();
+	});
+
+	return additionalList;
+}
+
+IAnaforaObj.sort = function(aObjA, aObjB) {
+	if(aObjA instanceof Entity && aObjB instanceof Entity)
+		return Entity.sort(aObjA, aObjB);
+	else if(aObjA instanceof Relation && aObjB instanceof Relation)
+		return Relation.sort(aObjA, aObjB);
+	else if(aObjA instanceof Entity)
+		return -1;
+	else
+		return 1;
+}
+
+IAnaforaObj.prototype.getAdditionalDataXMLStr = function() {
+
+	var rStr = "";
+	if(Object.keys(this.additionalData).length > 0) {
+		var _self = this;
+
+		$.each(this.additionalData, function(key) {
+			rStr += "\t\t\t<" + key + ">" + _self.getAdditionalData(key).toString() + "</" + key + ">\n";
+		});
+
+	}
+
+	if(rStr != "")
+		rStr = "\t\t<addition>\n" + rStr + "\t\t</addition>\n";
+
+
+	return rStr;
+}
+
+IAnaforaObj.prototype.getPropertyXMLStr = function() {
+	var _self = this;
+	if(this.propertyList == undefined)
+		return "<properties />";
+
+	var rStr = '\t\t<properties>\n';
+
+	$.each(this.propertyList, function(idx, element) {
+		var pType = _self.type.propertyTypeList[idx];
+		if(pType.input == InputType.LIST) {
+			if(element == undefined)
+				rStr += '\t\t\t<' + pType.type + '></' + pType.type + '>\n';
+			else {
+				$.each(element, function(idx, tElement) {
+					rStr += '\t\t\t<' + pType.type + '>' + tElement.id + '</' + pType.type + '>\n';
+				});
+			}
+		}
+		else {
+			rStr += '\t\t\t<' + pType.type + '>' + element + '</' + pType.type + '>\n';
+		}
+	})
+
+	rStr += '\t\t</properties>\n';
+	return rStr;
+}
+
+IAnaforaObj.prototype.addLinkingAObj = function(linkingAObj) {
+	if(linkingAObj instanceof IAnaforaObj && this.linkingAObjList.indexOf(linkingAObj) == -1) {
+		if(linkingAObj instanceof Entity) {
+			this.linkingAObjList.splice(0, 0, linkingAObj);
+		}
+		else {
+			this.linkingAObjList.push(linkingAObj);
+		}
+	}
+}
+
+IAnaforaObj.prototype.removeLinkingAObj = function(linkingAObj) {
+	var _self = this;
+	if(linkingAObj instanceof IAnaforaObj) {
+		var idx = this.linkingAObjList.indexOf(linkingAObj);
+		if(idx == -1)
+			throw "linkingAObj " + linkingAObj.id + " not in linkingAObjList of " + this.id;
+
+		$.each(linkingAObj.type.propertyTypeList, function(pIdx, pType) {
+			if(pType.input == InputType.LIST) {
+				var aIdx;
+				if(linkingAObj.propertyList[pIdx] != undefined && (aIdx = linkingAObj.propertyList[pIdx].indexOf(_self)) != -1) {
+					if(linkingAObj.propertyList[pIdx].length == 1)
+						linkingAObj.propertyList[pIdx] = undefined;
+					else
+						linkingAObj.propertyList[pIdx].splice(aIdx, 1);
+				}
+			}
+		});
+	}
+}
+
+IAnaforaObj.prototype.destroy = function() {
+	// clear the linking
+	var linkingAObj;
+	for(var i=0;i<this.linkingAObjList.length;i++) {
+		linkingAObj = this.linkingAObjList[i];
+		this.removeLinkingAObj(linkingAObj);
+	}
+}
+
+function Entity(id, type, span, propertyList, additionList, comment) {
+	IAnaforaObj.call(this, id, type, propertyList, additionList, comment);
+	if(id != undefined) {
+		this.span = span == undefined ? undefined : span.sort(SpanType.sort);
+
+		if(propertyList == undefined) {
+			if(type !== undefined) {
+				for(var idx=0;idx<type.propertyTypeList.length;idx++) {
+					if(type.propertyTypeList[idx].input == InputType.CHOICE && type.propertyTypeList[idx].allowedValueList[0] != '') {
+						this.propertyList[idx] = type.propertyTypeList[idx].allowedValueList[0];
+					}
+				}
+			}
+		}
+	}
+}
+
+
+Entity.prototype = new IAnaforaObj();
+Entity.prototype.constructor = Entity;
+
+Entity.prototype.genElementStr = function() {
+	return '<span><span class="jstreeschema" style="background-color:#' + this.type.color + '"></span>' + getTextFromEntity(this) + '</span>';
+}
+
+Entity.prototype.toXMLString = function() {
+
+	var rStr = this.getMetadataXMLStr();
+	rStr += this.getPropertyXMLStr();
+	rStr += this.getAdditionalDataXMLStr();
+	
+	rStr += '\t</entity>';
+
+	return rStr;
+}
+
+Entity.prototype.getMetadataXMLStr = function() {
+	var spanStr = "";
+	var _self = this;
+	$.each(this.span, function(idx) {
+		if(idx > 0)
+			spanStr += ';';
+
+		spanStr += this.start.toString() + ',' + this.end.toString();
+	});
+
+	return rStr = '\t<entity>\n' +
+'		<id>' + this.id + '</id>\n' +
+'		<span>' + spanStr + '</span>\n' +
+'		<type>' + this.type.type + '</type>\n' +
+'		<parentsType>' + this.type.parentType.type + '</parentsType>\n';
+}
+
+Entity.sort = function(entityA,entityB) {
+	var idx, compare;
+	for(idx=0; idx<Math.min(entityA.span.length, entityB.span.length); idx++) {
+		if((compare = SpanType.sort(entityA.span[idx], entityB.span[idx])) != 0)
+			return compare;
+	}
+
+	if(entityA.span.length < entityB.span.length)
+		return -1;
+
+	else if(entityA.span.length > entityB.span.length)
+		return 1;
+	return 0;
+}
+
+Entity.prototype.addSpan = function(newSpan) {
+	var tSpanList = [];
+	var tSpanType;
+	this.span.push(newSpan);
+	this.span.sort(function(a,b) { if(a.start == b.start) { return a.end - b.end} else { return a.start - b.start }});
+
+	tSpanList.push(this.span[0]);
+	for(var i=1;i<this.span.length;i++) {
+		tSpanType = this.span[i];
+		if(tSpanList[tSpanList.length-1].start == tSpanType.start) {
+			if(tSpanList[tSpanList.length-1].end >= tSpanType.end)
+				;
+			else
+				tSpanList[tSpanList.length-1].end = tSpanType.end
+		}
+		else if(tSpanList[tSpanList.length-1].end >= tSpanType.start) {
+			if(tSpanList[tSpanList.length-1].end < tSpanType.end)
+				tSpanList[tSpanList.length-1].end = tSpanType.end
+		}
+		else
+			tSpanList.push(tSpanType);
+	}
+	this.span = tSpanList;
+}
+
+Entity.prototype.removeSpan = function(spanIdx) {
+	this.span.splice(spanIdx, 1);
+}
+
+Entity.prototype.hasOverlap = function(compareEntity) {
+	var compare = Entity.sort(this, compareEntity);
+	if(compare == 0)
+		return true;
+	else if(compare > 0)
+		return compareEntity.hasOverlap(this);
+	
+	var idxA=0, idxB=0;
+	var spanA, spanB;
+	while(idxA < this.span.length && idxB < compareEntity.span.length) {
+		spanA = this.span[idxA];
+		spanB = compareEntity.span[idxB];
+
+		if(spanA.start == spanB.start)
+			return true;
+		else if(spanA.start < spanB.start) {
+			if(spanA.end <= spanB.start)
+				idxA++;
+			else
+				return true;
+		}
+		else {
+			if(spanB.end <= spanA.start)
+				idxB++;
+			else
+				return true;
+		}
+	}
+
+	return false;
+}
+
+Entity.prototype.getSpanRange = function() {
+	return [this.span[0].start, this.span[this.span.length-1].end];
+}
+
+Entity.genFromDOM = function(entityDOM, schema) {
+	var id = undefined, span = undefined, type = undefined, propertyList=undefined, additionList=undefined, comment=undefined;
+	if(entityDOM.tagName == "entity") {
+		$(entityDOM).children().each( function() {
+			switch(this.tagName) {
+				case "id":
+					id = $(this).text();
+					break;
+				case "span":
+					var tSpan = $(this).text().split(';');
+					span = [];
+					for(var idx=0;idx< tSpan.length;idx++) {
+						var ttSpan = tSpan[idx].split(',');
+						span.push(new SpanType(parseInt(ttSpan[0]), parseInt(ttSpan[1])));
+					}
+					break;
+				case "type":
+					type = schema.getTypeByTypeName($(this).text());
+					break;
+				case "parentsType":
+					parentType = schema.getTypeByTypeName($(this).text());
+					if(parentType != type.parentType)
+						throw "parent type error:" + parentType.type + ', ' + type.parentType.type ;
+					break;
+				case "properties":
+					propertyList = IAnaforaObj.parsePropertyValueFromDOM(this, type);
+					break;
+				case "addition":
+					additionList = IAnaforaObj.parseAdditionalDataFromDOM(this);
+					break;
+				case "comment":
+					comment = $(this).text();
+					break;
+				default:
+					throw "entity property tag error with " + this.tagName;
+			}
+		});
+	}
+	else
+		throw "create entity with wrong DOM Element: " + entityDOM.tagName;
+
+	return new Entity(id, type, span, propertyList, additionList, comment);
+}
+
+
+function Relation(id, type, propertyList, additionList, comment) {
+	IAnaforaObj.call(this, id, type, propertyList, additionList, comment);
+}
+
+Relation.prototype = new IAnaforaObj();
+Relation.prototype.constructor = Relation;
+
+Relation.sort = function(relationA, relationB) {
+	var idx, compare;
+	var firstListA = relationA.getFirstListProperty();
+	var firstListB = relationB.getFirstListProperty();
+
+	if(firstListA != undefined && firstListB != undefined)
+		return IAnaforaObj.sort(firstListA, firstListB);
+	else if(firstListA == undefined && firstListB != undefined)
+		return -1;
+	else if(firstListA != undefined && firstListB == undefined)
+		return 1;
+	else {
+		var firstPropertyA = relationA.getFirstProperty();
+		var firstPropertyB = relationB.getFirstProperty();
+
+		if(firstPropertyA != undefined && firstPropertyB != undefined)
+			return (firstPropertyA<firstPropertyB ? -1 : (firstPropertyA > firstPropertyB ? 1 : 0));
+		else if(firstPropertyA == undefined && firstPropertyB != undefined)
+			return -1;
+		else if(firstPropertyA != undefined && firstPropertyB == undefined)
+			return 1;	
+		else
+			return 0;
+	}
+}
+
+Relation.prototype.getFirstProperty = function() {
+	var idx;
+	for(idx = 0;idx < this.propertyList.length; idx++) {
+		if(this.propertyList[idx] != undefined)
+			return this.propertyList[idx];
+	}
+
+	return undefined;
+}
+Relation.prototype.getFirstListProperty = function() {
+	var rType = this.type;
+	var idx = 0;
+	for(idx = 0; idx < this.propertyList.length; idx++) {
+		if(this.propertyList[idx] != undefined && rType.propertyTypeList[idx].input == InputType.LIST)
+			return this.propertyList[idx][0];
+	}
+	return undefined;
+}
+
+Relation.prototype.genElementStr = function() {
+	return this.genElementHead() + this.genElementProperty();
+}
+
+Relation.prototype.genElementHead = function() {
+	return rStr = '<span><span class="jstreeschema" style="background-color:#' + this.type.color + '"></span>' + this.type.type;
+}
+
+Relation.prototype.genElementProperty = function() {
+	var rStr = '';
+	var _self = this;
+	$.each(this.type.propertyTypeList, function(idx, propertyType) {
+
+		if(_self.propertyList[idx] != undefined && _self.propertyList[idx].length != 0) {
+			rStr += '[' + propertyType.type + ':&nbsp;'
+			if(propertyType.input == InputType.LIST) {
+				$.each(_self.propertyList[idx], function(idx, objElement) {
+					rStr += objElement.genElementStr() + ", ";
+				});
+				rStr = rStr.substr(0, rStr.length - 2);
+			}
+			else {
+				 rStr += _self.propertyList[idx];
+			}
+			rStr += '], ';
+		}
+	});
+	rStr = rStr.substring(0, rStr.length - 2);
+
+	return rStr;
+}
+
+
+Relation.prototype.toXMLString = function() {
+
+	var rStr = this.getMetadataXMLStr();
+	rStr += this.getPropertyXMLStr();
+	rStr += this.getAdditionalDataXMLStr();
+	
+	rStr += '\t</relation>';
+
+	return rStr;
+}
+
+Relation.prototype.getMetadataXMLStr = function() {
+
+	return rStr = '\t<relation>\n' +
+'		<id>' + this.id + '</id>\n' +
+'		<type>' + this.type.type + '</type>\n' +
+'		<parentsType>' + this.type.parentType.type + '</parentsType>\n';
+}
+
+Relation.prototype.getSpanRange = function() {
+	var rRange = [undefined, undefined];
+	var _self = this;
+	$.each(this.propertyList, function(idx) {
+		if(_self.type.propertyTypeList[idx].input == InputType.LIST) {
+			if(_self.propertyList[idx] != undefined) {
+				$.each(_self.propertyList[idx], function(listIdx) {
+					var tRange = _self.propertyList[idx][listIdx].getSpanRange();
+					if(rRange[0] == undefined || rRange[0] > tRange[0])
+						rRange[0] = tRange[0];
+					if(rRange[1] == undefined || rRange[1] < tRange[1])
+						rRange[1] = tRange[1];
+				});
+			}
+		}
+	});
+
+	return rRange;
+}
+
+Relation.genFromDOM = function(relationDOM, schema ) {
+	var id = undefined, type = undefined, propertyList=undefined,additionList=undefined, comment=undefined;
+	if(relationDOM.tagName == "relation") {
+		$(relationDOM).children().each( function() {
+			switch(this.tagName) {
+				case "id":
+					id = $(this).text();
+					break;
+				case "type":
+					type = schema.getTypeByTypeName($(this).text());
+					break;
+				case "parentsType":
+					parentType = schema.getTypeByTypeName($(this).text());
+					if(parentType != type.parentType) {
+						console.log(parentType);
+						console.log(type.type);
+						throw "parent type error";
+					}
+					break;
+				case "properties":
+					propertyList = IAnaforaObj.parsePropertyValueFromDOM(this, type);
+					break;
+				case "addition":
+					additionList = IAnaforaObj.parseAdditionalDataFromDOM(this);
+					break;
+				case "comment":
+					comment = $(this).text();
+				default:
+					throw "relation property tag error with " + this.tagName;
+			}
+		});
+	}
+	else {
+		throw "relation with wrong DOM Element: " + relationDOM.tagName;
+	}
+
+	return new Relation(id, type, propertyList, additionList, comment);
+}
+
+
+function AdjudicationEntity(id, aObj1, aObj2, diffProp) {
+	if(id != undefined) {
+		Entity.call(this, id, aObj1.type);
+		IAdjudicationAnaforaObj.apply(this, [aObj1, aObj2]);
+
+		this.markElement = [];
+		this.span = undefined;
+		this.spanDiff = undefined;
+
+		if(aObj1 != undefined && aObj2 != undefined) {
+			this.addCompareAObj(aObj1, aObj2);
+		}
+	}
+}
+
+function EmptyEntity(id, type) {
+	Entity.call(this, id, type);
+}
+EmptyEntity.prototype = new Entity();
+EmptyEntity.prototype.constructor = EmptyEntity;
+
+function EmptyRelation(id, type) {
+	Relation.call(this, id, type);
+}
+
+AdjudicationEntity.prototype = new Entity();
+AdjudicationEntity.prototype.constructor = Entity;
+AdjudicationEntity.prototype.parent = IAdjudicationAnaforaObj;
+
+AdjudicationEntity.prototype.updateSpan = function() {
+	this.span = SpanType.merge(this.compareAObj[0].span, this.compareAObj[1].span);
+	this.spanDiff = (Entity.sort(this.compareAObj[0], this.compareAObj[1]) != 0);
+}
+
+
+AdjudicationEntity.prototype.addCompareAObj = function(aObj1, aObj2) {
+
+	if(aObj1 != undefined && aObj2 != undefined && aObj1.type == aObj2.type) {
+		var _self = this;
+		this.type = aObj1.type;
+		this.compareAObj = [aObj1, aObj2];
+		this.updateSpan();
+		this.diffProp = []
+		this.spanDiff = Entity.sort(aObj1, aObj2) != 0;
+	
+		$.each(this.type.propertyTypeList, function(idx) {
+			if(!IAdjudicationAnaforaObj.compareProperty(_self.type.propertyTypeList[idx], aObj1.propertyList[idx], aObj2.propertyList[idx]) )
+				_self.diffProp.push(idx);
+		});
+
+		if(aObj1.getAdditionalData("adjudication") == "gold") {
+			this.decideIdx = 0;
+		}
+		else if (aObj2.getAdditionalData("adjudication") == "gold") {
+			this.decideIdx = 1;
+		}
+		else if(aObj1.type == aObj2.type && Entity.sort(aObj1, aObj2) == 0 && this.diffProp.length == 0) {
+//(function (a,b) { return !(a<b || b<a); }(aObj1.propertyList,aObj2.propertyList))) {
+			this.decideIdx = 0;
+			aObj1.setAdditionalData("adjudication", "gold");
+			aObj2.setAdditionalData("adjudication", "not gold");
+		}
+	}
+}
+/*
+AdjudicationEntity.prototype.setGold = function(goldEntityIdx) {
+	$.each(this.compareAObj, function(idx, element) {
+		if(idx == goldEntityIdx)
+			element.setAdditionalData("adjudication", "gold");
+		else
+			element.setAdditionalData("adjudication", "not gold");
+	});
+	this.decideIdx = goldEntityIdx;
+}
+AdjudicationEntity.prototype.setCancelGold = function() {
+	$.each(this.compareAObj, function(idx, element) {
+		element.setAdditionalData("adjudication", undefined);
+	});
+	this.decideIdx = undefined;
+}
+*/
+AdjudicationEntity.prototype.toXMLString = function() {
+	var rStr = this.getMetadataXMLStr();
+	rStr += this.getAdditionalDataXMLStr();
+	
+	rStr += '\t</entity>';
+
+	return rStr;
+}
+
+AdjudicationEntity.prototype.getAdditionalDataXMLStr = function() {
+
+	var _self = this;
+	rStr = "\t\t<addition>\n";
+	if(Object.keys(this.additionalData).length > 0) {
+
+		$.each(this.additionalData, function(key) {
+			if(_self.additionalData[key] != undefined)
+				rStr += "\t\t\t<" + key + ">" + _self.additionalData[key] + "</" + key + ">\n";
+		});
+
+	}
+
+	// print 
+	rStr += "\t\t\t<compareEntity>" + this.compareAObj.toString() + "</compareEntity>\n"; 
+	rStr += "\t\t\t<diffProp>" + this.diffProp.toString() + "</diffProp>\n";
+	rStr += "\t\t</addition>\n";
+	return rStr;
+}
+
+AdjudicationEntity.genFromDOM = function(adjudicationEntityDOM, schema, projectList ) {
+	var entity = Entity.genFromDOM(adjudicationEntityDOM, schema);
+	var comparedStr = entity.getAdditionalData("compareEntity");
+	var diffPropStr = entity.getAdditionalData("diffProp");
+	var comparedList = undefined;
+
+	if(projectList != undefined && comparedStr != undefined) {
+		comparedStrList = comparedStr.split(',');
+		comparedList = [];
+		$.each(comparedStrList, function(idx, item) {
+			var idList = item.split('@');
+			var eIdx = parseInt(idList[0]);
+			var annotator = idList[3];
+
+			comparedList.push(projectList[annotator].entityList[eIdx]);
+		});
+	}
+	else
+		comparedList = [undefined, undefined];
+
+	var diffProp = undefined;
+	if(diffPropStr != undefined) {
+		if(diffPropStr == "")
+			diffProp = [];
+		else
+			diffProp = $.map(diffPropStr.split(','), function(nStr) { return parseInt(nStr); });
+	}
+
+	return new AdjudicationEntity(entity.id, comparedList[0], comparedList[1], diffProp);
+}
+
+function AdjudicationRelation(id, type, aObj1, aObj2, diffProp) {
+	if(id != undefined) {
+		Relation.call(this, id, type);
+		IAdjudicationAnaforaObj.apply(this, [aObj1, aObj2]);
+		//AdjuudicationRelation.parent.apply(this, [aObj1, aObj2]);
+		this.markElement = [];
+		this.diffProp = diffProp;
+
+		if(aObj1 != undefined && aObj2 != undefined) {
+			this.addCompareAObj(aObj1, aObj2);
+		}
+	}
+}
+
+AdjudicationRelation.prototype = new Relation();
+AdjudicationRelation.prototype.constructor = Relation;
+AdjudicationRelation.prototype.parent = IAdjudicationAnaforaObj;
+
+AdjudicationRelation.prototype.addCompareAObj = function(aObj1, aObj2) {
+	if(aObj1 == undefined || aObj2 == undefined)
+		throw "added aObj is undefined";
+	else if(aObj1.type != aObj2.type)
+		throw "added aObj types are different";
+	else {
+		var _self = this;
+		this.compareAObj = [aObj1, aObj2];
+		this.type = aObj1.type;
+
+		if(this.diffProp == undefined) {
+			var tFunc = function(aObj1, aObj2) { return AnaforaAdjudicationProject.adjEntityComparePropertyFunc(aObj1, aObj2, AnaforaAdjudicationProject.adjEntityStrictComparePropertyFunc); }
+
+			//this.diffProp = IAdjudicationAnaforaObj.compareAObjPropertyList(relation0, relation1, tFunc);
+			this.diffProp = [];
+	
+		// compare aObj 
+		
+		$.each(this.type.propertyTypeList, function(idx) {
+			if(!IAdjudicationAnaforaObj.compareProperty(_self.type.propertyTypeList[idx], aObj1.propertyList[idx], aObj2.propertyList[idx], tFunc) )
+			_self.diffProp.push(idx);});
+		
+		}
+
+		if(aObj1.getAdditionalData("adjudication") == "gold") {
+			this.decideIdx = 0;
+		}
+		else if (aObj2.getAdditionalData("adjudication") == "gold") {
+			this.decideIdx = 1;
+		}
+		else if(aObj1.type == aObj2.type) {
+			if(this.diffProp != undefined && this.diffProp.length == 0) {
+				this.decideIdx = 0;
+				aObj1.setAdditionalData("adjudication", "gold");
+				aObj2.setAdditionalData("adjudication", "not gold");
+			}
+		}
+	}
+}
+
+AdjudicationRelation.prototype.genElementProperty = function() {
+	var rStr = '';
+	var _self = this;
+
+	if(this.decideIdx != undefined)
+		return this.compareAObj[this.decideIdx].genElementProperty();
+
+	$.each(this.type.propertyTypeList, function(idx, propertyType) {
+		if(_self.diffProp.indexOf(idx) != -1)
+			rStr += '<span style="border:2px solid red;padding-left:4px;padding-right:4px;">[' + propertyType.type + ':&nbsp;]</span>';
+		else {
+			rStr += '[' + propertyType.type  + ':&nbsp;';
+			if(propertyType.input == InputType.LIST) {
+				$.each(_self.compareAObj[0].propertyList[idx], function(idx, objElement) {
+					rStr += objElement.genElementStr() + ", ";
+				});
+				rStr = rStr.substr(0, rStr.length - 2);
+			}
+			else {
+				 rStr += _self.compareAObj[0].propertyList[idx];
+			}
+			rStr += '], ';
+		}
+		
+	});
+	rStr = rStr.substring(0, rStr.length - 2);
+
+	return rStr;
+}
+
+AdjudicationRelation.prototype.toXMLString = function() {
+	var rStr = this.getMetadataXMLStr();
+	rStr += this.getAdditionalDataXMLStr();
+	
+	rStr += '\t</relation>';
+
+	return rStr;
+}
+
+AdjudicationRelation.prototype.getAdditionalDataXMLStr = function() {
+
+	var _self = this;
+	rStr = "\t\t<addition>\n";
+	if(Object.keys(this.additionalData).length > 0) {
+
+		$.each(this.additionalData, function(key) {
+
+			if(_self.additionalData[key] != undefined)
+				rStr += "\t\t\t<" + key + ">" + _self.additionalData[key] + "</" + key + ">\n";
+		});
+
+	}
+
+	rStr += "\t\t\t<compareRelation>";
+	$.each(this.compareAObj, function(idx, aObj) {
+		if(idx > 0)
+			rStr += ";";
+		rStr += aObj.id;
+	});
+
+	rStr += "</compareRelation>\n";
+	rStr += "\t\t\t<diffProp>" + this.diffProp.toString() + "</diffProp>\n";
+	rStr += "\t\t</addition>\n";
+	return rStr;
+}
+
+AdjudicationRelation.genFromDOM = function(adjudicationRelationDOM, schema, projectList ) {
+	var relation = Relation.genFromDOM(adjudicationRelationDOM, schema);
+	var comparedStr = relation.getAdditionalData("compareRelation");
+	var diffPropStr = relation.getAdditionalData("diffProp");
+	
+	var comparedStr = relation.getAdditionalData("compareRelation");
+	var comparedList = undefined;
+
+	if(projectList != undefined && comparedStr != undefined) {
+		comparedStrList = comparedStr.split(';');
+		comparedList = [];
+		$.each(comparedStrList, function(idx, item) {
+			var idList = item.split('@');
+			var rIdx = parseInt(idList[0]);
+			var annotator = idList[3];
+
+			comparedList.push(projectList[annotator].relationList[rIdx]);
+		});
+	}
+	else
+		comparedList = [undefined, undefined];
+	
+
+	var diffProp = undefined;
+	if(diffPropStr != undefined) {
+		if(diffPropStr == "")
+			diffProp = [];
+		else
+			diffProp = $.map(diffPropStr.split(','), function(nStr) { return parseInt(nStr); });
+	}
+
+	return new AdjudicationRelation(relation.id, relation.type, comparedList[0], comparedList[1], diffProp);
+}
+
+function IAdjudicationAnaforaObj(aObj1, aObj2) {
+	this.insideAdjObj = undefined;
+	this.decideIdx = undefined; /* undefined: not decided yet, -1: all other should be delete */
+	this.compareAObj = undefined;
+	this.diffProp = undefined;
+}
+
+IAdjudicationAnaforaObj.prototype.updateProperty = function(pTypeIdx) {
+	var idx = this.diffProp.indexOf(pTypeIdx);
+	var needUpdate = false;
+	if(this.type.propertyTypeList[pTypeIdx].input == InputType.LIST) {
+		var tFunc = function(aObj0, aObj1) { return AnaforaAdjudicationProject.adjEntityComparePropertyFunc(aObj0, aObj1, AnaforaAdjudicationProject.adjEntityStrictComparePropertyFunc);}
+
+		var diff = IAdjudicationAnaforaObj.compareProperty(this.type.propertyTypeList[pTypeIdx], this.compareAObj[0].propertyList[pTypeIdx], this.compareAObj[1].propertyList[pTypeIdx], tFunc);
+		if(idx >=0 && diff) {
+			needUpdate = true;
+			this.diffProp.splice(idx, 1);
+		}
+		else if(idx == -1 && !diff) {
+			needUpdate = true;
+			this.diffProp.push(pTypeIdx);
+		}
+	}
+	else {
+		if((this.compareAObj[0].propertyList[pTypeIdx] === this.compareAObj[1].propertyList[pTypeIdx]) && idx >= 0) {
+			this.diffProp.splice(idx, 1);
+			needUpdate = true;
+		}
+		else if((this.compareAObj[0].propertyList[pTypeIdx] !== this.compareAObj[1].propertyList[pTypeIdx]) && idx === -1) {
+			this.diffProp.push(pTypeIdx);
+			needUpdate = true;
+		}
+	}
+
+	return needUpdate;
+}
+
+IAdjudicationAnaforaObj.prototype.addCompareAObj = function(aObj1, aObj2) {
+	throw "Not implement addCompareAObj method yet";
+}
+
+IAdjudicationAnaforaObj.compareAObjFunc = function(tAObj1, tAObj2) { return (tAObj1 == tAObj2) || (tAObj1.id == tAObj2.id) || (tAObj1.type == tAObj2.type && IAnaforaObj.sort(tAObj1, tAObj2) == 0 && (function(a,b){return !(a<b || b<a);})(tAObj1.propertyList, tAObj2.propertyList)); };
+
+IAdjudicationAnaforaObj.compareAObjPropertyList = function(aObj0, aObj1, compFunc) {
+	// compare two aObj property list is identical, return the index of different property value
+	var diffList = [];
+
+	if(aObj0.type !== aObj1.type)
+		throw "compare AObj property list error: type is not identical: aObj0 type: " + aObj0.type + ", aObj1 type: " + aObj1.type;
+
+
+	for(var i=0;i<aObj0.type.propertyTypeList.length;i++) {
+		try {
+		if(!IAdjudicationAnaforaObj.compareProperty(aObj0.type.propertyTypeList[i], aObj0.propertyList[i], aObj1.propertyList[i], compFunc))
+			diffList.push(i);
+		}
+		catch(err)
+		{
+			console.log(aObj0);
+			console.log(aObj1);
+			throw "error";
+		}
+	}
+
+	return diffList;
+}
+
+IAdjudicationAnaforaObj.compareProperty = function(pType, aObj1prop, aObj2prop, compFunc) {
+	// compare two property value is identical or not
+	if(aObj1prop == undefined && aObj2prop == undefined)
+		return true;
+	if(aObj1prop == undefined && aObj2prop != undefined)
+		return false;
+	if(aObj1prop != undefined && aObj2prop == undefined)
+		return false;
+
+	switch(pType.input) {
+		case InputType.CHOICE:
+		case InputType.TEXT:
+			return aObj1prop === aObj2prop;
+			break;
+		case InputType.MULTICHOICE:
+			return ($(aObj1prop).not(aObj2prop).length == 0) && ($(aObj2prop).not(aObj1prop).length == 0);
+			break;	
+		case InputType.LIST:
+			if(compFunc == undefined)
+				compFunc = IAdjudicationAnaforaObj.compareAObjFunc;
+				
+			return (aObj1prop === aObj2prop) || ( aObj1prop.length == aObj2prop.length && aObj1prop.every(function(element, idx) { return compFunc(element, aObj2prop[idx]);}));
+			break;
+	}
+}
+
+IAdjudicationAnaforaObj.prototype.getDecideAObj = function() {
+	if(this.decideIdx === undefined)
+		throw "extract gold aObj with undecided status";
+
+	return this.compareAObj[this.decideIdx];
+
+}
