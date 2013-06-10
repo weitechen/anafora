@@ -57,11 +57,15 @@ The [Anafora User/Administrator Manual (PDF)](https://github.com/weitechen/anafo
 
 #### Frequently Asked Questions (FAQ)
 
-Please see our [FAQ](https://github.com/weitechen/anafora/wiki/FAQ) for a complete listing of questions.
+Please see our [Anafora FAQ](https://github.com/weitechen/anafora/wiki/FAQ) for a complete listing of questions.
+
+#### Sample Annotations, Schema, and Project file
+
+To help you get a feel for how Anafora data and schemas look, we've created a few sample documents in Anafora, available here under [sample data](https://github.com/weitechen/anafora/tree/master/sample%20data).
 
 ### Get Anafora
 
 #### Download Anafora
 
-Anafora is Free and Open Source, released under the Apache License.  All code is available from [our github page](https://github.com/weitechen/anafora).  In addition, we welcome new commits and bugfixes through git.
+Anafora is Free and Open Source, released under the Apache License.  Our source code is available in the [src folder on github](https://github.com/weitechen/anafora/tree/master/src).  We welcome new commits and bugfixes through pull requests.
 
