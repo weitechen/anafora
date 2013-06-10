@@ -22,12 +22,12 @@ When you open Anafora and select your document, the relevant text is opened in a
 
 As you annotate, your annotations (only the numerical spans, annotation IDs, and associated properties) are cached in memory and saved to the server automatically every 2 minutes.  In the event that your connection is interrupted, reloading the page will reload your annotations from that cache and save them to the server, meaning that although a consistent internet connection is desirable, an occasional interruption shouldn't result in data loss.
 
-When you finish a session, you'll want to use the ``save'' command and exit the browser.  By doing that, you'll know that your work is safe.
+When you finish a session, you'll want to use the "save" command and exit the browser.  By doing that, you'll know that your work is safe.
 
 #### Screenshots
 
-<img src="https://raw.github.com/weitechen/anafora/master/documentation/screenshots/screenshot1.png" width=400px>
-<img src="https://raw.github.com/weitechen/anafora/master/documentation/screenshots/screenshot2.png" width=400px>
+<img src="https://raw.github.com/weitechen/anafora/master/documentation/screenshots/screenshot1.png" width=200px>
+<img src="https://raw.github.com/weitechen/anafora/master/documentation/screenshots/screenshot2.png" width=200px>
 
 ### Requirements 
 
@@ -44,10 +44,10 @@ To install Anafora on your machine as a central repository for an annotation pro
 
 In order to run Anafora as an end user/annotator, you'll need:
 
-* A consistent internet connection (although 100\% consistency isn't necessary)
-* A modern browser supporting HTML5, Javascript and CSS (Google Chrome is our recommended choice and is the browser we're primarily testing with, but Safari, Chromium, and other Webkit-based browsers have been shown to work well as well.)
-* An account set up on the server hosting Anafora (which is a member of the requisite groups)
-*  For adjudication and access to other annotators' data, you must be a member of the "anaforaadmin" group on the server on which Anafora is installed.
+* A consistent internet connection (although 100% consistency isn't necessary)
+* A modern browser supporting HTML5, Javascript and CSS (Google Chrome is our recommended choice and is the browser we're primarily testing with, but Safari, Chromium, Firefox and other Webkit-based browsers have been shown to work well as well.  *Anafora is not compatible with any version of Internet Explorer*)
+* An account (which is a member of the requisite groups) set up on the server hosting Anafora 
+* For adjudication and access to other annotators' data, you must be a member of the "anaforaadmin" group on the server on which Anafora is installed.
 
 ### Get Anafora
 
@@ -57,4 +57,4 @@ Anafora is Free and Open Source, released under the Apache License.  All code is
 
 #### The Anafora User Manual
 
-Our user/administrator manual is available above, containing our FAQ, as well as instructions for Annotators, Administrators, and Installation.  
+The [Anafora User/Administrator Manual (PDF)](https://github.com/weitechen/anafora/blob/master/documentation/AnaforaManual.pdf?raw=true) contains our FAQ, as well as instructions for Annotators, Administrators, and Installation.  
