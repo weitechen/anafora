@@ -53,7 +53,7 @@ In order to run Anafora as an end user/annotator, you'll need:
 
 #### The Anafora User Manual
 
-The [Anafora User/Administrator Manual (PDF)](https://github.com/weitechen/anafora/blob/master/documentation/AnaforaManual.pdf?raw=true) contains our FAQ, as well as instructions for Annotators, Administrators, and Installation.  
+The [Anafora User/Administrator Manual (PDF)](https://github.com/weitechen/anafora/blob/master/documentation/AnaforaManual.pdf?raw=true) contains instructions for Annotators, Administrators, and Installation.  
 
 #### Frequently Asked Questions (FAQ)
 
