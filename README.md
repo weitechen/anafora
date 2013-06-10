@@ -1,6 +1,6 @@
 <center><img src="http://vwl.me/images/anaforalogo.png" width=400px></center>
 
-[About Anafora](https://github.com/weitechen/anafora#about-anafora) - [How Annotation Works](https://github.com/weitechen/anafora#how-anaforas-web-based-annotation-works) - [Requirements](https://github.com/weitechen/anafora#requirements) - [Get Anafora](https://github.com/weitechen/anafora#get-anafora)
+[About Anafora](https://github.com/weitechen/anafora#about-anafora) - [How Annotation Works](https://github.com/weitechen/anafora#how-anaforas-web-based-annotation-works) - [Requirements](https://github.com/weitechen/anafora#requirements)  - [Documentation](https://github.com/weitechen/anafora#documentation) - [FAQ](https://github.com/weitechen/anafora#frequently-asked-questions-faq) - [Get Anafora](https://github.com/weitechen/anafora#get-anafora)
 
 ### About Anafora
 
@@ -49,12 +49,19 @@ In order to run Anafora as an end user/annotator, you'll need:
 * An account (which is a member of the requisite groups) set up on the server hosting Anafora 
 * For adjudication and access to other annotators' data, you must be a member of the "anaforaadmin" group on the server on which Anafora is installed.
 
-### Get Anafora
-
-#### Download
-
-Anafora is Free and Open Source, released under the Apache License.  All code is available from [our github page](https://github.com/weitechen/anafora).  In addition, we welcome new commits and bugfixes through git.
+### Documentation
 
 #### The Anafora User Manual
 
 The [Anafora User/Administrator Manual (PDF)](https://github.com/weitechen/anafora/blob/master/documentation/AnaforaManual.pdf?raw=true) contains our FAQ, as well as instructions for Annotators, Administrators, and Installation.  
+
+#### Frequently Asked Questions (FAQ)
+
+Please see our [FAQ](https://github.com/weitechen/anafora/wiki/FAQ) for a complete listing of questions.
+
+### Get Anafora
+
+#### Download Anafora
+
+Anafora is Free and Open Source, released under the Apache License.  All code is available from [our github page](https://github.com/weitechen/anafora).  In addition, we welcome new commits and bugfixes through git.
+
