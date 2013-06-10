@@ -1,5 +1,6 @@
 <center><img src="http://vwl.me/images/anaforalogo.png" width=400px></center>
-**Navigation** - [About Anafora](https://github.com/weitechen/anafora#about-anafora) - [How Annotation Works](https://github.com/weitechen/anafora#how-anaforas-web-based-annotation-works) - [Requirements](https://github.com/weitechen/anafora#requirements) - [Get Anafora](https://github.com/weitechen/anafora#get-anafora)
+
+[About Anafora](https://github.com/weitechen/anafora#about-anafora) - [How Annotation Works](https://github.com/weitechen/anafora#how-anaforas-web-based-annotation-works) - [Requirements](https://github.com/weitechen/anafora#requirements) - [Get Anafora](https://github.com/weitechen/anafora#get-anafora)
 
 ### About Anafora
 
@@ -25,7 +26,8 @@ When you finish a session, you'll want to use the ``save'' command and exit the 
 
 #### Screenshots
 
-
+<img src="https://raw.github.com/weitechen/anafora/master/documentation/screenshots/screenshot1.png" width=400px>
+<img src="https://raw.github.com/weitechen/anafora/master/documentation/screenshots/screenshot2.png" width=400px>
 
 ### Requirements 
 
