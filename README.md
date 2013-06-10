@@ -1,3 +1,5 @@
+<img src="http://vwl.me/images/anaforalogo.png" width=400px>
+
 ### About Anafora
 
 Anafora (pronounced "a-nuh-FOUR-uh", /ænəˈfɔɹə/) is a new annotation tool written at the University of Colorado designed to be a lightweight, flexible annotation solution which is easy to deploy for large and small projects.  Previous tools (Protege/Knowtator, eHost) have been written primarily with local annotation in mind, running as native, local applications and reading complex file or folder structures.  This limits cross-platform deployment and requires the annotated data to be stored locally on machines, complicating data-use agreements and increasing data fragmentation.  Alternatively, these programs can be run remotely via X-windows, but this increases latency and leaves annotation vulnerable to any connectivity interruptions.
