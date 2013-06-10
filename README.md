@@ -1,4 +1,5 @@
-<img src="http://vwl.me/images/anaforalogo.png" width=400px>
+<center><img src="http://vwl.me/images/anaforalogo.png" width=400px></center>
+**Navigation** - [About Anafora](https://github.com/weitechen/anafora#about-anafora) - [How Annotation Works](https://github.com/weitechen/anafora#how-anaforas-web-based-annotation-works) - [Requirements](https://github.com/weitechen/anafora#requirements) - [Get Anafora](https://github.com/weitechen/anafora#get-anafora)
 
 ### About Anafora
 
@@ -21,6 +22,10 @@ When you open Anafora and select your document, the relevant text is opened in a
 As you annotate, your annotations (only the numerical spans, annotation IDs, and associated properties) are cached in memory and saved to the server automatically every 2 minutes.  In the event that your connection is interrupted, reloading the page will reload your annotations from that cache and save them to the server, meaning that although a consistent internet connection is desirable, an occasional interruption shouldn't result in data loss.
 
 When you finish a session, you'll want to use the ``save'' command and exit the browser.  By doing that, you'll know that your work is safe.
+
+#### Screenshots
+
+
 
 ### Requirements 
 
