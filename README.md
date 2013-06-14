@@ -29,6 +29,12 @@ When you finish a session, you'll want to use the "save" command and exit the br
 <img src="https://raw.github.com/weitechen/anafora/master/documentation/screenshots/screenshot1.png" width=200px>
 <img src="https://raw.github.com/weitechen/anafora/master/documentation/screenshots/screenshot2.png" width=200px>
 
+### Demo Site
+
+Although you cannot currently work on your own documents or navigate to others, the below is a live instance of Anafora allowing you to try annotation, examining annotations, or see the tool in action.  No data will be saved.
+
+[Anafora Demo Site](https://verbs.colorado.edu/anaforademo/annotate/Demo/samplenotes/doc22/Medicine/)
+
 ### Requirements 
 
 #### Server Requirements
