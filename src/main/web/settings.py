@@ -104,6 +104,8 @@ MIDDLEWARE_CLASSES = (
 #    'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Uncomment the next line for Anafora digest auth
+    'annotate.anaforaAuthMiddleware.AnaforaAuthMiddleware',
 )
 
 ROOT_URLCONF = 'web.urls'
@@ -119,8 +121,6 @@ TEMPLATE_DIRS = (
 )
 
 
-# Assign the anafora project file directory path
-ANAFORA_PROJECT_FILE_ROOT = ""
 
 INSTALLED_APPS = (
 #    'django.contrib.auth',
@@ -167,6 +167,16 @@ LOGGING = {
     }
 }
 
-QUNIT_TEST_DIRECTORY = STATIC_ROOT
-
 TEST_RUNNER = 'testing.DatabaselessTestRunner'
+
+# Assign the anafora project file directory path
+ANAFORA_PROJECT_FILE_ROOT = ""
+
+# Assign the Digest auth group file location
+GROUP_FILE = ''
+
+# Assign the group name for the admin
+ADMIN_GROUPNAME = 'anaforaadmin'
+
+# Assign the setting file in the project directory
+ANAFORA_PROJECT_SETTING_FILENAME = ".setting.xml"
