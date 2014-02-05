@@ -95,7 +95,7 @@ h1 {
    display: none;
 }
 #rawText {
-  display: none;
+  /* display: none; */
 }
 
 
@@ -121,6 +121,8 @@ h1 {
   overflow-y: scroll; 
   overflow-x: hidden;
   white-space: pre-wrap;
+  word-wrap:break-word;
+  overflow-wrap: break-word;
   margin:0 auto;
   z-index: -1;
   line-height: 180%;
@@ -393,6 +395,12 @@ span.selectAObj {
 
 #propertyWrapper .property .propertyTable {
   margin:0 auto;
+  table-layout: fixed;
+  width: 225px;
+}
+
+#propertyWrapper .property .propertyTable td {
+	word-wrap: break-word;
 }
 
 #propertyWrapper .property .propertyTable .propertyValue {

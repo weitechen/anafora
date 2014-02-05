@@ -1,6 +1,8 @@
 #!/usr/bin/python2.7
 import os, sys
 import glob
+from projectSetting import *
+from subprocess import call, check_output
 
 class AnaforaProjectManager:
 	rootPath = ""
@@ -29,7 +31,16 @@ class AnaforaProjectManager:
 		return sorted(AnaforaProjectManager.projectList[projectName])
 
 	@staticmethod
-	def searchAvailableTask(projectName, corpusName, schemaName, annotator, maxNumOfAnnotator = 2):
+	def searchAllTask(projectName, corpusName, schemaName):
+		schemaName = schemaName.replace(".", "-")
+
+		corpusPath = os.path.join(AnaforaProjectManager.rootPath, projectName, corpusName)
+		taskNameList = check_output("find " + AnaforaProjectManager.rootPath + projectName + "/" + corpusName + "/ -type f -name '*." + schemaName + ".*.xml' | sed 's#\(.*\)/\(.*\)/\(.*\)/.*#\\3#' | sort -u", shell=True )
+		taskName = [tName for tName in taskNameList.split('\n') if tName != '']
+		return taskName
+
+	@staticmethod
+	def searchAvailableTask(projectName, corpusName, schemaName, annotator, projectManager, maxNumOfAnnotator = 2):
 		newTask = []
 		inProgressTask = []
 		completedTask = []
@@ -40,9 +51,11 @@ class AnaforaProjectManager:
 		
 		corpusPath = os.path.join(AnaforaProjectManager.rootPath, projectName, corpusName)
 
+		mode = projectManager.getMode(*schemaName.split("-"))
 		needPreannotation = False
 
-		if("Relation" in schemaName):
+		if mode.needPreannotation:
+			#if("Relation" in schemaName):
 			needPreannotation = True
 
 		if os.path.isdir(corpusPath) != True:
@@ -53,7 +66,7 @@ class AnaforaProjectManager:
 			numOfAnnotatorFile = 0
 			hasPreannotation = False
 			for projectXMLFileName in [pFileName for pFileName in os.listdir(taskPath) if os.path.isfile(os.path.join(taskPath, pFileName)) and pFileName[0] != '.' and pFileName[-4:] == ".xml"]:
-				if "." + annotator + "." in projectXMLFileName and taskName + '.' + schemaName in projectXMLFileName:
+				if "." + annotator + "." in projectXMLFileName and taskName + '.' + schemaName + "." in projectXMLFileName:
 					# data file for annotator is exists
 					if ".completed.xml" in projectXMLFileName:
 						completedTask.append(taskName)
@@ -68,7 +81,7 @@ class AnaforaProjectManager:
 						numOfAnnotatorFile += 1
 
 
-			if (numOfAnnotatorFile < maxNumOfAnnotator or (numOfAnnotatorFile > 0 and annotator == "gold") or os.path.exists(os.path.join(taskPath, ".nolimit"))) and (needPreannotation != True or hasPreannotation) and taskName not in completedTask and taskName not in inProgressTask:
+			if (numOfAnnotatorFile < maxNumOfAnnotator or (numOfAnnotatorFile > 0 and annotator == "gold") or (os.path.exists(os.path.join(taskPath, ".nolimit")))) and (needPreannotation != True or hasPreannotation) and taskName not in completedTask and taskName not in inProgressTask and os.path.exists(os.path.join(taskPath, ".noassign")) != True:
 				newTask.append(taskName)
 
 		inProgressTask = sorted(inProgressTask)
@@ -105,7 +118,8 @@ class AnaforaProjectManager:
 					else:
 						hasOtherAdjudicator = True
 
-				elif adjudicator not in projectXMLFileName and (taskName + '.' + schemaName +'.' in projectXMLFileName ) and projectXMLFileName[:len(taskName)] == taskName and (".completed.xml" in projectXMLFileName) and projectXMLFileName != taskName and ".preannotation." not in projectXMLFileName:
+				#elif adjudicator not in projectXMLFileName and (taskName + '.' + schemaName +'.' in projectXMLFileName ) and projectXMLFileName[:len(taskName)] == taskName and (".completed.xml" in projectXMLFileName) and projectXMLFileName != taskName and ".preannotation." not in projectXMLFileName:
+				elif (taskName + '.' + schemaName +'.' in projectXMLFileName ) and projectXMLFileName[:len(taskName)] == taskName and (".completed.xml" in projectXMLFileName) and projectXMLFileName != taskName and ".preannotation." not in projectXMLFileName:
 					# data file not belong to this adjudicator
 					numOfAnnotatorFile += 1
 
@@ -117,6 +131,24 @@ class AnaforaProjectManager:
 		newTask = sorted(newTask)
 		
 		return {"i":inProgressTask, "c":completedTask, "n":newTask}
+
+	@staticmethod
+	def getAnnotator(schemaName, projectName, corpusName, taskName):
+		schemaName = schemaName.replace(".", "-")
+		annotatorList = {}
+		annotatorList["i"] = AnaforaProjectManager.getInprogressAnnotator(schemaName, projectName, corpusName, taskName)
+		annotatorList["c"] = AnaforaProjectManager.getCompleteAnnotator(schemaName, projectName, corpusName, taskName)
+		annotatorList["n"] = []
+
+		return annotatorList
+
+	@staticmethod
+	def getInprogressAnnotator(schemaName, projectName, corpusName, taskName):
+		schemaName = schemaName.replace(".", "-")
+
+		path = os.path.join(AnaforaProjectManager.rootPath, projectName, corpusName, taskName)
+		fileList = glob.glob(path + "/" + taskName + '.' + schemaName + ".*.inprogress.xml")
+		return sorted([term.split("/")[-1].split(".")[-3] for term in fileList])
 
 	@staticmethod
 	def getCompleteAnnotator(schemaName, projectName, corpusName, taskName):

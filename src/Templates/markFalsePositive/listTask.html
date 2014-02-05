@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block container %}
+<ul>
+{% for tName in taskName %}
+  {% load url from future %}
+  {% url 'displayTask' tName as task_url %}
+  {% if task_url %}
+  <li><a href="{{ task_url }}">{{ tName }}</a></li>
+  {% endif %}
+{% endfor %}
+</ul>
+{% endblock %}

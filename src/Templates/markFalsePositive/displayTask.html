@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block container %}
+<ul id="myMenu" class="contextMenu">
+    <li>
+        <a href="#0">False Positive</a>
+    </li>
+    <li>
+        <a href="#1">Incomplete Span</a>
+    </li>
+    <li>
+        <a href="#2">Overcomplete Span</a>
+    </li>
+</ul>
+<div id="tip" style="z-index: 99999; display: none;background-color: yellow;border:2px dotted black;position: absolute; padding: 2px;"></div>
+<h3 id="taskname">{{ taskName }}</h3>
+<input type="button" id="downloadXML" value="Download" />
+<div id="markRawText">{{ rawText }}</div>
+{% endblock %}

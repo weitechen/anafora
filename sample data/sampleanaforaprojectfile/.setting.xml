@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<setting>
+	<projects>
+		<project name="SampleProject" numOfAnnotator="2">
+			<admin>anaforaadmin</admin>
+			<annotator>annotatorGroup</annotator>
+			<schema>Medicine</schema>
+		</project>
+	</projects>
+	<schemas>
+		<schema name="Medicine">
+			<file>demomedicalschema.xml</file>
+		</schema>
+	</schemas>
+</setting>

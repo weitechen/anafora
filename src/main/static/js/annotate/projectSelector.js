@@ -8,7 +8,7 @@ function ProjectSelector(setting) {
 	this.divElement = $("#projectSelector");
 	this.schemaElement = $("#schemaSelector").children("div").eq(0);
 	this.modeElement = $("#schemaSelector").children("div").eq(1);
-	this.adjudicationElement = $("#schemaSelector").children("div").eq(2);
+	this.administratorElement = $("#schemaSelector").children("div").eq(2);
 	this.mask = $("#mask");
 
 	this.cancelBtn = this.windowElement.children("div").eq(2).children("div").eq(0);
@@ -16,7 +16,8 @@ function ProjectSelector(setting) {
 
 	this.cancelBtn.bind('click', function() { _self.cancelBtnClick(); });
 
-	this.adjudicationElement.find("ul>li").bind('click', function(evt) {ProjectSelector.clickAdjudicationSelect(_self, evt.target);});
+	this.administratorElement.find("ul>li").eq(0).bind('click', function(evt) {ProjectSelector.clickAdjudicationSelect(_self, evt.target);});
+	this.administratorElement.find("ul>li").eq(1).bind('click', function(evt) {ProjectSelector.clickViewSelect(_self, evt.target);});
 
 	this.projectDir = undefined;
 	this.schemaMap = setting.schemaMap;
@@ -40,8 +41,13 @@ function ProjectSelector(setting) {
 		this.adjudication = false;
 	else
 		this.adjudication = setting.isAdjudication;
+	
+	if(setting.isView == undefined)
+		this.view = false;
+	else
+		this.view = setting.isView;
 
-	this.selected = {"project": setting.projectName, "corpus": setting.corpusName, "task": setting.taskName};
+	this.selected = {"project": setting.projectName, "corpus": setting.corpusName, "task": setting.taskName, "annotator": setting.annotator };
 	
 	this.baseURL = setting.root_url + "/" + setting.app_name + "/";
 	this.initialProjectDir();
@@ -53,6 +59,7 @@ ProjectSelector.prototype.initialProjectDir = function() {
 	this.schemaSelect();
 	this.modeSelect();
 	this.adjudicationSelect();
+	this.viewSelect();
 
 	if(this.projectDir == undefined) {
 		this.projectDir = {};
@@ -84,7 +91,7 @@ ProjectSelector.prototype.initialProjectDir = function() {
 	this.popup();
 }
 
-ProjectSelector.prototype.getDir = function(projectName, corpusName, schemaName, isAdjudication) {
+ProjectSelector.prototype.getDir = function(projectName, corpusName, schemaName, isAdjudication, isView) {
 	var jsonURL = this.baseURL + "getDir/";
 	if(projectName != undefined)
 		jsonURL += projectName + "/";
@@ -97,6 +104,9 @@ ProjectSelector.prototype.getDir = function(projectName, corpusName, schemaName,
 		if(isAdjudication != undefined && isAdjudication)
 			jsonURL += ".Adjudication";
 
+		if(isView != undefined && isView)
+			jsonURL += "/view";
+
 		jsonURL += "/";
 	}
 
@@ -106,11 +116,28 @@ ProjectSelector.prototype.getDir = function(projectName, corpusName, schemaName,
 	return dir;
 }
 
-/*
-ProjectSelector.prototype.getProject = function() {
-	return this.getDir();
+ProjectSelector.prototype.getAnnotator = function(projectName, corpusName, taskName, schemaName) {
+	var jsonURL = this.baseURL + "annotator/";
+	if(projectName == undefined)
+		throw "project name is empty";
+	jsonURL += (projectName + "/");
+
+	if(corpusName == undefined)
+		throw "corpus name is empty";
+	jsonURL += (corpusName + "/");
+
+	if(taskName == undefined)
+		throw "task name is empty";
+	jsonURL += (taskName + "/")
+
+	if(schemaName == undefined)
+		throw "schema name is empty";
+	jsonURL += (schemaName + "/")
+
+	var dirJSON = $.ajax({ type: "GET", url: jsonURL, cache: false, async: false, fail: function() {throw "get annotator fail";}, error: function() {throw "get annotator error";}}).responseText;
+	var annotator = $.parseJSON(dirJSON);
+	return annotator;
 }
-*/
 
 /*
 ProjectSelector.prototype.getCorpusFromProjectName = function(projectName) {
@@ -170,7 +197,7 @@ ProjectSelector.prototype.selectCorpus = function() {
 		});
 	} 
 
-	this.updateSelectMenu("Select Corpus", Object.keys(this.projectDir[this.selected.project]), ProjectSelector.clickCorpus);
+	this.updateSelectMenu("Select Corpus", Object.keys(this.projectDir[this.selected.project]), ProjectSelector.clickCorpus, ProjectSelector.backToProject);
 	// this.popup();
 	this.fixPosition();
 }
@@ -183,12 +210,29 @@ ProjectSelector.prototype.selectTask = function() {
 		throw "Select Mode First";
 	}
 	else {
-		var taskList =this.getDir(this.selected.project, this.selected.corpus, this.schema + ((this.mode === false || this.mode === undefined)?"":"."+this.mode) , this.adjudication);
-		this.updateSelectMenu("Select Task", taskList, ProjectSelector.clickTask);
+		var taskList = this.getDir(this.selected.project, this.selected.corpus, this.schema + ((this.mode === false || this.mode === undefined)?"":"."+this.mode) , this.adjudication, this.view);
+		if(this.view)
+			this.updateSelectMenu("Select Task", taskList, ProjectSelector.clickTaskWithView, ProjectSelector.backToCorpus);
+		else
+			this.updateSelectMenu("Select Task", taskList, ProjectSelector.clickTask, ProjectSelector.backToCorpus);
 		// this.popup();
 	}
 
 	this.fixPosition();
+}
+
+ProjectSelector.prototype.selectAnnotator = function() {
+	if(this.schema == undefined) {
+		throw "Select Schema First";
+	}
+	else if ( this.mode !== false && this.mode === undefined ) {
+		throw "Select Mode First";
+	}
+	else {
+		var annotatorList = this.getAnnotator(this.selected.project, this.selected.corpus, this.selected.task, this.schema + ((this.mode === false || this.mode === undefined)?"":"."+this.mode) + ((this.adjudication === false || this.adjudication === undefined)?"":".Adjudication"));
+		this.updateSelectMenu("Select Annotator", annotatorList, ProjectSelector.clickAnnotator, ProjectSelector.backToTask);
+	}
+	
 }
 
 ProjectSelector.prototype.selectComplete = function() {
@@ -211,7 +255,8 @@ ProjectSelector.prototype.openNewProject = function() {
 	if(this.selected.project == "" || this.selected.corpus == "" || this.selected.task == "" || this.schema == undefined)
 		throw "openNewProject error: required selected project, corpus, task or schema";
 
-	window.location = this.baseURL + this.selected.project + "/" + this.selected.corpus + "/" + this.selected.task + "/" + this.schema + (this.mode === false || this.mode===undefined ?  "" : "."+this.mode) + (this.adjudication ? ".Adjudication" : "" ) +  "/";
+	
+	window.location = this.baseURL + this.selected.project + "/" + this.selected.corpus + "/" + this.selected.task + "/" + this.schema + (this.mode === false || this.mode===undefined ?  "" : "."+this.mode) + (this.adjudication ? ".Adjudication" : "" ) +  "/" + ((this.view != undefined && this.view) ? this.selected.annotator : "") ;
 }
 
 ProjectSelector.clickProject = function(_self, target ) {
@@ -241,7 +286,51 @@ ProjectSelector.clickTask = function(_self, target ) {
 	_self.popup();
 }
 
-ProjectSelector.prototype.updateSelectMenu = function(title, itemList, callback) {
+ProjectSelector.clickTaskWithView = function(_self, target ) {
+	_self.selected.task = target.innerHTML;
+	$(target).addClass("selected");	
+	_self.selectAnnotator();
+	_self.popup();
+}
+
+ProjectSelector.clickAnnotator = function(_self, target) {
+	_self.selected.annotator = target.innerHTML;
+	$(target).addClass("selected");
+	_self.selectComplete();
+	_self.popup();
+}
+
+ProjectSelector.backToProject = function(_self) {
+	try {
+		_self.selectProject();
+	}
+	catch(err) {
+		_self.selected.project = "";
+		throw err;
+	}
+}
+
+ProjectSelector.backToCorpus = function(_self, target) {
+	_self.selected.corpus = "";
+	try {
+		_self.selectCorpus();
+	}
+	catch(err) {
+		throw err;
+	}
+}
+
+ProjectSelector.backToTask = function(_self, target) {
+	_self.selected.task = "";
+	try {
+		_self.selectTask();
+	}
+	catch(err) {
+		throw err;
+	}
+}
+
+ProjectSelector.prototype.updateSelectMenu = function(title, itemList, callback, previousCallback) {
 	this.divElement.children("h4").text(title);
 	var rStr = "";
 	var _self = this;
@@ -254,7 +343,7 @@ ProjectSelector.prototype.updateSelectMenu = function(title, itemList, callback)
 		this.divElement.children("div:first").children("ul").html(rStr);
 		this.divElement.children("div:first").find("li").bind('click', function(evt) {
 		try{callback(_self, evt.target);}catch(err){alert(err);throw err;}});
-	
+
 		this.divElement.children("div").eq(1).hide();
 		this.divElement.children("div").eq(2).hide();
 	}
@@ -290,6 +379,12 @@ ProjectSelector.prototype.updateSelectMenu = function(title, itemList, callback)
 		this.divElement.children("div").find("li").bind('click', function(evt) {
 		callback(_self, evt.target);});
 		this.divElement.children("div").children("h5").show();
+	}
+
+	if(previousCallback != undefined) {
+		this.divElement.children("div:first").children("ul").prepend("<li>&#8592; Back</li>");
+		this.divElement.children("div:first").children("ul").find("li").first().bind('click', function(evt) {
+		try{previousCallback(_self, evt.target);}catch(err){alert(err);throw err;}});
 	}
 }
 
@@ -327,6 +422,11 @@ ProjectSelector.clickModeReselect = function(_self, target) {
 ProjectSelector.clickAdjudicationSelect = function(_self, target) {
 	_self.adjudication = !_self.adjudication;
 	_self.adjudicationSelect();
+}
+
+ProjectSelector.clickViewSelect = function(_self, target) {
+	_self.view = !_self.view;
+	_self.viewSelect();
 }
 /*
 ProjectSelector.clickAdjudicationReelect = function(_self, target) {
@@ -383,10 +483,21 @@ ProjectSelector.prototype.schemaSelect = function() {
 ProjectSelector.prototype.adjudicationSelect = function() {
 	var _self = this;
 	if(this.adjudication) {
-		this.adjudicationElement.find("ul>li").addClass("selected");
+		this.administratorElement.find("ul>li").eq(0).addClass("selected");
 	}
 	else {
-		this.adjudicationElement.find("ul>li").removeClass("selected");
+		this.administratorElement.find("ul>li").eq(0).removeClass("selected");
+
+	}
+}
+
+ProjectSelector.prototype.viewSelect = function() {
+	var _self = this;
+	if(this.view) {
+		this.administratorElement.find("ul>li").eq(1).addClass("selected");
+	}
+	else {
+		this.administratorElement.find("ul>li").eq(1).removeClass("selected");
 
 	}
 }

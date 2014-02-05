@@ -110,6 +110,56 @@ function IAnaforaObj(id, type, propertyList, additionalList, comment) {
 	}
 }
 
+IAnaforaObj.prototype.addListProperty = function(aObj, pIdx, lIdx) {
+	if(this.type.propertyTypeList.length < pIdx) {
+		throw "update property error with property idx: " + pIdx.toString() + " with annotation: " + this.id;
+	}
+
+	if(!(aObj instanceof IAnaforaObj)) {
+		throw "update LIST type INPUT with non-annotation: " + aObj.toString();
+	}
+
+	if(this.propertyList[pIdx] != undefined && this.propertyList[pIdx].indexOf(aObj) != -1)
+		return;
+
+	if(this.propertyList[pIdx] == undefined)
+		this.propertyList[pIdx] = [];
+
+	if(lIdx == undefined) {
+		if(this.propertyList[pIdx].length == this.type.propertyTypeList[pIdx].maxlink) {
+			this.propertyList[pIdx][this.propertyList[pIdx].length-1].removeLinkingAObj(this);
+			if(this.propertyList[pIdx] == undefined)
+				this.propertyList[pIdx] = [];
+
+		}
+		this.propertyList[pIdx].push(aObj);
+	}
+	else
+		this.updateListProperty(aObj, pIdx, lIdx);
+
+	aObj.addLinkingAObj(this);
+
+	//this.propertyList[pIdx].sort();
+}
+
+IAnaforaObj.prototype.updateListProperty = function(aObj, pIdx, lIdx) {
+
+	this.propertyList[pIdx][lIdx] = aObj;
+}
+
+IAnaforaObj.prototype.updateProperty = function(value, pIdx) {
+	if(this.type.propertyTypeList.length < pIdx) {
+		throw "update property error with property idx: " + pIdx.toString() + " with annotation: " + this.id;
+	}
+	
+	if(this.type.propertyTypeList[pIdx].input == InputType.LIST) {
+		this.addListProperty(value, pIdx); 
+	}
+	else {
+		this.propertyList[pIdx] = value;
+	}
+}
+
 IAnaforaObj.prototype.addMarkElement = function(overlap) {
 	for(var idx=0;idx<this.markElement.length;idx++) {
 		if(overlap.span.end <= this.markElement[idx].span.start) {
@@ -158,6 +208,12 @@ IAnaforaObj.prototype.getSpanRange = function() {
 IAnaforaObj.parsePropertyValueFromDOM = function(propertiesDOM, objType) {
 	var propertyList = [];
 	propertyList.repeat(undefined, objType.propertyTypeList.length);
+
+	$.each(objType.propertyTypeList, function(idx, pType) {
+		if(pType.input == InputType.CHOICE && pType.allowedValueList[0] != "" ) {
+			propertyList[idx] = pType.allowedValueList[0];
+		}
+	});
 
 	$(propertiesDOM).children().each( function() {
 		var propertyName = this.tagName;
@@ -244,7 +300,7 @@ IAnaforaObj.prototype.getPropertyXMLStr = function() {
 			}
 		}
 		else {
-			rStr += '\t\t\t<' + pType.type + '>' + element + '</' + pType.type + '>\n';
+			rStr += '\t\t\t<' + pType.type + '>' + ((element == undefined) ? "" : element)  + '</' + pType.type + '>\n';
 		}
 	})
 
@@ -295,8 +351,9 @@ IAnaforaObj.prototype.destroy = function() {
 
 function Entity(id, type, span, propertyList, additionList, comment) {
 	IAnaforaObj.call(this, id, type, propertyList, additionList, comment);
+
 	if(id != undefined) {
-		this.span = span == undefined ? undefined : span.sort(SpanType.sort);
+		this.span = (span == undefined ? undefined : span.sort(SpanType.sort));
 
 		if(propertyList == undefined) {
 			if(type !== undefined) {
@@ -347,6 +404,11 @@ Entity.prototype.getMetadataXMLStr = function() {
 }
 
 Entity.sort = function(entityA,entityB) {
+	if(entityA instanceof EmptyEntity)
+		return -1;
+	if(entityB instanceof EmptyEntity)
+		return 1;
+
 	var idx, compare;
 	for(idx=0; idx<Math.min(entityA.span.length, entityB.span.length); idx++) {
 		if((compare = SpanType.sort(entityA.span[idx], entityB.span[idx])) != 0)
@@ -361,6 +423,34 @@ Entity.sort = function(entityA,entityB) {
 	return 0;
 }
 
+Entity.comparePairCheck = function(entity0, entity1) {
+	 
+	var spanEqual = false;
+	var needAddAdjudicationEntity = false;
+	var diffProp = IAdjudicationAnaforaObj.compareAObjPropertyList(entity0, entity1);
+	
+	if(Entity.sort(entity0, entity1) == 0) {
+		spanEqual = true;
+		needAddAdjudicationEntity = true;
+	}
+	else {
+		diffPropCount = diffProp.length;
+
+		//comparePairList0 = this.comparePairEntity[entity0];
+		var comparePairList0 = entity0.getAdditionalData("comparePair");
+		//comparePairList1 = this.comparePairEntity[entity1];
+		var comparePairList1 = entity1.getAdditionalData("comparePair");
+		var origAdjEntity0 = (comparePairList0 != undefined && comparePairList0.length > 0 && comparePairList0[comparePairList0.length-1] instanceof AdjudicationEntity) ? comparePairList0[comparePairList0.length-1] : undefined;
+		var origAdjEntity1 = (comparePairList1 != undefined && comparePairList1.length > 0 && comparePairList1[comparePairList1.length-1] instanceof AdjudicationEntity) ? comparePairList1[comparePairList1.length-1] : undefined;
+
+		if(origAdjEntity0 == undefined && origAdjEntity1 == undefined && diffPropCount == 0)
+			needAddAdjudicationEntity = true;
+				
+	}
+
+	return {"needAddAdjudicationEntity": needAddAdjudicationEntity, "diffProp": diffProp, "spanEqual": spanEqual};
+}
+
 Entity.prototype.addSpan = function(newSpan) {
 	var tSpanList = [];
 	var tSpanType;
@@ -371,8 +461,9 @@ Entity.prototype.addSpan = function(newSpan) {
 	for(var i=1;i<this.span.length;i++) {
 		tSpanType = this.span[i];
 		if(tSpanList[tSpanList.length-1].start == tSpanType.start) {
-			if(tSpanList[tSpanList.length-1].end >= tSpanType.end)
+			if(tSpanList[tSpanList.length-1].end >= tSpanType.end) {
 				;
+			}
 			else
 				tSpanList[tSpanList.length-1].end = tSpanType.end
 		}
@@ -385,6 +476,7 @@ Entity.prototype.addSpan = function(newSpan) {
 	}
 	this.span = tSpanList;
 }
+
 
 Entity.prototype.removeSpan = function(spanIdx) {
 	this.span.splice(spanIdx, 1);
@@ -449,6 +541,7 @@ Entity.genFromDOM = function(entityDOM, schema) {
 					parentType = schema.getTypeByTypeName($(this).text());
 					if(parentType != type.parentType)
 						throw "parent type error:" + parentType.type + ', ' + type.parentType.type ;
+					
 					break;
 				case "properties":
 					propertyList = IAnaforaObj.parsePropertyValueFromDOM(this, type);
@@ -473,12 +566,28 @@ Entity.genFromDOM = function(entityDOM, schema) {
 
 function Relation(id, type, propertyList, additionList, comment) {
 	IAnaforaObj.call(this, id, type, propertyList, additionList, comment);
+
+	if(id != undefined) {
+		if(propertyList == undefined) {
+			if(type !== undefined) {
+				for(var idx=0;idx<type.propertyTypeList.length;idx++) {
+					if(type.propertyTypeList[idx].input == InputType.CHOICE && type.propertyTypeList[idx].allowedValueList[0] != '') {
+						this.propertyList[idx] = type.propertyTypeList[idx].allowedValueList[0];
+					}
+				}
+			}
+		}
+	}
 }
 
 Relation.prototype = new IAnaforaObj();
 Relation.prototype.constructor = Relation;
 
 Relation.sort = function(relationA, relationB) {
+	if(relationA instanceof EmptyRelation)
+		return -1;
+	if(relationB instanceof EmptyRelation)
+		return 1;
 	var idx, compare;
 	var firstListA = relationA.getFirstListProperty();
 	var firstListB = relationB.getFirstListProperty();
@@ -502,6 +611,10 @@ Relation.sort = function(relationA, relationB) {
 		else
 			return 0;
 	}
+}
+
+Relation.isComparePair = function(relation0, relation1) {
+
 }
 
 Relation.prototype.getFirstProperty = function() {
@@ -537,17 +650,24 @@ Relation.prototype.genElementProperty = function() {
 	$.each(this.type.propertyTypeList, function(idx, propertyType) {
 
 		if(_self.propertyList[idx] != undefined && _self.propertyList[idx].length != 0) {
-			rStr += '[' + propertyType.type + ':&nbsp;'
-			if(propertyType.input == InputType.LIST) {
-				$.each(_self.propertyList[idx], function(idx, objElement) {
-					rStr += objElement.genElementStr() + ", ";
-				});
-				rStr = rStr.substr(0, rStr.length - 2);
+			try {
+				rStr += '[' + propertyType.type + ':&nbsp;'
+				if(propertyType.input == InputType.LIST) {
+					$.each(_self.propertyList[idx], function(idx, objElement) {
+						rStr += objElement.genElementStr() + ", ";
+					});
+					rStr = rStr.substr(0, rStr.length - 2);
+				}
+				else {
+					 rStr += _self.propertyList[idx];
+				}
+				rStr += '], ';
 			}
-			else {
-				 rStr += _self.propertyList[idx];
+			catch(err) {
+				console.log("Generate type string element in Relation " + _self.id + " with  property type idx :" + idx.toString());
+				console.log(_self);
+				throw err;
 			}
-			rStr += '], ';
 		}
 	});
 	rStr = rStr.substring(0, rStr.length - 2);
@@ -609,8 +729,6 @@ Relation.genFromDOM = function(relationDOM, schema ) {
 				case "parentsType":
 					parentType = schema.getTypeByTypeName($(this).text());
 					if(parentType != type.parentType) {
-						console.log(parentType);
-						console.log(type.type);
 						throw "parent type error";
 					}
 					break;
@@ -635,29 +753,62 @@ Relation.genFromDOM = function(relationDOM, schema ) {
 }
 
 
-function AdjudicationEntity(id, aObj1, aObj2, diffProp) {
-	if(id != undefined) {
-		Entity.call(this, id, aObj1.type);
-		IAdjudicationAnaforaObj.apply(this, [aObj1, aObj2]);
-
-		this.markElement = [];
-		this.span = undefined;
-		this.spanDiff = undefined;
-
-		if(aObj1 != undefined && aObj2 != undefined) {
-			this.addCompareAObj(aObj1, aObj2);
-		}
-	}
-}
 
 function EmptyEntity(id, type) {
 	Entity.call(this, id, type);
+	this.origAObj = undefined;
 }
+
+
 EmptyEntity.prototype = new Entity();
 EmptyEntity.prototype.constructor = EmptyEntity;
 
+EmptyEntity.prototype.setOriginalEntity = function(origAObj) {
+	this.origAObj = origAObj;
+}
+
 function EmptyRelation(id, type) {
 	Relation.call(this, id, type);
+}
+
+EmptyRelation.prototype = new Relation();
+EmptyRelation.prototype.constructor = EmptyRelation;
+
+EmptyRelation.prototype.setOriginalRelation = function(origAObj) {
+	this.origAObj = origAObj;
+}
+
+function AdjudicationEntity(id, type, compareAObjList, diffProp, span) {
+	if(id != undefined) {
+		Entity.call(this, id, type, span);
+		IAdjudicationAnaforaObj.apply(this, compareAObjList);
+
+		this.markElement = [];
+		this.span = span;
+		this.spanDiff = undefined;
+		this.compareAObj = compareAObjList;
+		this.diffProp = diffProp;
+
+
+		if(diffProp == undefined) {
+			AdjudicationEntity.prototype.addCompareAObj.apply(this, compareAObjList);
+		}
+		else {
+			if(this.span == undefined)	
+				this.updateSpan();
+
+			if(compareAObjList[0].getAdditionalData("adjudication") == "gold") {
+			this.decideIdx = 0;
+			}
+			else if (compareAObjList[1].getAdditionalData("adjudication") == "gold") {
+			this.decideIdx = 1;
+			}
+		}
+		/*
+		if(aObj1 != undefined && aObj2 != undefined) {
+		}
+		*/
+	}
 }
 
 AdjudicationEntity.prototype = new Entity();
@@ -668,7 +819,6 @@ AdjudicationEntity.prototype.updateSpan = function() {
 	this.span = SpanType.merge(this.compareAObj[0].span, this.compareAObj[1].span);
 	this.spanDiff = (Entity.sort(this.compareAObj[0], this.compareAObj[1]) != 0);
 }
-
 
 AdjudicationEntity.prototype.addCompareAObj = function(aObj1, aObj2) {
 
@@ -773,19 +923,29 @@ AdjudicationEntity.genFromDOM = function(adjudicationEntityDOM, schema, projectL
 			diffProp = $.map(diffPropStr.split(','), function(nStr) { return parseInt(nStr); });
 	}
 
-	return new AdjudicationEntity(entity.id, comparedList[0], comparedList[1], diffProp);
+	return new AdjudicationEntity(entity.id, entity.type, comparedList, diffProp, entity.span);
 }
 
-function AdjudicationRelation(id, type, aObj1, aObj2, diffProp) {
+function AdjudicationRelation(id, type, compareAObjList, diffProp) {
 	if(id != undefined) {
 		Relation.call(this, id, type);
-		IAdjudicationAnaforaObj.apply(this, [aObj1, aObj2]);
+		IAdjudicationAnaforaObj.apply(this, compareAObjList);
 		//AdjuudicationRelation.parent.apply(this, [aObj1, aObj2]);
 		this.markElement = [];
-		this.diffProp = diffProp;
 
-		if(aObj1 != undefined && aObj2 != undefined) {
-			this.addCompareAObj(aObj1, aObj2);
+		this.diffProp = diffProp;
+		this.compareAObj = compareAObjList;
+
+		if(diffProp == undefined) {
+			AdjudicationRelation.prototype.addCompareAObj.apply(this, compareAObjList);
+		}
+		else {
+			if(compareAObjList[0].getAdditionalData("adjudication") == "gold") {
+			this.decideIdx = 0;
+			}
+			else if (compareAObjList[1].getAdditionalData("adjudication") == "gold") {
+				this.decideIdx = 1;
+			}
 		}
 	}
 }
@@ -842,14 +1002,19 @@ AdjudicationRelation.prototype.genElementProperty = function() {
 		return this.compareAObj[this.decideIdx].genElementProperty();
 
 	$.each(this.type.propertyTypeList, function(idx, propertyType) {
-		if(_self.diffProp.indexOf(idx) != -1)
+		if(_self.diffProp.indexOf(idx) != -1) {
 			rStr += '<span style="border:2px solid red;padding-left:4px;padding-right:4px;">[' + propertyType.type + ':&nbsp;]</span>';
+		}
 		else {
 			rStr += '[' + propertyType.type  + ':&nbsp;';
 			if(propertyType.input == InputType.LIST) {
-				$.each(_self.compareAObj[0].propertyList[idx], function(idx, objElement) {
-					rStr += objElement.genElementStr() + ", ";
-				});
+				if(_self.compareAObj[0].propertyList[idx] == undefined)
+					rStr += "EMPTY, ";
+				else {
+					$.each(_self.compareAObj[0].propertyList[idx], function(idx, objElement) {
+						rStr += objElement.genElementStr() + ", ";
+					});
+				}
 				rStr = rStr.substr(0, rStr.length - 2);
 			}
 			else {
@@ -931,7 +1096,7 @@ AdjudicationRelation.genFromDOM = function(adjudicationRelationDOM, schema, proj
 			diffProp = $.map(diffPropStr.split(','), function(nStr) { return parseInt(nStr); });
 	}
 
-	return new AdjudicationRelation(relation.id, relation.type, comparedList[0], comparedList[1], diffProp);
+	return new AdjudicationRelation(relation.id, relation.type, comparedList, diffProp);
 }
 
 function IAdjudicationAnaforaObj(aObj1, aObj2) {
@@ -967,6 +1132,9 @@ IAdjudicationAnaforaObj.prototype.updateProperty = function(pTypeIdx) {
 			needUpdate = true;
 		}
 	}
+
+	if(needUpdate)
+		this.diffProp.sort();
 
 	return needUpdate;
 }

@@ -18,7 +18,7 @@ function AnnotateFrame(frameElement, setting, rawText) {
 			var aObjList = _self.overlap[overlapIdx].aObjList;
 			var checkedType = currentAProject.schema.checkedType;
 			var returnContextItem = {};
-			var matchChecked = AnnotateFrame.matchAObjFromOverlap(aObjList);
+			var matchChecked = AnnotateFrame.matchAObjFromOverlap(aObjList, checkedType);
 			if((propertyFrameList[0].isAssignRelation || propertyFrameList[1].isAssignRelation) && (currentAProject.selectedAObj instanceof AdjudicationEntity || currentAProject.selectedAObj instanceof AdjudicationRelation)) {
 				matchChecked = $.grep(matchChecked, function(aObj) {
 					return (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || aObj.id.split('@')[3] == "gold" || aObj.getAdditionalData("adjudication") === "gold");
@@ -42,20 +42,12 @@ AnnotateFrame.prototype.updatePosIndex = function(aObj) {
 
 	if(aObj instanceof Entity)
 		this.addEntityPosit(aObj, aObj);
-	else{
+	else if(aObj instanceof Relation){
 		this.addRelationPosit(aObj, aObj);
-		/*
-		for(var i=0;i<aObj.type.propertyTypeList.length;i++) {
-			if(aObj.type.propertyTypeList[i].input == InputType.LIST && aObj.propertyList[i] != undefined) {
-				$.each(aObj.propertyList[i], function(listIdx) {
-					if(aObj.propertyList[i][listIdx] instanceof Entity)
-						_self.addEntityPosit(aObj.propertyList[i][listIdx], aObj);
-					else
-						_self.updatePosIndex(aObj.propertyList[i][listIdx]);
-				});
-			}
-		}
-		*/
+	}
+	else {
+		
+		throw  "aObj: " + aObj.toString() + " is not an IAnaforaObj";
 	}
 }
 
@@ -126,7 +118,6 @@ AnnotateFrame.prototype.addEntity = function(newEntity) {
 AnnotateFrame.prototype.addRelation = function(newRelation) {
 	if(newRelation instanceof Relation) {
 		this.updatePosIndex(newRelation);
-		//this.updateOverlap(newRelation);
 	}
 }
 
@@ -161,9 +152,7 @@ AnnotateFrame.prototype.addSpan = function(newSpan, aObj) {
 	if(comparePairList != undefined) {
 		comparePairList[1].updateSpan();
 		this.addSpanPosit(newSpan, comparePairList[1]);
-		//this.updateOverlapRange(comparePairList[1].span[0].start-1, comparePairList[1].span[comparePairList[1].span.length-1].end+1);
 	}
-	//else
 	this.updateOverlapRange(newSpan.start-1, newSpan.end+1);
 }
 
@@ -174,7 +163,6 @@ AnnotateFrame.prototype.removeSpan = function(removeSpan, aObj) {
 	if(comparePairList != undefined) {
 		comparePairList[1].updateSpan();
 		this.removeSpanPosit(removeSpan, comparePairList[1]);
-		//this.updateOverlapRange(comparePairList[1].span[0].start-1, comparePairList[1].span[comparePairList[1].span.length-1].end+1);
 	}
 	//else
 	this.updateOverlapRange(removeSpan.start-1, removeSpan.end+1);
@@ -208,7 +196,6 @@ AnnotateFrame.prototype.addSpanPosit = function(span, addingAObj, addedAObj) {
 	if(addedAObj == addingAObj) {
 		$.each(addingAObj.linkingAObjList, function(idx, linkingAObj) {
 			_self.addSpanPosit(span, addingAObj, linkingAObj );
-			//_self.addEntityPosit(addedAObj, linkingAObj);
 		});
 	}
 }
@@ -266,6 +253,9 @@ AnnotateFrame.prototype.removeSpanPosit = function(span, removingAObj, removedAO
 AnnotateFrame.prototype.addEntityPosit = function(entity, addedAObj) {
 	var _self = this;
 
+	if(addedAObj instanceof EmptyEntity)
+		return ;
+
 	if(addedAObj == undefined)
 		addedAObj = entity;
 	
@@ -290,8 +280,14 @@ AnnotateFrame.prototype.addRelationPosit = function(relation, addedAObj) {
 						return true;
 					else if(relation.propertyList[idx][listIdx] instanceof Entity)
 						_self.addEntityPosit(relation.propertyList[idx][listIdx], addedAObj);
-					else
+					else if(relation.propertyList[idx][listIdx] instanceof Relation)
 						_self.addRelationPosit(relation.propertyList[idx][listIdx], addedAObj);
+					else {
+						console.log("error ");
+						console.log(relation.propertyList[idx]);
+						console.log(relation.propertyList[idx][listIdx]);
+						throw " object is not aObj";
+					}
 				});
 			}
 		});
@@ -348,11 +344,15 @@ AnnotateFrame.prototype.updateOverlap = function(aObj) {
 AnnotateFrame.prototype.updateOverlapRange = function(firstSpanStart, lastSpanEnd) {
 	// Given the start and end span, fined out the affected Overlap, and modify the overlap list
 
+	if(firstSpanStart == undefined || lastSpanEnd == undefined)
+		return ;
+
 	if(firstSpanStart < 0)
 		firstSpanStart = 0;
 
 	if(lastSpanEnd > this.rawText.length)
 		lastSpanEnd = this.rawText.length;
+
 
 	var affectedOverlapIdx = this.findOverlapRange(firstSpanStart, lastSpanEnd);
 	var affectedPosit = [null, null];
@@ -373,36 +373,6 @@ AnnotateFrame.prototype.updateOverlapRange = function(firstSpanStart, lastSpanEn
 			affectedPosit[1] = Math.max(lastSpanEnd, this.overlap[this.overlap.length-1].span.end);
 	else
 		affectedPosit[1] = this.overlap[affectedOverlapIdx[1]].span.start;
-	//var affectedOverlap;
-	/*
-	var affectedPosit;
-	var newOverlap = [];
-	var checkedType = currentAProject.schema.checkedType;
-
-	if(affectedOverlapIdx[0] == -1 && affectedOverlapIdx[1] == null) {
-		affectedPosit = [firstSpanStart, lastSpanEnd];
-
-		if(currentAProject.entityList.length == 0)
-			affectedOverlapIdx = [null, null];
-		else
-			affectedOverlapIdx = [currentAProject.entityList[currentAProject.entityList.length-1], null];
-	}
-	else {
-		affectedPosit = [affectedOverlapIdx[0]==null ? 0 : this.overlap[affectedOverlapIdx[0]].span.start, affectedOverlapIdx[1]==null ? lastSpanEnd : this.overlap[affectedOverlapIdx[1]].span.start ];
-	}
-
-	if(affectedOverlapIdx[0] == null)
-		affectedOverlap = [null, -1];
-	else
-		affectedOverlap = [this.overlap[affectedOverlapIdx[0]], -1];
-
-	if(affectedOverlapIdx[1] == null)
-		affectedOverlap[1] = null
-	else
-		affectedOverlap[1] = this.overlap[affectedOverlapIdx[1]];
-	*/
-		
-	//this.generateOverlapListFromPosit(affectedPosit[0], affectedPosit[1], newOverlap);
 	this.generateOverlapListFromPosit(affectedPosit[0], affectedPosit[1], newOverlap);
 	
 	this.updateAnnotateFragement(newOverlap, undefined, affectedOverlapIdx);
@@ -496,7 +466,30 @@ AnnotateFrame.prototype.searchMatchOverlap = function(pos) {
 }
 
 AnnotateFrame.prototype.getSelectRangeSpan = function() {
+var startOffset = 0, endOffset = 0;
+    if (typeof window.getSelection != "undefined") {
+        var range = window.getSelection().getRangeAt(0);
+        var preCaretRange = range.cloneRange();
+        //preCaretRange.selectNodeContents(this.frameDiv.get(0));
+        //preCaretRange.selectNodeContents(this.frameDiv(0));
+
+        preCaretRange.selectNodeContents(this.frameDiv.get(0));
+
+        preCaretRange.setEnd(range.startContainer, range.startOffset);
+        startOffset = preCaretRange.toString().length;
+        endOffset = startOffset + range.toString().length;
+    } else if (typeof document.selection != "undefined" &&
+               document.selection.type != "Control") {
+        var textRange = document.selection.createRange();
+        var preCaretTextRange = document.body.createTextRange();
+        preCaretTextRange.moveToElementText(this.frameDiv.get(0));
+        preCaretTextRange.setEndPoint("EndToStart", textRange);
+        startOffset = preCaretTextRange.text.length;
+        endOffset = startOffset + textRange.text.length;
+    }
+    return new SpanType(startOffset, endOffset);
     // return current mouse select text range span
+    /*
     var caretStart, caretEnd;
     var tSpan = null;
     var range = window.getSelection().getRangeAt(0);
@@ -511,6 +504,7 @@ AnnotateFrame.prototype.getSelectRangeSpan = function() {
     tSpan = new SpanType(caretStart, caretEnd);
 
     return tSpan;
+    */
 }
 
 AnnotateFrame.prototype.getSpanElementIndex = function(spanElement) {
@@ -521,77 +515,13 @@ AnnotateFrame.prototype.getSpanElementIndex = function(spanElement) {
 	return overlapIdx;
 }
 
-/*
-AnnotateFrame.prototype.generateAnnotateText = function(overlapList, checkedType) {
-
-	this.updateAnnotateFragement(overlapList);
-
-	var span, aObjList;
-	var prevEnd = 0;
-	var rText = "";
-	var spanTag = "";
-	var rText = this.frameDiv.text();
-
-	for(var idx=overlapList.length-1;idx>=0;idx--) {
-		var element = overlapList[idx];
-		span = element.span;
-		aObjList = element.aObjList;
-
-		var matchChecked;
-		if(checkedType == undefined)
-			matchChecked = aObjList;
-		else {
-			matchChecked = $.grep(aObjList, function(aObj) {
-			return checkedType.indexOf(aObj.type) != -1;
-		});
-		}
-
-		if((matchChecked.length == 0) || !(matchChecked[0] instanceof Entity))
-			spanTag = '<span class="filterOut">';
-		else if(matchChecked[0] instanceof Entity && (matchChecked.length == 1 || (matchChecked.length > 1 && !(matchChecked[1] instanceof Entity)))) {
-			var entityObj = matchChecked[0];
-			var spanClass = "entity";
-			if(_setting.schema_mode == "Adjudication") {
-				if(entityObj instanceof AdjudicationEntity) {
-					if(entityObj.decideIdx == undefined)
-						spanClass += " adjConflict";
-					else if(entityObj.decideIdx == -1)
-						spanClass += " adjRemove";
-					else
-						spanClass += " adjDone"
-				}
-				else {
-					if(entityObj.getAdditionalData("adjudication") == "gold")
-						spanClass += " adjDone";
-					else if(entityObj.getAdditionalData("adjudication") == "not gold") 
-						spanClass += " adjRemove";
-					else
-						spanClass += " adjConflict";
-				}
-			}
-
-			if(matchChecked.length > 1)
-				spanClass += ' multipleAObj';
-				
-			spanTag = '<span class="' + spanClass + '" style="background-color:#' + matchChecked[0].type.color + '">';
-		}
-		else {
-			spanTag = '<span class="overlap multipleAObj">';
-		}
-		rText = rText.substring(0, span.start) + spanTag + rText.substring(span.start, span.end) + "</span>" + rText.substring(span.end);
-	}
-
-	this.frameDiv.html(rText);
-}
-*/
-
 AnnotateFrame.prototype.updateAnnotateFragement = function(overlapList, checkedType, removeOverlapIdx) {
 	var startShift = 0;
-	var range=document.createRange();
 	var span, spanTag;
 	var aObjList;
 	var spanList = this.frameDiv.children('span');
 	var matchChecked;
+	var range=document.createRange();
 	range.selectNode(this.frameDiv.get(0));
 	//var rawTextFragementStr = this.rawText;
 	
@@ -620,61 +550,14 @@ AnnotateFrame.prototype.updateAnnotateFragement = function(overlapList, checkedT
 	rawTextFragementStr = range.toString().replace("/\&lt;/g", "<").replace("/\&gt;/g", ">").replace("/\&amp;/g", "&");
 	range.deleteContents();
 
+
 	for(var idx=overlapList.length-1;idx >=0; idx--) {
 		span = overlapList[idx].span;
 
 
 		rawTextFragementStr = rawTextFragementStr.substring(0, span.start - startShift) + '<span>' + rawTextFragementStr.substring(span.start - startShift, span.end - startShift) + '</span>' + rawTextFragementStr.substring(span.end - startShift);
-		/*
-		if(checkedType == undefined)
-			matchChecked = overlapList[idx].aObjList;
-		else {
-
-			matchChecked = $.grep(overlapList[idx].aObjList, function(aObj) {
-			return checkedType.indexOf(aObj.type) != -1;
-			});
-		}
-
-		matchChecked = $.grep(matchChecked, function(aObj) {
-			var comparePair = aObj.getAdditionalData("comparePair");
-			return (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || comparePair == undefined || !(comparePair[comparePair.length-1] instanceof AdjudicationEntity || comparePair[comparePair.length-1] instanceof AdjudicationRelation) );
-		});
-
-		if(matchChecked.length == 0 || !(matchChecked[0] instanceof Entity))
-			spanTag = '<span class="filterOut">';
-		else if(matchChecked.length == 1 || (matchChecked.length > 1 && matchChecked[1] instanceof Relation)) {
-			var spanClassStr = "entity";
-			if(_setting.isAdjudication) {
-				if(matchChecked[0] instanceof AdjudicationEntity) {
-					if(matchChecked[0].decideIdx == undefined)
-						spanClassStr += " adjConflict";
-					else if(matchChecked[0].decideIdx == -1)
-						spanClassStr += " adjRemove";
-					else
-						spanClassStr += " adjDone"
-				}
-				else {
-					if(matchChecked[0].getAdditionalData("adjudication") == "gold")
-						spanClassStr += " adjDone";
-					else if(matchChecked[0].getAdditionalData("adjudication") == "not gold") 
-						spanClassStr += " adjRemove";
-					else
-						spanClassStr += " adjConflict";
-				}
-			}
-			if(matchChecked.length > 1)
-				spanClassStr += " multipleAObj";
-
-			spanTag = '<span class="' + spanClassStr + '" style="background-color:#' + matchChecked[0].type.color + '">';
-		}
-		else {
-			spanTag = '<span class="overlap multipleAObj">';
-		}
-		*/
-
 	}
 
-	//rawTextFragementStr = rawTextFragementStr.replace("<span>", "@@##SPAN##@@").replace("</span>", "##@@SPAN@@##").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("##@@SPAN@@##", "</span>").replace("@@##SPAN##@@", "<span>");
 	rawTextFragementStr = rawTextFragementStr.replace(/<span>/g, "@@##SPAN##@@");
 	rawTextFragementStr = rawTextFragementStr.replace(/<\/span>/g, "##@@SPAN@@##");
 	rawTextFragementStr = rawTextFragementStr.replace(/&/g, "&amp;");
@@ -683,24 +566,16 @@ AnnotateFrame.prototype.updateAnnotateFragement = function(overlapList, checkedT
 	rawTextFragementStr = rawTextFragementStr.replace(/##@@SPAN@@##/g, "</span>")
 	rawTextFragementStr = rawTextFragementStr.replace(/@@##SPAN##@@/g, "<span>");
 
+	rawTextFragementStr = rawTextFragementStr.replace(/\r/g, "&#13;");
+	rawTextFragementStr = rawTextFragementStr.replace(/\n/g, "&#10;");
 	var rawTextFragement = range.createContextualFragment(rawTextFragementStr);
+	//this.frameDiv.html(rawTextFragementStr);
 	range.insertNode(rawTextFragement);
 	this.spanElementList = this.frameDiv.find('span');
 
 	if(removeOverlapIdx==undefined || removeOverlapIdx[0] == undefined)
 		removeOverlapIdx = [-1]
 	this.updateOverlapList(overlapList, undefined, undefined, removeOverlapIdx[0]+1);
-	/*
-	$(rawTextFragement).children("span").bind('click', annotateClick);
-	var lastSpanElement = $($(rawTextFragement).children("span:last")[0]);
-	range.insertNode(rawTextFragement);
-
-	this.spanElementList = this.frameDiv.children('span');
-
-	// update markElement in each affected Entity
-	*/
-
-	//return lastSpanElement;
 }
 
 AnnotateFrame.prototype.updateOverlapList = function(overlapList, checkedType, diffCheckedType, overlapStartIdx ) {
@@ -714,26 +589,12 @@ AnnotateFrame.prototype.updateOverlapList = function(overlapList, checkedType, d
 	if(overlapStartIdx == undefined)
 		overlapStartIdx = 0;
 
-	//this.spanElementList = this.frameDiv.find("span");
-
 	$.each(overlapList, function(spanIdx) {
 		spanIdx = parseInt(spanIdx);
 		var overlap = overlapList[spanIdx];
-		/*
-		if(diffCheckedType != undefined && ($(diffCheckedType).not(jQuery.map(overlap.aObjList, function(n) { return n.type } )).length == $(diffCheckedType).length)) {
-			return true ;
-		}
-		*/
 
 		var matchChecked = AnnotateFrame.matchAObjFromOverlap(overlap.aObjList, checkedType);
 
-		// is assign relation in adjudication mode
-		if(propertyFrameList != undefined && propertyFrameList.length >=2 && (propertyFrameList[0].isAssignRelation || propertyFrameList[1].isAssignRelation)) {
-// && (currentAProject.selectedAObj instanceof AdjudicationEntity || currentAProject.selectedAObj instanceof AdjudicationRelation)) {
-			matchChecked = $.grep(matchChecked, function(aObj) {
-				return (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || aObj.id.split('@')[3] == "gold" || aObj.getAdditionalData("adjudication") === "gold");
-			});
-		}
 		
 		var spanElement = $(_self.spanElementList[overlapStartIdx + spanIdx]);
 
@@ -745,9 +606,7 @@ AnnotateFrame.prototype.updateOverlapList = function(overlapList, checkedType, d
 		else if( matchChecked.length == 1 || !(matchChecked[1] instanceof Entity)) {
 			var entity = matchChecked[0];
 
-
 			spanElement.css("background-color", "#"+entity.type.color);
-			//spanElement.removeClass("overlap").removeClass("filterOut").removeClass("highLight").removeClass("multipleAObj").addClass("entity");
 			spanElement.removeClass("overlap filterOut highLight multipleAObj adjRemove adjDone adjConflict").addClass("entity");
 
 			if(_self.setting.isAdjudication) {
@@ -782,7 +641,6 @@ AnnotateFrame.prototype.updateOverlapList = function(overlapList, checkedType, d
 			spanElement.css("background-color", "");
 			spanElement.removeClass("filterOut entity highLight adjRemove adjDone adjConflict").addClass("overlap").addClass("multipleAObj");
 			spanElement.unbind();
-			// spanElement.bind('click', annotateClick);
 		}
 		
 	});
@@ -792,14 +650,24 @@ AnnotateFrame.matchAObjFromOverlap = function(aObjList, checkedType) {
 	
 	var matchedAObj = $.grep(aObjList, function(aObj) {
 		var comparePair = aObj.getAdditionalData("comparePair");
-		return (checkedType == undefined || checkedType.indexOf(aObj.type) != -1) && (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || comparePair == undefined || !(comparePair[comparePair.length-1] instanceof AdjudicationEntity || comparePair[comparePair.length-1] instanceof AdjudicationRelation));
+		return (checkedType == undefined || checkedType.indexOf(aObj.type) != -1) && (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || (comparePair == undefined || !(comparePair[comparePair.length-1] instanceof AdjudicationEntity || comparePair[comparePair.length-1] instanceof AdjudicationRelation)));
 	});
 
+	// is assign relation in adjudication mode
+	if(this.setting != undefined && this.setting.isAdjudication && propertyFrameList != undefined && propertyFrameList.length >=2 && (propertyFrameList[0].isAssignRelation || propertyFrameList[1].isAssignRelation)) {
+		matchedAObj = $.grep(matchedAObj, function(aObj) {
+			return (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || aObj.id.split('@')[3] == "gold" || aObj.getAdditionalData("adjudication") === "gold");
+		});
+	}
+
+
+	
 	return matchedAObj;
 }
 
 AnnotateFrame.prototype.moveAnnotation = function(step, adj, currentAObj) {
 
+	// step = 1 => forward, step = -1 => backward
 	var spanIdx = 0;
 	var spanAObjIdx = 0;
 	var rAObj = undefined;
@@ -810,6 +678,7 @@ AnnotateFrame.prototype.moveAnnotation = function(step, adj, currentAObj) {
 			spanIdx = this.overlap.length-1;
 			spanAObjIdx = this.overlap[spanIdx].aObjList.length-1;
 		}
+		currentAObj = this.overlap[spanIdx].aObjList[spanAObjIdx];
 	}
 	else {
 		overlap = currentAObj.markElement[0];
@@ -823,6 +692,9 @@ AnnotateFrame.prototype.moveAnnotation = function(step, adj, currentAObj) {
 
 			if(idx == -1)
 				throw "find overlap error in AObj:" + checkedAObj.id;
+			if( checkedAObj == currentAObj && idx==0)
+				return false;
+
 			if(idx > 0)
 				return false;
 
@@ -887,11 +759,13 @@ AnnotateFrame.prototype.moveAnnotation = function(step, adj, currentAObj) {
 		while(!filterFunc(rAObj, overlap));
 	}
 
+	if (rAObj == currentAObj) {
+		return undefined;
+	}
 	return rAObj;
 }
 
 function Overlap(span, aObjList, spanElement) {
 	this.span = span;
 	this.aObjList = aObjList;
-	// this.spanElement = spanElement;
 }

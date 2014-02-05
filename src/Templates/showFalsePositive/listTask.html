@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block container %}
+<ul>
+{% for tName in taskName %}
+  {% load url from future %}
+  {% with tName.doc|add:'/'|add:tName.task as t_url %}
+  {% if tName.task in preannotationName %}
+    {% url 'displayTaskInShow' t_url as task_url %}
+    {% if task_url %}
+  <li class="hasAnnotation"><a href="{{ task_url }}">{{ t_url }}</a></li>
+    {% endif %}
+ {% else %}
+    {% url 'displayTask' t_url as task_url %} 
+    {% if task_url %}
+      <li><a href="{{ task_url }}">{{ t_url }}</a></li>
+    {% endif %}
+ {% endif %}
+  {% endwith %}
+{% endfor %}
+</ul>
+
+{% endblock %}

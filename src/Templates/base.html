@@ -20,6 +20,11 @@
 {% for jsName in js %}
 <script src="{{ root_url }}{{ STATIC_URL }}{{jsName}}" type="text/javascript"></script>
 {% endfor %}
+{% for schema, schemaMode in js_schemaSpecific.items %} {% ifequal schema settingVars.schema %} {% if settingVars.isAdjudication %} {% if schemaMode.adjudication %} {% for jsName in schemaMode.adjudication %}
+<script src="{{ root_url }}{{ STATIC_URL }}{{jsName}}" type="text/javascript"></script>
+{% endfor %} {% endif %} {% else %} {% if schemaMode.annotate %} {% for jsName in schemaMode.annotate %}
+<script src="{{ root_url }}{{ STATIC_URL }}{{jsName}}" type="text/javascript"></script>
+{% endfor %} {% endif %} {% endif %} {% endifequal %} {% endfor %}
 <script type="text/JavaScript">
   var _setting = {
 	{% for varKey, value in settingVars.items %}
@@ -29,8 +34,6 @@
 </script>
 </head>
 <body onload="onLoad()">
-<!--    <div class="container"> -->
         {% block container %}{% endblock %}
-<!--    </div> -->
 </body>
 </html>

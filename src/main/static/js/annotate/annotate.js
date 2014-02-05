@@ -27,26 +27,19 @@ function onLoad() {
 	//projectSelector = undefined;
 	
 
+	// set menu
 	navMenu = $("#headerWrapper > ul");
 
+	// set file menu
 	var fileMenu = $(navMenu.children("li").get(0)).children("ul").children("li");
 	fileMenu.eq(0).bind("click", function() { if(getIsChanged() && window.confirm("Save Task?")) { saveFile(); } projectSelector.selectProject(); projectSelector.popup(); });
 	fileMenu.eq(1).bind("click", function() { saveFile(); });
-	fileMenu.eq(3).bind("click", function() { if(_setting.isAdjudication){ currentAProject.adjudicationCompleted();} else{ if(getIsChanged()) {saveFile();} setCompleted();}});
+	fileMenu.eq(3).bind("click", function() { if(_setting.isAdjudication){ currentAProject.adjudicationCompleted();} else{ temporalSave();saveFile();setCompleted();} });
 
 	if(_setting.projectName == "" || _setting.corpusName == "" || _setting.taskName == "" || _setting.schema === undefined)
 		projectSelector.popup();
 	else
 		loadNewProject();
-	/*
-	if(_setting.projectName == "") {
-		projectSelector.selectProject();
-	}
-	else if(_setting.corpus == "") 
-		projectSelector.selectCorpus();
-	else
-		loadNewProject();
-	*/
 }
 
 function confirmLeave(evt) {
@@ -134,28 +127,34 @@ function loadNewProject() {
 	else {
 
 		xmlAnaforaText = "";
-		AnaforaProject.getXML(function(data) { xmlAnaforaText = data;}, _setting);
+		try {
+			AnaforaProject.getXML(function(data) { xmlAnaforaText = data;}, _setting);
+		}
+		catch(err) {
+			alert(err + "\n Please contact the administrator.");
+			throw err;
+		}
 
 		if(xmlAnaforaText == "" || xmlAnaforaText == undefined) {
 
 			if (_setting.isAdjudication) {
 				xmlAnaforaText = {};
-				var adjAnnotator = AnaforaProject.getAdjudicationAnnotator(_setting);
+				var adjAnnotator = undefined;
+				if(_setting.annotator.indexOf(";") != -1)
+					adjAnnotator = _setting.annotator.split(";");
+				else
+					adjAnnotator = AnaforaProject.getAdjudicationAnnotator(_setting);
 	
 				var annotatorName = "";
 				var xmlSuccessFunc = function(data) {
 					xmlAnaforaText[annotatorName] = data;
 				}
 
-				/*
-				var adjSrcSchemaModeList = Object.keys(_setting.schemaMap[_setting.schema]).sort();
-				var adjIdx = adjSrcSchemaModeList.indexOf("Adjudication");
-				var adjSrcSchemaMode = adjSrcSchemaModeList[(adjIdx+1) % adjSrcSchemaModeList.length];
-				*/
-	
 				$.each(adjAnnotator, function(idx, _annotatorName) {
-					annotatorName = _annotatorName;
-					AnaforaProject.getXML(xmlSuccessFunc, _setting, _annotatorName, false);
+					if(_annotatorName != "preannotation" && _annotatorName != "gold") {
+						annotatorName = _annotatorName;
+						AnaforaProject.getXML(xmlSuccessFunc, _setting, _annotatorName, false);
+					}
 				});
 			}
 			else {
@@ -173,11 +172,19 @@ function loadNewProject() {
 
 	// load anafora data
 	aProjectWrapper = $("#aProjectWrapper");
-	//rawText = $("#rawText").text();
-	rawText = document.getElementById("rawText").innerHTML;
 
-	var annotatorDiv = $('<div>' + rawText + '</div>');
+	//rawText = document.getElementById("rawText").outerHTML.replace(' id="rawText"', '') ;
+	//rawText = document.getElementById("rawText").innerHTML;
+
+	//var annotatorDiv = $('<div>' + rawText + '</div>');
+	//var annotatorDiv = $("#rawText").clone().attr('id', '');
+	var annotatorDiv = $("#rawText");
+	//rawText = document.getElementById("rawText").innerHTML;
 	rawText = annotatorDiv.text();
+	//annotatorDiv.css("display", "inline");
+	//rawText = annotatorDiv.text();
+	//var annotatorDiv = $("#rawText");
+	//annotatorDiv.css("display", "inline");
 
 	if(_setting.isAdjudication) {
 		annotatorDiv.addClass("adjudicationText");
@@ -193,8 +200,12 @@ function loadNewProject() {
 			tXMLText[_setting.annotator] = xmlAnaforaText;
 			
 		$.each(tXMLText, function(annotatorName) {
-			if(_setting.isAdjudication && annotatorName == _setting.annotator && Object.keys(tXMLText).length == 1)
-				currentAProject = new AnaforaAdjudicationProject(schema,  _setting.taskName);	
+			if(_setting.isAdjudication && annotatorName == _setting.annotator && Object.keys(tXMLText).length == 1) {
+				if(_setting.schema == "Coreference")
+					currentAProject = new AnaforaAdjudicationProjectCoreference(schema,  _setting.taskName);	
+				else
+					currentAProject = new AnaforaAdjudicationProject(schema,  _setting.taskName);	
+			}
 			else if(annotatorName == "preannotation") {
 				currentAProject = new AnaforaProject(schema, _setting.annotator, _setting.taskName);
 			}
@@ -205,6 +216,9 @@ function loadNewProject() {
 			var xmlDOM = $.parseXML(tXMLText[annotatorName]);
 			currentAProject.readFromXMLDOM(xmlDOM, _setting.isAdjudication);
 			aProjectList.push(currentAProject);
+			if(annotatorName == "preannotation") {
+				currentAProject.completed = false;
+			}
 		});
 	}
 	else if(!_setting.isAdjudication) {
@@ -217,14 +231,18 @@ function loadNewProject() {
 	if(_setting.isAdjudication) {
 		
 		if(!(currentAProject instanceof AnaforaAdjudicationProject)) {
-		currentAProject = new AnaforaAdjudicationProject(schema, _setting.taskName);
-		currentAProject.setAnnotateFrame(annotateFrame);
-		var tAProjectList = {};
-		$.each(aProjectList, function(idx, aProject) {
-			tAProjectList[aProject.annotator] = aProject;
-		});
-		currentAProject.addAnaforaProjectList(tAProjectList);
-		}
+		
+			if(_setting.schema == "Coreference")
+				currentAProject = new AnaforaAdjudicationProjectCoreference(schema, _setting.taskName);
+			else
+				currentAProject = new AnaforaAdjudicationProject(schema, _setting.taskName);
+			currentAProject.setAnnotateFrame(annotateFrame);
+			var tAProjectList = {};
+			$.each(aProjectList, function(idx, aProject) {
+				tAProjectList[aProject.annotator] = aProject;
+			});
+			currentAProject.addAnaforaProjectList(tAProjectList);
+			}
 		$("#aProjectWrapper").css("margin-right", "540px");
 	}
 	else {
@@ -285,30 +303,30 @@ function loadNewProject() {
         	};
 
 	currentAProject.annotateFrame.updateAnnotateFragement();
-	// annotatorDiv.children("span").bind('click', annotateClick);
 	// extend entire word
 	annotatorDiv.bind("mouseup", function(evt) { if ((window.getSelection && window.getSelection().toString()!=="" ) || (document.selection && document.selection.createRange().text !== "" ) ){ if(evt.altKey || evt.ctrlKey){;}else{ snapSelectionToWord();} }});
 	// load relation list
 	// relationFrame = new RelationFrame($("#relationFrame"));
 	relationFrame = new RelationFrame($("#aProjectWrapper table"));
-	var displayRelationList = undefined;
+	var displayRelationList = [];
 	if(Object.keys(currentAProject.relationList).length > 0) {
-		displayRelationList = $.map(currentAProject.relationList, function (value, key) { return value; });
-	}
-	else if (currentAProject instanceof AnaforaAdjudicationProject) {
-		displayRelationList = $.map(currentAProject.adjudicationRelationList, function(value) { return value; });
-		$.each( currentAProject.projectList, function(annotator, aProject) {
-			$.each(aProject.relationList, function(key, tRelation) {
-				//if( currentAProject.comparePairRelation[tRelation] == undefined)
-				if(tRelation.getAdditionalData("comparePair") == undefined)
-					displayRelationList.push(tRelation);
-			});
-		});
-		if(displayRelationList.length == 0)
-			displayRelationList = undefined;
+		displayRelationList = displayRelationList.concat( $.map(currentAProject.relationList, function (value, key) { return value; }) );
 	}
 
-	if(displayRelationList != undefined) {
+	if (currentAProject instanceof AnaforaAdjudicationProject) {
+		displayRelationList = displayRelationList.concat( $.map(currentAProject.adjudicationRelationList, function(value) { return value; }) );
+		if(currentAProject.projectList != undefined) {
+			$.each( currentAProject.projectList, function(annotator, aProject) {
+				$.each(aProject.relationList, function(key, tRelation) {
+					//if( currentAProject.comparePairRelation[tRelation] == undefined)
+					if(tRelation.getAdditionalData("comparePair") == undefined)
+						displayRelationList.push(tRelation);
+				});
+			});
+		}
+	}
+
+	if(displayRelationList != undefined && displayRelationList.length > 0) {
 		relationFrame.displayRelations(displayRelationList);
 		showRelationFrame();
 	}
@@ -448,7 +466,11 @@ function checkEntityEmptyProperty(aObj) {
 }
 
 function selectAObj(aObj) {
-	if(propertyFrameList[0].isAssignRelation) {
+	if(aObj == null) {
+		propertyFrameList[0].hide();
+		propertyFrameList[1].hide();
+	}
+	else if(propertyFrameList[0].isAssignRelation) {
 		propertyFrameList[0].modifyCurrentProperty(aObj);
 	}
 	else if(propertyFrameList[1].isAssignRelation) {
@@ -470,11 +492,6 @@ function annotateClick(evt) {
 	var aObjList = currentAProject.annotateFrame.overlap[overlapIdx].aObjList;
 	var checkedType = currentAProject.schema.checkedType;
 	var matchChecked = AnnotateFrame.matchAObjFromOverlap(aObjList, checkedType);
-	/*
-	var matchChecked = $.grep(aObjList, function(aObj) {
-		return checkedType.indexOf(aObj.type) != -1;
-	});
-	*/
 
 	if(matchChecked.length == 1) {
 		aObj = matchChecked[0];
@@ -506,7 +523,13 @@ function temporalSave() {
 	if(supports_html5_storage() && editable ) {
 		
 		setIsChanged( true );
-		var tStr = currentAProject.writeXML();
+		try {
+			var tStr = currentAProject.writeXML();
+		}
+		catch(err) {
+			alert("write xmlfile error!");
+			throw err;
+		}
 		localStorage["anafora"] = tStr;
 		localStorage["path"] = window.location.pathname;
 	}
@@ -635,7 +658,7 @@ function registerHotkey(schema) {
 
 	if(_setting.isAdjudication) {
 		var selectMarkable = function(decideIdx) {
-			if(currentAProject.selectedAObj instanceof AdjudicationEntity) {
+			if(currentAProject.selectedAObj instanceof AdjudicationEntity || currentAProject.selectedAObj instanceof AdjudicationRelation) {
 				var aObj = currentAProject.selectedAObj;
 				if(aObj.decideIdx == ((decideIdx+1)%2)) {
 					aObj.decideIdx = undefined;
@@ -656,7 +679,6 @@ function registerHotkey(schema) {
 				tEvent.data._self = propertyFrameList[0];
 				propertyFrameList[0].markGoldBtnClick(tEvent);
 			}
-			
 		}
 
 		body.bind("keydown", "left", function(evt) {
@@ -666,24 +688,34 @@ function registerHotkey(schema) {
 		body.bind("keydown", "right", function(evt) {
 			selectMarkable(1);
 		});
+
+		body.bind("keydown", function(evt) {
+			switch(evt.which) {
+				case 220:
+					splitAdjAObj();
+					break;
+				default:
+					break;
+			}
+		});
 	}
 }
 
 function restore() {
-
 	propertyFrameList[0].restore();
 	if(propertyFrameList[1].isShow()) {
 		propertyFrameList[1].restore();
 	}
 
 	schemaDiv.jstree("restore");
-	//schemaCheckedChange();
-
 }
 function assignEntityToRelation(propIdx) {
 	if(currentAProject != undefined && currentAProject.selectedAObj != null) {
-		$($(propertyFrameList[0].propertyTable.children("tbody").children("tr").eq(propIdx-1)[0]).children("td").eq(1)).trigger("click");
-
+		if((currentAProject.selectedAObj instanceof AdjudicationEntity || currentAProject.selectedAObj instanceof AdjudicationRelation) && currentAProject.selectedAObj.decideIdx !== undefined ) {
+			$($(propertyFrameList[currentAProject.selectedAObj.decideIdx].propertyTable.children("tbody").children("tr").eq(propIdx-1)[0]).children("td").eq(1)).trigger("click");
+		}
+		else
+			$($(propertyFrameList[0].propertyTable.children("tbody").children("tr").eq(propIdx-1)[0]).children("td").eq(1)).trigger("click");
 	}
 }
 
@@ -697,65 +729,11 @@ function moveAnnotation(step, adj) {
 			}
 			selectAObj(tAObj);
 		}
-	}
-}
-/*
-function moveAnnotation(step, adj) {
-	var positIdx = Object.keys(currentAProject.annotateFrame.positIndex);
-	var startdx;
-	var spanIdx = 0;
-	var newEntity;
-	if(positIdx.length > 0) {
-		startIdx = positIdx[0];
-		spanIdx = 0;
-		if(currentAProject.selectedAObj == null && !adj) {
-			newEntity = currentAProject.positIndex[positIdx[0]][0];
-		}
 		else {
-			var currentStartIdx = (currentAProject.selectedAObj == null ) ? startIdx : currentAProject.selectedAObj.span[0].start;
-			startIdx = currentStartIdx;
-			var currentSpanIdx = (currentAProject.selectedAObj == null ) ? spanIdx : currentAProject.annotateFrame.positIndex[startIdx].indexOf(currentAProject.selectedAObj);
-			spanIdx = currentSpanIdx;
-			do {
-				if((step == -1 && spanIdx == 0)||(step == 1 && spanIdx == currentAProject.annotateFrame.positIndex[startIdx].length-1)) {
-					var tPosIdx = positIdx.indexOf(startIdx.toString());
-					if(step == -1){
-						if(tPosIdx == 0)
-							startIdx = positIdx[positIdx.length-1];
-						else
-							startIdx = positIdx[tPosIdx-1];
-						spanIdx = currentAProject.positIndex[startIdx].length-1;
-					}
-					else {
-						if(tPosIdx == positIdx.length-1)
-							startIdx = positIdx[0];
-						else
-							startIdx = positIdx[tPosIdx+1];
-						spanIdx = 0;
-					}
-
-				}
-				else
-					spanIdx += (step);
-
-				newEntity = currentAProject.annotateFrame.positIndex[startIdx][spanIdx];
-				if(newEntity.span[0].start == startIdx && (!adj || (adj && ((newEntity instanceof AdjudicationEntity && newEntity.decideIdx == undefined) || (!(newEntity instanceof AdjudicationEntity) && newEntity.getAdditionalData("adjudication") == undefined ) ))))
-					break;
-			}
-			while(currentStartIdx != startIdx || spanIdx != currentSpanIdx);
-
+			alert("Could not find any more annotation");
 		}
-		if(newEntity != undefined) {
-			if(!checkEmptyProperty()) {
-				return false;
-			}
-			selectAObj(newEntity);
-		}
-		else
-			alert("Can't find match annotation");
 	}
 }
-*/
 
 function supports_html5_storage() {
   try {
@@ -776,6 +754,22 @@ function hideRelationFrame() {
 	aProjectWrapper.css("padding-bottom", "10px");
 	relationFrame.hide();
 	$($("#viewMenu > ul").children("li").get(4)).children("a").removeClass("selected");
+}
+
+function splitAdjAObj() {
+	var adjAObj = null;
+	if(_setting != undefined && _setting.isAdjudication && currentAProject !== undefined && ((adjAObj = currentAProject.selectedAObj) !== null) && (adjAObj instanceof AdjudicationEntity || adjAObj instanceof AdjudicationRelation)) {
+		currentAProject.splitAdjAObj(adjAObj);
+		currentAProject.selectedAObj = adjAObj.compareAObj[0];
+		if(adjAObj instanceof AdjudicationRelation) {
+			relationFrame.removeRelationRow();
+			relationFrame.insertRelationRow(adjAObj.compareAObj[0]);
+			relationFrame.insertRelationRow(adjAObj.compareAObj[1]);
+			relationFrame.relationClick(relationFrame.searchRowFromRelation(currentAProject.selectedAObj));
+		}
+		temporalSave();
+		selectAObj(currentAProject.selectedAObj);
+	}
 }
 
 function addNewAObj(aType) {
@@ -800,15 +794,7 @@ function addNewAObj(aType) {
 
 		// update schema tree count
 		var tree = $.jstree._reference(schemaDiv);
-		//checkedList = tree.get_checked();
-		//tree.refresh(currentAProject.schema.typeDict[aType.type]);
 		tree.refresh($("#ID_" + aType.type.replace("/", "_SLASH_")));
-		/*
-		tree.uncheck_all();
-		$.each(checkedList, function() {
-			tree.change_state($("#" + this.id, false));
-		});
-		*/
 		temporalSave();
 		currentAProject.selectAObj(newAObj);
 		showAObjProperty(newAObj)

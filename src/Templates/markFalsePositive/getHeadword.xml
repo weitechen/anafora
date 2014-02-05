@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+<info>
+  <savetime></savetime>
+  <annotator fullname="headword automatic generated">headword</annotator>
+</info>
+
+<annotations>
+  {% for entity in entityList %}
+  <entity>
+    <id>{{ entity.id }}</id>
+    <type>{{ entity.aType.type }}</type>
+    <comment>{{ entity.comment }}</comment>
+    <span>{{ entity.span.begin }},{{ entity.span.end }}</span>
+  </entity>
+  {% endfor%}
+</annotations>
+</data>

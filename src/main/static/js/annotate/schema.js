@@ -1,7 +1,7 @@
 var InputType = { LIST:{v:0, name:"list"},
 		CHOICE:{v:1, name:"choice"},
 		MULTICHOICE:{v:2, name:"multichoice"},
-		TEXT:{v:3, name:"text"}, };
+		TEXT:{v:3, name:"text"} };
 
 function IType(type, color, hotkey, parentType) {
 	if(type != undefined) {
@@ -148,14 +148,6 @@ Schema.prototype.parseSchemaXML = function(xmlDOM) {
 				var property = this;
 				$.each(this.instanceOfList, function(idx, linkedTypeName) {
 					property.instanceOfList[idx] = _self.getTypeByTypeName(linkedTypeName.trim());
-
-					if(aType instanceof EntityType && property.instanceOfList[idx] instanceof RelationType) {
-						console.log("EntityType " + aType.type + " link to RelationType " + property.instanceOfList[idx].type);
-					}
-
-					if(aType instanceof RelationType && property.instanceOfList[idx] instanceof RelationType) {
-						console.log("EntityType " + aType.type + " link to RelationType " + property.instanceOfList[idx].type);
-					}
 				});
 
 				if(!hasList) {

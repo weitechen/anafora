@@ -1,6 +1,5 @@
 function RelationFrame(relationFrame) {
 	this.rootDiv = relationFrame;
-	console.log(this.rootDiv);
 	this.tbody = relationFrame.find("tbody");
 
 	this.selectedRelationRow = undefined;
@@ -63,7 +62,8 @@ RelationFrame.prototype.updateCurrentRelationValue = function() {
 			rowIdx--;
 			(trList.eq(rowIdx)).insertAfter(newRow);
 		}
-		while(rowIdx < trList.length-1 &&  Relation.sort(jQuery.data($(trList.eq(rowIdx+1))[0], "relData").rel, updatedRelation ) <0) {
+
+		while(rowIdx < trList.length-1 && Relation.sort(jQuery.data($(trList.eq(rowIdx+1))[0], "relData").rel, updatedRelation ) <0) {
 			rowIdx++;
 			(trList.eq(rowIdx)).insertBefore(newRow);
 		}
@@ -91,7 +91,6 @@ RelationFrame.prototype.relationClick = function(clickedRow) {
 	//var trList = this.tbody.find("tr");
 
 	// un highlight current row
-	console.log(clickedRow);
 	this.unHighlight();
 	this.selectedRelationRow = clickedRow;
 	//var trElement = trList.eq(idx);
@@ -168,7 +167,7 @@ RelationFrame.prototype.insertRelationRow = function(relation) {
 	if(idx < trList.length)
 		row.insertBefore(trList.eq(idx));
 	else
-		trList.append(row);
+		this.tbody.append(row);
 	/*
 	if(trList.length > idx)
 		this.tbody.children("tr").eq(this.selectedRelationIdx).replaceWith(row);

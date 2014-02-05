@@ -151,12 +151,6 @@ PropertyFrame.prototype.removeAObjFromProperty = function(pIdx, pListIdx) {
 		currentAProject.annotateFrame.updateOverlap(removeAObj);
 
 		var replaceRow = this.generatePropertyTableRow(propType, pIdx, prop);
-		/*
-		var newValue = "";
-		$.each(prop, function(listIdx, listElement) {
-			newValue += '<div class="propertySubAObj">' + PropertyFrame.generateRemoveBtn() + listElement.genElementStr() + "</div>";
-		});
-		*/
 				
 		this.propertyTable.children("tbody").find("tr").eq(pIdx).replaceWith(replaceRow);
 
@@ -178,47 +172,17 @@ PropertyFrame.prototype.modifyCurrentProperty = function(value) {
 	if(this.currentSelectedPropertyIdx != undefined) {
 		
 		var propType = this.displayAObj.type.propertyTypeList[this.currentSelectedPropertyIdx];
-		var prop = this.displayAObj.propertyList[this.currentSelectedPropertyIdx];
+		//var prop = this.displayAObj.propertyList[this.currentSelectedPropertyIdx];
 
 		if(this.isAssignRelation && value instanceof IAnaforaObj && propType.input == InputType.LIST && propType.instanceOfList.indexOf(value.type) != -1) {
-			
-			if(prop == undefined)
-				prop = [value];
-			else {
-				if(prop.indexOf(value) != -1)
-					return ;
-				if(prop.length == propType.maxlink) {
-					var lastElement = this.displayAObj.propertyList[this.currentSelectedPropertyIdx][prop.length-1];
-					if(lastElement instanceof Entity) {
-						currentAProject.annotateFrame.removeEntityPosit(lastElement, this.displayAObj);
-						if(currentAProject.selectedAObj !== this.displayAObj)
-							currentAProject.annotateFrame.removeEntityPosit(lastElement, currentAProject.selectedAObj);
-						currentAProject.annotateFrame.updateOverlap(lastElement);
-					}
-					prop[prop.length-1] = value;
-				}
-				else
-					prop.push(value);
-				
-				prop.sort(IAnaforaObj.sort);
-			}
 
-			if(value instanceof Entity)
-				currentAProject.annotateFrame.addEntityPosit(value, this.displayAObj);
-				if(this.displayAObj !== currentAProject.selectedAObj)
-					currentAProject.annotateFrame.addEntityPosit(value, currentAProject.selectedAObj);
-			else
-				currentAProject.annotateFrame.addRelationPosit(value, this.displayAObj);
-				if(this.displayAObj !== currentAProject.selectedAObj)
-					currentAProject.annotateFrame.addRelationPosit(value, currentAProject.selectedAObj);
-			var updateRange = value.getSpanRange();
-			currentAProject.annotateFrame.updateOverlapRange(updateRange[0], updateRange[1]);
+			currentAProject.updateProperty(this.displayAObj, this.currentSelectedPropertyIdx, value);
 
-			var rowElement = this.generatePropertyTableRow(propType, this.currentSelectedPropertyIdx, prop);
+			var rowElement = this.generatePropertyTableRow(propType, this.currentSelectedPropertyIdx,this.displayAObj.propertyList[this.currentSelectedPropertyIdx]);
 			rowElement.children("td").eq(1).addClass("propertyClicked");
 			this.propertyTable.children("tbody").children("tr").eq(this.currentSelectedPropertyIdx).replaceWith(rowElement);
 
-			this.displayAObj.propertyList[this.currentSelectedPropertyIdx] = prop;
+			//this.displayAObj.propertyList[this.currentSelectedPropertyIdx] = prop;
 
 			if((currentAProject.selectedAObj instanceof AdjudicationEntity || currentAProject.selectedAObj instanceof AdjudicationRelation) && IAdjudicationAnaforaObj.prototype.updateProperty.call(currentAProject.selectedAObj, this.currentSelectedPropertyIdx))
 				updatePropertyFrameProperty(this.currentSelectedPropertyIdx);
@@ -244,22 +208,34 @@ PropertyFrame.prototype.deleteBtnClick = function(evt) {
 		if(currentAProject.selectedAObj instanceof AdjudicationEntity) {
 			currentAProject.removeAObj(currentAProject.selectedAObj.compareAObj[_self.comparedIdx], _self.comparedIdx);
 			currentAProject.annotateFrame.removeAObj(currentAProject.selectedAObj);
+			currentAProject.selectedAObj = currentAProject.selectedAObj.compareAObj[_self.comparedIdx == 0 ? 1 : 0];
+		}
+		else if(currentAProject.selectedAObj instanceof AdjudicationRelation) {
+			currentAProject.removeAObj(currentAProject.selectedAObj.compareAObj[_self.comparedIdx], _self.comparedIdx);
+			currentAProject.annotateFrame.removeAObj(currentAProject.selectedAObj);
+
+
+			currentAProject.selectedAObj = currentAProject.selectedAObj.compareAObj[_self.comparedIdx == 0 ? 1 : 0];
+
+			relationFrame.removeRelationRow();
+			relationFrame.insertRelationRow(currentAProject.selectedAObj);
+			relationFrame.relationClick(relationFrame.searchRowFromRelation(currentAProject.selectedAObj));
 		}
 		else {
-
 			if(currentAProject.selectedAObj instanceof Relation)
-				relationFrame.removeRelationRow(parseInt(currentAProject.selectedAObj.id.split('@')[0]));
+				relationFrame.removeRelationRow();
 
 			currentAProject.removeAObj(currentAProject.selectedAObj);
 			currentAProject.annotateFrame.removeAObj(currentAProject.selectedAObj);
-			currentAProject.selectedAObj = null
-			
-			// update schema tree count
-			var tree = $.jstree._reference(schemaDiv);
-			tree.refresh(currentAProject.schema.typeDict[removeAObjType.type]);
-			temporalSave();
+			currentAProject.selectedAObj = null;
 		}
-		_self.hide();
+			
+		// update schema tree count
+		var tree = $.jstree._reference(schemaDiv);
+		tree.refresh(currentAProject.schema.typeDict[removeAObjType.type]);
+
+		temporalSave();
+		selectAObj(currentAProject.selectedAObj);
 		this.isAssignRelation = false;
 	}
 }
@@ -296,6 +272,9 @@ PropertyFrame.prototype.markGoldBtnClick = function(evt) {
 		currentAProject.selectAObj(aObj);
 		currentAProject.updateProgressBar();
 		temporalSave();
+
+		if(relationFrame != undefined && aObj instanceof Relation)
+			relationFrame.updateCurrentRelationValue();
 	}
 }
 
@@ -318,6 +297,8 @@ PropertyFrame.prototype.cancelGold = function(evt) {
 		currentAProject.updateProgressBar();
 		currentAProject.selectAObj(aObj);
 		temporalSave();
+		if(relationFrame != undefined && aObj instanceof Relation)
+			relationFrame.updateCurrentRelationValue();
 	}
 }
 
@@ -524,7 +505,6 @@ PropertyFrame.prototype.generatePropertyTable = function(aObj, comparedIdx, diff
 	var tValue;
 	var pType, value; 
 	var _self = this;
-	
 
 	$.each(aObj.type.propertyTypeList, function(idx) {
 		pType = aObj.type.propertyTypeList[idx];
@@ -550,9 +530,10 @@ PropertyFrame.prototype.generatePropertyTableRow = function(pType, pIdx, pValue,
 	switch(pType.input) {
 		case InputType.LIST:
 			tValue += 'class="propertyAObj">';
-			if(pValue == undefined)
-				tValue += '&nbsp;';
-			else {
+			if(pValue != undefined)
+				//tValue += '&nbsp;';
+			//else 
+			{
 				$.each(pValue, function(listIdx, listElement) {
 						
 					tValue += '<div class="propertySubAObj">' + PropertyFrame.generateRemoveBtn() + listElement.genElementStr() + "</div>";
@@ -564,9 +545,10 @@ PropertyFrame.prototype.generatePropertyTableRow = function(pType, pIdx, pValue,
 			break;
 		case InputType.MULTICHOICE:
 			tValue += 'class="propertyNormal propertyValue">';
-			if(pValue == undefined)
-				tValue += '&nbsp;'
-			else {
+			if(pValue != undefined)
+				//tValue += '&nbsp;'
+			//else 
+			{
 				var tValueList = "";
 				$.each(pValue, function(idx) {
 					if(idx >0)
@@ -580,9 +562,9 @@ PropertyFrame.prototype.generatePropertyTableRow = function(pType, pIdx, pValue,
 			break;
 		case InputType.TEXT:
 			tValue += 'class="propertyText propertyValue">';
-			if(pValue == undefined)
-				tValue += '&nbsp;';
-			else 
+			if(pValue != undefined)
+				//tValue += '&nbsp;';
+			//else 
 				tValue += pValue;
 	
 			tValue += "</td>";
@@ -590,9 +572,9 @@ PropertyFrame.prototype.generatePropertyTableRow = function(pType, pIdx, pValue,
 		case InputType.CHOICE:
 		default:
 			tValue += 'class="propertyNormal propertyValue">';
-			if(pValue == undefined)
-				tValue += '&nbsp;';
-			else 
+			if(pValue != undefined)
+				//tValue += '&nbsp;';
+			//else 
 				tValue += pValue;
 	
 			tValue += "</td>";
@@ -628,8 +610,7 @@ PropertyFrame.prototype.generatePropertyTableRow = function(pType, pIdx, pValue,
 			var propertyValueTd = $(evt.currentTarget)
 			propertyValueTd.addClass("propertyClicked");
 
-
-			var currentValue = propertyValueTd.text().replace("&nbsp;", "");
+			var currentValue = propertyValueTd.text();
 			propertyValueTd.text("");
 			var inputElement = $('<input type="text" />');
 			if(currentValue != "")
@@ -927,5 +908,5 @@ PropertyFrame.propertySelectMenu = $.contextMenu({
 				// restore
 				$($trigger).removeClass("propertyClicked");
 			}
-		},
+		}
 	});
