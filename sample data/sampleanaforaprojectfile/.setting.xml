@@ -2,7 +2,7 @@
 <setting>
 	<projects>
 		<project name="SampleProject" numOfAnnotator="2">
-			<admin>anaforaadmin</admin>
+			<admin>anaforaec2admin</admin>
 			<annotator>annotatorGroup</annotator>
 			<schema>Medicine</schema>
 		</project>

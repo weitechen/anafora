@@ -58,7 +58,7 @@
 	<entity>
 		<id>5@e@doc22@stylerw</id>
 		<span>170,182</span>
-		<type>Temporal Expression</type>
+		<type>TemporalExpression</type>
 		<parentsType>Entities</parentsType>
 		<properties>
 		</properties>
@@ -113,7 +113,7 @@
 	<entity>
 		<id>10@e@doc22@stylerw</id>
 		<span>317,326</span>
-		<type>Temporal Expression</type>
+		<type>TemporalExpression</type>
 		<parentsType>Entities</parentsType>
 		<properties>
 		</properties>
@@ -132,7 +132,7 @@
 	<entity>
 		<id>14@e@doc22@stylerw</id>
 		<span>368,381</span>
-		<type>Temporal Expression</type>
+		<type>TemporalExpression</type>
 		<parentsType>Entities</parentsType>
 		<properties>
 		</properties>
@@ -164,7 +164,7 @@
 	<entity>
 		<id>17@e@doc22@stylerw</id>
 		<span>492,500</span>
-		<type>Temporal Expression</type>
+		<type>TemporalExpression</type>
 		<parentsType>Entities</parentsType>
 		<properties>
 		</properties>
@@ -186,7 +186,7 @@
 	<entity>
 		<id>19@e@doc22@stylerw</id>
 		<span>527,535</span>
-		<type>Temporal Expression</type>
+		<type>TemporalExpression</type>
 		<parentsType>Entities</parentsType>
 		<properties>
 		</properties>
@@ -369,7 +369,7 @@
 	<entity>
 		<id>36@e@doc22@stylerw</id>
 		<span>1023,1033</span>
-		<type>Temporal Expression</type>
+		<type>TemporalExpression</type>
 		<parentsType>Entities</parentsType>
 		<properties>
 		</properties>
@@ -418,7 +418,7 @@
 	<entity>
 		<id>42@e@doc22@stylerw</id>
 		<span>1111,1123</span>
-		<type>Temporal Expression</type>
+		<type>TemporalExpression</type>
 		<parentsType>Entities</parentsType>
 		<properties>
 		</properties>
@@ -427,7 +427,7 @@
 	<entity>
 		<id>43@e@doc22@stylerw</id>
 		<span>2,13</span>
-		<type>Temporal Expression</type>
+		<type>TemporalExpression</type>
 		<parentsType>Entities</parentsType>
 		<properties>
 		</properties>
