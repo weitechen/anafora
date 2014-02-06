@@ -22,7 +22,7 @@
 		</properties>
 	</entity>
 	
-	<entity type="Temporal Expression" color="FFFF85" hotkey="x">
+	<entity type="TemporalExpression" color="FFFF85" hotkey="x">
 		<properties>
 		</properties>
 	</entity>

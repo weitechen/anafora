@@ -4,7 +4,7 @@
 <entities type="Entities" color="a60000">
 	<entity type="Disease/Disorder" color="FFA3A3" hotkey="d">
 		<properties>
-			 <property type="UMLS CUI" input="text"></property>
+			 <property type="UMLS_CUI" input="text"></property>
 			 <property type="Polarity" input="choice">Positive, Negative</property>
 			 <property type="Type" input="multichoice">,Chronic,Acute,Drug-Resistant,Inoperable</property>
 			 <property type="Location" input="list" maxlink="1" instanceOf="Anatomy"/>
@@ -22,7 +22,7 @@
 		</properties>
 	</entity>
 	
-	<entity type="Temporal Expression" color="FFFF85" hotkey="x">
+	<entity type="TemporalExpression" color="FFFF85" hotkey="x">
 		<properties>
 		</properties>
 	</entity>
