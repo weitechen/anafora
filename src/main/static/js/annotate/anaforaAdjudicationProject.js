@@ -148,6 +148,8 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 		var currentDiffProp = relation0.type.propertyTypeList.length + 1;
 		$.each(relationList[1], function(key1, relation1) {
 			comparePairRelationList1 = relation1.getAdditionalData("comparePair");
+			if(relation0.id == "22@r@doc0021_CLIN@ahoward" && relation1.id == "14@r@doc0021_CLIN@krwr4334")
+				console.log("160@r");
 			if(relation0.type == relation1.type) {
 
 				var diffProp = IAdjudicationAnaforaObj.compareAObjPropertyList(relation0, relation1, AnaforaAdjudicationProject.adjEntityComparePropertyFunc);
@@ -164,8 +166,10 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 					if(comparePairRelationList0 != undefined) {
 						var tAdjIdx = parseInt(comparePairRelationList0[1].id.split('@')[0]);
 						_self.delTypeCount(_self.adjudicationRelationList[tAdjIdx].type);
-						if(_self.annotateFrame != undefined)
-							_self.annotateFrame.removeAObj(_self.adjudicationRelationList[tAdjIdx]);
+						//if(_self.annotateFrame != undefined)
+
+						//	_self.annotateFrame.removeAObj(_self.adjudicationRelationList[tAdjIdx]);
+							_self.removeAObj(_self.adjudicationRelationList[tAdjIdx]);
 						delete _self.adjudicationRelationList[tAdjIdx];
 
 						comparePairRelationList0[0].setAdditionalData("comparePair");
@@ -175,8 +179,9 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 					if(comparePairRelationList1 != undefined) {
 						var tAdjIdx = parseInt(comparePairRelationList1[1].id.split('@')[0]);
 						_self.delTypeCount(_self.adjudicationRelationList[tAdjIdx].type);
-						if(_self.annotateFrame != undefined)
-							_self.annotateFrame.removeAObj(_self.adjudicationRelationList[tAdjIdx]);
+						//if(_self.annotateFrame != undefined)
+						//	_self.annotateFrame.removeAObj(_self.adjudicationRelationList[tAdjIdx]);
+						_self.removeAObj(_self.adjudicationRelationList[tAdjIdx]);
 						delete _self.adjudicationRelationList[tAdjIdx];
 						comparePairRelationList1[0].setAdditionalData("comparePair");
 						comparePairRelationList1[0].setAdditionalData("adjudication");
@@ -374,7 +379,18 @@ AnaforaAdjudicationProject.prototype.removeAObj = function(delAObj) {
 	var annotator = terms[3];
 
 	var comparePairList = delAObj.getAdditionalData("comparePair");
-	if(comparePairList == undefined)
+	if(delAObj instanceof AdjudicationEntity || delAObj instanceof AdjudicationRelation) {
+		if(delAObj instanceof AdjudicationEntity) {
+			this.annotateFrame.removeEntityPosit(delAObj.compareAObj[0], delAObj);
+			this.annotateFrame.removeEntityPosit(delAObj.compareAObj[1], delAObj);
+		}
+		else {
+			//this.annotateFrame.removeRelationPosit(comparePairList[1], comparePairList[1]);
+			this.annotateFrame.removeRelationPosit(delAObj.compareAObj[0], delAObj);
+			this.annotateFrame.removeRelationPosit(delAObj.compareAObj[1], delAObj);
+		}
+	}
+	else if(comparePairList == undefined)
 	{
 		if(annotator == "gold") {
 			AnaforaProject.prototype.removeAObj.call(this, delAObj);
@@ -389,13 +405,18 @@ AnaforaAdjudicationProject.prototype.removeAObj = function(delAObj) {
 			this.completeAdjudication--;
 	}
 	else {
-		// remove adjudicationAObj
 		if(this.annotateFrame != undefined) {
-			if(delAObj instanceof Entity)
-				this.annotateFrame.removeEntityPosit(comparePairList[1], comparePairList[1]);
-			else
-				this.annotateFrame.removeRelationPosit(comparePairList[1], comparePairList[1]);
-
+			// is regular obj with compared-pair
+			if(delAObj instanceof Entity) {
+				//this.annotateFrame.removeEntityPosit(comparePairList[1], comparePairList[1]);
+				this.annotateFrame.removeEntityPosit(comparePairList[0], comparePairList[1]);
+				this.annotateFrame.removeEntityPosit(delAObj, comparePairList[1]);
+			}
+			else {
+				//this.annotateFrame.removeRelationPosit(comparePairList[1], comparePairList[1]);
+				this.annotateFrame.removeRelationPosit(comparePairList[0], comparePairList[1]);
+				this.annotateFrame.removeRelationPosit(delAObj, comparePairList[1]);
+			}
 		}
 
 		if(comparePairList[0].getAdditionalData("adjudication") !== "gold") {

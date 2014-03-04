@@ -64,7 +64,7 @@ MEDIA_URL = ''
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
-#ROOT_URL = ''
+ROOT_URL = '/anafora'
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".

@@ -207,12 +207,14 @@ PropertyFrame.prototype.deleteBtnClick = function(evt) {
 
 		if(currentAProject.selectedAObj instanceof AdjudicationEntity) {
 			currentAProject.removeAObj(currentAProject.selectedAObj.compareAObj[_self.comparedIdx], _self.comparedIdx);
-			currentAProject.annotateFrame.removeAObj(currentAProject.selectedAObj);
+			//currentAProject.removeAObj(currentAProject.selectedAObj);
+			//currentAProject.annotateFrame.removeAObj(currentAProject.selectedAObj);
 			currentAProject.selectedAObj = currentAProject.selectedAObj.compareAObj[_self.comparedIdx == 0 ? 1 : 0];
 		}
 		else if(currentAProject.selectedAObj instanceof AdjudicationRelation) {
 			currentAProject.removeAObj(currentAProject.selectedAObj.compareAObj[_self.comparedIdx], _self.comparedIdx);
-			currentAProject.annotateFrame.removeAObj(currentAProject.selectedAObj);
+			//currentAProject.removeAObj(currentAProject.selectedAObj);
+			//currentAProject.annotateFrame.removeAObj(currentAProject.selectedAObj);
 
 
 			currentAProject.selectedAObj = currentAProject.selectedAObj.compareAObj[_self.comparedIdx == 0 ? 1 : 0];

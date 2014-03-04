@@ -22,26 +22,15 @@ RelationFrame.prototype.displayRelations = function(relationList) {
 	var tableCnt = 1;
 	relationList.sort(Relation.sort);
 	$.each(relationList, function(idx, relationElement) {
-		//var rIdx = parseInt(relationElement.id.split('@')[0]);
-		/*
-		while(tableCnt < rIdx) {
-			var tRow = $("<tr></tr>");
-			tRow.hide();
-			_self.tbody.append(tRow);
-			tableCnt++;
-		}
-		*/
 			
 		var rowElement = _self.generateRelationRow(relationElement);
 		_self.tbody.append(rowElement);
 		_self.relationMap[relationElement.id] = rowElement;
 
-		//rowElement.bind("click", function(evt){propertyFrameList[0].isAssignRelation=false; restore(); _self.relationClick($(this) ); selectAObj(jQuery.data($(evt.currentTarget)[0], "relData").rel);});
 	});
 }
 
 RelationFrame.prototype.updateCurrentRelationValue = function() {
-	//var idx = this.selectedRelationIdx;
 	var _self = this;
 	var trList = this.tbody.children("tr");
 
@@ -49,10 +38,8 @@ RelationFrame.prototype.updateCurrentRelationValue = function() {
 		var rowIdx = trList.index(this.selectedRelationRow);
 		var updatedRelation = jQuery.data($(this.selectedRelationRow)[0], "relData").rel
 		var newRow = _self.generateRelationRow(updatedRelation);
-		//newRow.className = "selectedRelation";
 		newRow.addClass("selectedRelation");
 		
-		//$(newRow).bind("click", function(evt){ _self.relationClick($(this)[0]); selectAObj(jQuery.data($(this)[0], "relData").rel);});
 		this.tbody.children("tr").eq(rowIdx).replaceWith(newRow);
 		this.relationMap[updatedRelation.id] = newRow;
 
