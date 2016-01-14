@@ -65,7 +65,6 @@ def index(request, projectName="", corpusName="", taskName="", schema="", schema
 		except:
 			return HttpResponseForbidden("raw text file open error: " + rawTextFile)
 			
-
 	account = request.META["REMOTE_USER"]
 	ps = getProjectSetting()
 	schemaMap = ps.getSchemaMap()
@@ -312,20 +311,17 @@ def setCompleted(request, projectName, corpusName, taskName, schemaName):
 	if os.path.exists(fileName + ".inprogress.xml"):
 		subprocess.call(["mv", fileName + ".inprogress.xml", fileName + ".completed.xml"])
 		subprocess.call("sed -u -i 's/<progress>in-progress<\/progress>/<progress>completed<\/progress>/' " + fileName + ".completed.xml", shell=True)
-
-		if "-Adjudication" in schemaName:
+		mode = ps.getMode(*(schemaName.replace("-Adjudication", "").split("-")))
+		if "-Adjudication" in schemaName or mode.directSetGold:
 			# set as gold
 			fileNameGold = filePath + "/" + taskName + "." + schemaName.replace("-Adjudication", "") +  ".gold.completed.xml"
 			subprocess.call(["cp", fileName + ".completed.xml", fileNameGold])
 			schema = ps.getSchema(schemaName.split("-")[0])
-			mode = ps.getMode(*(schemaName.replace("-Adjudication", "").split("-")))
 			for tMode in schema.modes:
 				if tMode.needPreannotation and tMode.preannotationFromMode == mode:
 					fileNamePreannotation = filePath + "/" + taskName + "." + schema.name + "-" + tMode.name +  ".preannotation.completed.xml"
 					subprocess.call(["cp", fileNameGold, fileNamePreannotation])
 
-
-			
 		return HttpResponse()
 	else:
 		return HttpResponseNotFound("in-progress file not found")

@@ -61,6 +61,9 @@ class AnaforaProjectManager:
 		if os.path.isdir(corpusPath) != True:
 			raise IOError("project or corpus name error")
 
+		if mode.directSetGold:
+			maxNumOfAnnotator = 1
+
 		for taskName in [tName for tName in os.listdir(corpusPath) if os.path.isdir(os.path.join(corpusPath, tName)) and tName[0] != '.']:
 			taskPath = os.path.join(corpusPath, taskName)
 			numOfAnnotatorFile = 0

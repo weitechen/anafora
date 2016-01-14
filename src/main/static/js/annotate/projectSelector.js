@@ -139,47 +139,6 @@ ProjectSelector.prototype.getAnnotator = function(projectName, corpusName, taskN
 	return annotator;
 }
 
-/*
-ProjectSelector.prototype.getCorpusFromProjectName = function(projectName) {
-	if(projectName in this.projectDir) {
-		if(Object.keys(this.projectDir[projectName]).length === 0) {
-			//var corpusJSON = $.ajax({ type: "GET", url: _setting.root_url + "/" + _setting.app_name + "/getDir/" + projectName + "/", cache: false, async: false}).responseText;
-			//var corpusList = $.parseJSON(corpusJSON);
-			var corpusList = this.getDir(projectName);
-			var _self = this;
-			$.each(corpusList, function(index, element) {
-				_self.projectDir[projectName][element] = null;
-				
-			});
-		}
-	}
-
-	return this.projectDir[projectName];
-}
-*/
-
-/*
-ProjectSelector.prototype.getTaskFromProjectCorpusName = function(projectName, corpusName) {
-	var taskJSON = "";
-	
-*/
-	/*
-	if(this.adjudication) {
-		var adjSrcSchemaModeList = Object.keys(_setting.schemaMap[this.schema]).sort();
-		var adjIdx = adjSrcSchemaModeList.indexOf("Adjudication");
-		var adjSrcSchemaMode = adjSrcSchemaModeList[(adjIdx+1) % adjSrcSchemaModeList.length];
-		taskJSON = $.ajax({ type: "GET", url: _setting.root_url + "/" + _setting.app_name + "/getDir/" + projectName + "/" + corpusName + "/" + this.schema + "." + adjSrcSchemaMode + "/" + this.schema + (this.mode==undefined ? "" : "."+this.mode) + "/" , cache: false, async: false}).responseText;
-	}
-	else
-		taskJSON = $.ajax({ type: "GET", url: _setting.root_url + "/" + _setting.app_name + "/getDir/" + projectName + "/" + corpusName + "/" + this.schema + (this.mode==undefined ? "" : "."+this.mode) + "/" , cache: false, async: false}).responseText;
-	var taskList = $.parseJSON(taskJSON);
-	*/
-/*
-	taskList = this.getDir(projectName, corpusName, this.schema, this.isAdjudication);
-
-	return taskList;
-}
-*/
 
 ProjectSelector.prototype.selectProject = function() {
 	this.updateSelectMenu("Select Project" ,Object.keys(this.projectDir), ProjectSelector.clickProject);
@@ -256,7 +215,7 @@ ProjectSelector.prototype.openNewProject = function() {
 		throw "openNewProject error: required selected project, corpus, task or schema";
 
 	
-	window.location = this.baseURL + this.selected.project + "/" + this.selected.corpus + "/" + this.selected.task + "/" + this.schema + (this.mode === false || this.mode===undefined ?  "" : "."+this.mode) + (this.adjudication ? ".Adjudication" : "" ) +  "/" + ((this.view != undefined && this.view) ? this.selected.annotator : "") ;
+	window.location = this.baseURL + this.selected.project + "/" + this.selected.corpus + "/" + this.selected.task + "/" + this.schema + (this.mode === false || this.mode===undefined ?  "" : "."+this.mode) + (this.adjudication ? ".Adjudication" : "" ) +  "/" + ((this.view != undefined && this.view) ? (this.selected.annotator ) : "") ;
 }
 
 ProjectSelector.clickProject = function(_self, target ) {
@@ -428,12 +387,6 @@ ProjectSelector.clickViewSelect = function(_self, target) {
 	_self.view = !_self.view;
 	_self.viewSelect();
 }
-/*
-ProjectSelector.clickAdjudicationReelect = function(_self, target) {
-	_self.adjudication = false;
-	_self.adjudicationSelect();
-}
-*/
 ProjectSelector.prototype.modeSelect = function() {
 	var _self = this;
 	if(this.schema != undefined && this.mode !== false) {

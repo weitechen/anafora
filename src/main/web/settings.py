@@ -49,7 +49,7 @@ USE_TZ = True
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = ''
 
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
+# URLthat handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = ''
@@ -62,16 +62,24 @@ MEDIA_URL = ''
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
+STATIC_ROOT = '/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static'
+#STATIC_ROOT = '/data/home/verbs/student/wech5560/Research/TemporalPreAnnotation/main/StaticFiles'
 STATIC_URL = '/static/'
 
-ROOT_URL = '/anafora'
+ROOT_URL = '/~wech5560/anafora'
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    ''
-)
+    '',
+    '/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static',
+    )
+#    /data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static',
+#    '/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static/css',
+#    '/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static/js',
+#    '/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static/image',
+#)
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -82,7 +90,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = ''
+SECRET_KEY = 'hellla293ujlkdjfl;1393@@9fji'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -105,7 +113,7 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # Uncomment the next line for Anafora digest auth
-    'annotate.anaforaAuthMiddleware.AnaforaAuthMiddleware',
+    #'annotate.anaforaAuthMiddleware.AnaforaAuthMiddleware',
 )
 
 ROOT_URLCONF = 'web.urls'
@@ -114,13 +122,11 @@ ROOT_URLCONF = 'web.urls'
 WSGI_APPLICATION = 'web.wsgi.application'
 
 TEMPLATE_DIRS = (
-    ""
+    "/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/Templates"
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
 )
-
-
 
 INSTALLED_APPS = (
 #    'django.contrib.auth',
@@ -170,10 +176,12 @@ LOGGING = {
 TEST_RUNNER = 'testing.DatabaselessTestRunner'
 
 # Assign the anafora project file directory path
-ANAFORA_PROJECT_FILE_ROOT = ""
+#ANAFORA_PROJECT_FILE_ROOT = ""
+ANAFORA_PROJECT_FILE_ROOT = "/data/home/verbs/student/wech5560/Research/KnowtatorProcessing/data/anaforaProjectFile/"
 
 # Assign the Digest auth group file location
 GROUP_FILE = ''
+#GROUP_FILE = '/data/anafora-event/site/anafora-event.group'
 
 # Assign the group name for the admin
 ADMIN_GROUPNAME = 'anaforaadmin'

@@ -164,10 +164,11 @@ class Schema():
 		return mode
 
 class Mode():
-	def __init__(self, name, needPreannotation = False, preannotationFromMode = None, schemaFile = []):
+	def __init__(self, name, needPreannotation = False, preannotationFromMode = None, schemaFile = [], directSetGold = False):
 		self.name = name
 		self.needPreannotation = needPreannotation
 		self.preannotationFromMode = preannotationFromMode
+		self.directSetGold = directSetGold
 		self.schemaFile = schemaFile
 	
 	def addSchemaFile(self, newSchemaFile):
@@ -185,6 +186,7 @@ class Mode():
 		preannotationFromMode = None
 		if isPreannotation:
 			preannotationFromMode = modeNode.getAttribute("preannotationFrom")
+		directSetGold = (modeNode.getAttribute("directSetGold").lower() == "true")
 		schemaFileList = []
 		for childNode in [tNode for tNode in modeNode.childNodes if tNode.nodeType == tNode.ELEMENT_NODE]:
 			if childNode.tagName == "file":
@@ -192,7 +194,7 @@ class Mode():
 			else:
 				raise Exception("unhandle tag: " + childNode.tagName)
 
-		return cls(name, isPreannotation, preannotationFromMode, schemaFileList)
+		return cls(name, isPreannotation, preannotationFromMode, schemaFileList, directSetGold)
 
 class Project():
 	def __init__(self, name, admins ,  numOfAnnotator = 2, annotators = [], allowedSchemas = []):

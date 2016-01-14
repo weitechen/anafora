@@ -10,7 +10,6 @@ var projectSelector = undefined;
 var editable = false;
 var propertyFrameList = [];
 var relationFrame = undefined;
-
 var isChanged = false;
 
 function onLoad() {
@@ -595,11 +594,6 @@ function registerHotkey(schema) {
 		for(key in schema.hotkeyDict ) {
 			body.bind("keydown", key, function(evt) {if(!checkEmptyProperty()) return false; addNewAObj(schema.hotkeyDict[evt.data]);});
 		}
-
-		// +
-		body.bind("keydown", "+", function(evt) {
-			alert("+");
-		});
 
 		// space
 		body.bind("keydown", function(evt) {
