@@ -90,7 +90,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'hellla293ujlkdjfl;1393@@9fji'
+SECRET_KEY = 'hellla293ul419892-0993@@9fji'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -122,7 +122,7 @@ ROOT_URLCONF = 'web.urls'
 WSGI_APPLICATION = 'web.wsgi.application'
 
 TEMPLATE_DIRS = (
-    "/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/Templates"
+    "/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/Templates",
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
