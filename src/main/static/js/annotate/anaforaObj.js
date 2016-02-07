@@ -7,6 +7,18 @@ Array.prototype.max = function() {
 	return Math.max.apply(null, this);
 }
 
+function InvalidAnaforaObjException(message) {
+	ErrorException.call(message);
+	if ("captureStackTrace" in ErrorException)
+		ErrorException.captureStackTrace(this, InvalidArgumentException);
+	else
+		this.stack = (new ErrorException()).stack;
+}
+
+InvalidAnaforaObjException.prototype = Object.create(ErrorException.prototype);
+InvalidAnaforaObjException.prototype.name = "InvalidAnaforaObjException";
+InvalidAnaforaObjException.prototype.constructor = InvalidAnaforaObjException;
+
 function SpanType(start, end) {
 	this.start = start;
 	this.end = end;
@@ -88,8 +100,20 @@ SpanType.merge = function(span1, span2) {
 }
 
 function IAnaforaObj(id, type, propertyList, additionalList, comment) {
+	/*
+	 @type id:	str
+	 */
 	if(id != undefined) {
+		var idTerm = id.split("@");
+		if(idTerm.length() != 4)
+			throw InvalidAnaforaObjException("The input ID format error: should be \'sID@e/r@Annotator@Task\'");
+
 		this.id = id;
+		try:
+			this.sID = parseInt(idTerm[0]);
+		
+		self.
+
 		this.type = type;
 		this.comment = comment;
 		if(propertyList == undefined){
@@ -107,6 +131,9 @@ function IAnaforaObj(id, type, propertyList, additionalList, comment) {
 			this.additionalData = additionalList;
 
 		this.linkingAObjList = [];
+	}
+	else {
+		throw InvalidAnaforaObjException("input id is undefined");
 	}
 }
 
@@ -1202,3 +1229,5 @@ IAdjudicationAnaforaObj.prototype.getDecideAObj = function() {
 	return this.compareAObj[this.decideIdx];
 
 }
+
+

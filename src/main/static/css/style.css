@@ -989,18 +989,14 @@ progress[aria-valuenow]:before  {
 	padding: 10px;
 }
 
-#schemaSelector div ul {
-	padding-left: 10px;
-}
-
 #projectSelectorWindow h5 {
 	display: none;
 	border-bottom: 1px solid #9a9a9a;
 	margin: 0px;
 }
 
-#projectSelector ul {
-	max-height: 300px;
+#projectSelectorWindow ul {
+	max-height: 220px;
 	max-width: 260px;
 
 	overflow-y: auto;
