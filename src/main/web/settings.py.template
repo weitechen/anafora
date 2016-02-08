@@ -1,7 +1,7 @@
 import sys, os
 #Django settings for web project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -62,18 +62,20 @@ MEDIA_URL = ''
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_ROOT = '/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static'
+# e.g.  STATIC_ROOT = '/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static'
+STATIC_ROOT = ''
 #STATIC_ROOT = '/data/home/verbs/student/wech5560/Research/TemporalPreAnnotation/main/StaticFiles'
+# e.g.  STATIC_URL = '/static/'
 STATIC_URL = '/static/'
 
-ROOT_URL = '/~wech5560/anafora'
+#e.g. ROOT_URL = '/~wech5560/anafora'
+ROOT_URL = ''
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     '',
-    '/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static',
     )
 #    /data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static',
 #    '/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static/css',
@@ -90,7 +92,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'hellla293ul419892-0993@@9fji'
+SECRET_KEY = ''
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -122,7 +124,7 @@ ROOT_URLCONF = 'web.urls'
 WSGI_APPLICATION = 'web.wsgi.application'
 
 TEMPLATE_DIRS = (
-    "/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/Templates",
+    ""
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -176,15 +178,17 @@ LOGGING = {
 TEST_RUNNER = 'testing.DatabaselessTestRunner'
 
 # Assign the anafora project file directory path
+# e.g.  ANAFORA_PROJECT_FILE_ROOT = "/data/home/verbs/student/wech5560/Research/KnowtatorProcessing/data/anaforaProjectFile/"
 #ANAFORA_PROJECT_FILE_ROOT = ""
-ANAFORA_PROJECT_FILE_ROOT = "/data/home/verbs/student/wech5560/Research/KnowtatorProcessing/data/anaforaProjectFile/"
 
 # Assign the Digest auth group file location
+# e.g.  GROUP_FILE = '/data/anafora-event/site/anafora-event.group'
 GROUP_FILE = ''
-#GROUP_FILE = '/data/anafora-event/site/anafora-event.group'
 
 # Assign the group name for the admin
-ADMIN_GROUPNAME = 'anaforaadmin'
+# e.g.  ADMIN_GROUPNAME = 'anaforaadmin'
+ADMIN_GROUPNAME = ''
 
 # Assign the setting file in the project directory
-ANAFORA_PROJECT_SETTING_FILENAME = ".setting.xml"
+# e.g. ANAFORA_PROJECT_SETTING_FILENAME = ".setting.xml"
+ANAFORA_PROJECT_SETTING_FILENAME = ""

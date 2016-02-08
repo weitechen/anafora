@@ -6,7 +6,7 @@ function WarningException(message) {
 	Error.call(message);
 	this.message = message;
 	if ("captureStackTrace" in Error)
-		Error.captureStackTrace(this, InvalidArgumentException);
+		Error.captureStackTrace(this, Error);
 	else
 		this.stack = (new Error()).stack;
 }
@@ -19,7 +19,7 @@ function ErrorException(message) {
 	Error.call(message);
 	this.message = message;
 	if ("captureStackTrace" in Error)
-		Error.captureStackTrace(this, InvalidArgumentException);
+		Error.captureStackTrace(this, Error);
 	else
 		this.stack = (new Error()).stack;
 }

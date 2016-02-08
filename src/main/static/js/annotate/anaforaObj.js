@@ -109,11 +109,8 @@ function IAnaforaObj(id, type, propertyList, additionalList, comment) {
 			throw InvalidAnaforaObjException("The input ID format error: should be \'sID@e/r@Annotator@Task\'");
 
 		this.id = id;
-		try:
-			this.sID = parseInt(idTerm[0]);
+		this.sID = parseInt(idTerm[0]);
 		
-		self.
-
 		this.type = type;
 		this.comment = comment;
 		if(propertyList == undefined){
@@ -133,7 +130,7 @@ function IAnaforaObj(id, type, propertyList, additionalList, comment) {
 		this.linkingAObjList = [];
 	}
 	else {
-		throw InvalidAnaforaObjException("input id is undefined");
+		throw new InvalidAnaforaObjException("input id is undefined");
 	}
 }
 
@@ -1229,5 +1226,3 @@ IAdjudicationAnaforaObj.prototype.getDecideAObj = function() {
 	return this.compareAObj[this.decideIdx];
 
 }
-
-
