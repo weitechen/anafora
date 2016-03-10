@@ -11,8 +11,12 @@ var editable = false;
 var propertyFrameList = [];
 var relationFrame = undefined;
 var isChanged = false;
+var errorHandler = undefined;
 
 function onLoad() {
+	// set error handler
+	errorHandler = new ErrorHandler($("#errorMessage"));
+
 	// read schemaMap in _setting
 	var tDiv = document.createElement('div');
 	tDiv.innerHTML = _setting.schemaMap;
@@ -29,6 +33,7 @@ function onLoad() {
 	// set menu
 	navMenu = $("#headerWrapper > ul");
 
+
 	// set file menu
 	var fileMenu = $(navMenu.children("li").get(0)).children("ul").children("li");
 	fileMenu.eq(0).bind("click", function() { if(getIsChanged() && window.confirm("Save Task?")) { saveFile(); } projectSelector.selectProject(); projectSelector.popup(); });
@@ -39,6 +44,7 @@ function onLoad() {
 		projectSelector.popup();
 	else
 		loadNewProject();
+
 }
 
 function confirmLeave(evt) {
@@ -168,22 +174,11 @@ function loadNewProject() {
 		setIsChanged(false);
 	}
 
-
 	// load anafora data
 	aProjectWrapper = $("#aProjectWrapper");
 
-	//rawText = document.getElementById("rawText").outerHTML.replace(' id="rawText"', '') ;
-	//rawText = document.getElementById("rawText").innerHTML;
-
-	//var annotatorDiv = $('<div>' + rawText + '</div>');
-	//var annotatorDiv = $("#rawText").clone().attr('id', '');
 	var annotatorDiv = $("#rawText");
-	//rawText = document.getElementById("rawText").innerHTML;
 	rawText = annotatorDiv.text();
-	//annotatorDiv.css("display", "inline");
-	//rawText = annotatorDiv.text();
-	//var annotatorDiv = $("#rawText");
-	//annotatorDiv.css("display", "inline");
 
 	if(_setting.isAdjudication) {
 		annotatorDiv.addClass("adjudicationText");
@@ -213,7 +208,23 @@ function loadNewProject() {
 			currentAProject.setAnnotateFrame(annotateFrame);
 
 			var xmlDOM = $.parseXML(tXMLText[annotatorName]);
-			currentAProject.readFromXMLDOM(xmlDOM, _setting.isAdjudication);
+			try {
+				currentAProject.readFromXMLDOM(xmlDOM, _setting.isAdjudication);
+			}
+			catch (e) {
+				if (e instanceof ErrorException) {
+					errorHandler.handle(e, currentAProject);
+					throw e;
+				}
+				else if(e instanceof WarningException) {
+					console.log("Warning Exception");
+					console.log(e);
+				}
+				else {
+					console.log(e);
+					throw e;
+				}
+			}
 			aProjectList.push(currentAProject);
 			if(annotatorName == "preannotation") {
 				currentAProject.completed = false;

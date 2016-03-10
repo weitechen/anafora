@@ -9,6 +9,7 @@ Array.prototype.max = function() {
 
 function InvalidAnaforaObjException(message) {
 	ErrorException.call(message);
+	this.message = message;
 	if ("captureStackTrace" in ErrorException)
 		ErrorException.captureStackTrace(this, InvalidArgumentException);
 	else
@@ -105,15 +106,13 @@ function IAnaforaObj(id, type, propertyList, additionalList, comment) {
 	 */
 	if(id != undefined) {
 		var idTerm = id.split("@");
-		if(idTerm.length() != 4)
-			throw InvalidAnaforaObjException("The input ID format error: should be \'sID@e/r@Annotator@Task\'");
+		if(idTerm.length != 4) {
+			throw new InvalidAnaforaObjException("The input ID format error: <b>" + String(id) + "</b>\nshould be <b>\'sID@e/r@Annotator@Task\'</b>");
+		}
 
 		this.id = id;
-		try:
-			this.sID = parseInt(idTerm[0]);
+		this.sID = parseInt(idTerm[0]);
 		
-		self.
-
 		this.type = type;
 		this.comment = comment;
 		if(propertyList == undefined){
@@ -132,9 +131,11 @@ function IAnaforaObj(id, type, propertyList, additionalList, comment) {
 
 		this.linkingAObjList = [];
 	}
+	/*
 	else {
 		throw InvalidAnaforaObjException("input id is undefined");
 	}
+	*/
 }
 
 IAnaforaObj.prototype.addListProperty = function(aObj, pIdx, lIdx) {
@@ -393,7 +394,6 @@ function Entity(id, type, span, propertyList, additionList, comment) {
 		}
 	}
 }
-
 
 Entity.prototype = new IAnaforaObj();
 Entity.prototype.constructor = Entity;
