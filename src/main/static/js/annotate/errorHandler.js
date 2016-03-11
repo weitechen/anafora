@@ -6,7 +6,11 @@ function WarningException(message) {
 	Error.call(message);
 	this.message = message;
 	if ("captureStackTrace" in Error)
+<<<<<<< HEAD
 		Error.captureStackTrace(this, WarningException);
+=======
+		Error.captureStackTrace(this, Error);
+>>>>>>> a2dc193baa5484adaffb4ea167eb22474e085322
 	else
 		this.stack = (new Error()).stack;
 }
@@ -19,7 +23,11 @@ function ErrorException(message) {
 	Error.call(message);
 	this.message = message;
 	if ("captureStackTrace" in Error)
+<<<<<<< HEAD
 		Error.captureStackTrace(this, ErrorException);
+=======
+		Error.captureStackTrace(this, Error);
+>>>>>>> a2dc193baa5484adaffb4ea167eb22474e085322
 	else
 		this.stack = (new Error()).stack;
 }

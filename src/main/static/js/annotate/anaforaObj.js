@@ -133,7 +133,7 @@ function IAnaforaObj(id, type, propertyList, additionalList, comment) {
 	}
 	/*
 	else {
-		throw InvalidAnaforaObjException("input id is undefined");
+		throw new InvalidAnaforaObjException("input id is undefined");
 	}
 	*/
 }
@@ -1229,5 +1229,3 @@ IAdjudicationAnaforaObj.prototype.getDecideAObj = function() {
 	return this.compareAObj[this.decideIdx];
 
 }
-
-
