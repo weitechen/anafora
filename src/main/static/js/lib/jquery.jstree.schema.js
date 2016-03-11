@@ -26,7 +26,7 @@
 				$(obj).trigger('node_change', [state]);
 				return s;
 			},
-			selectAObjList : function(aObjList, needTempSave) {
+			selectAObjList : function(aObjList, needTempSave, skipAObjList) {
 				var _this = this;
 				if(needTempSave) {
 					this.data.restoreData = this.get_checked();
@@ -35,7 +35,7 @@
 				$.each(aObjList, function() {
 					_this.change_state($("#" + this.id, false));
 				});
-				schemaCheckedChange(null, null, aObjList);
+				schemaCheckedChange(skipAObjList);
 			},
 			restore : function() {
 				var _this = this;

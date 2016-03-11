@@ -414,7 +414,7 @@ function processSchemaMenu(aType) {
 	
 }
 
-function schemaCheckedChange(evt) {
+function schemaCheckedChange(skipAObjList) {
 
 	var schema = currentAProject.schema;
 	var checkedType = [];
@@ -423,7 +423,7 @@ function schemaCheckedChange(evt) {
 		checkedType.push(schema.typeDict[this.id.substring(3).replace("_SLASH_", "/")]);
 	});
 	schema.updateCheckedType(checkedType);
-	currentAProject.updateAnnotateDisplay();
+	currentAProject.updateAnnotateDisplay(skipAObjList);
 	relationFrame.updateRelationFrameDisplay();
 }
 
@@ -713,6 +713,7 @@ function restore() {
 	}
 
 	schemaDiv.jstree("restore");
+	//currentAProject.selectAObj(currentAProject.selectedAObj);
 }
 function assignEntityToRelation(propIdx) {
 	if(currentAProject != undefined && currentAProject.selectedAObj != null) {
