@@ -379,12 +379,12 @@ AnaforaProject.getAdjudicationAnnotator = function(setting) {
 	}
 }
 
-AnaforaProject.prototype.updateAnnotateDisplay = function(skipAObjList) {
+AnaforaProject.prototype.updateAnnotateDisplay = function() {
 	var checkedType = this.schema.checkedType;
 	var diffCheckedType = this.schema.getDiffCheckedType();
 	var _self = this;
 
-	this.annotateFrame.updateOverlapList(undefined, this.schema.checkedType, diffCheckedType, undefined, skipAObjList);
+	this.annotateFrame.updateOverlapList(undefined, this.schema.checkedType, diffCheckedType);
 }
 
 AnaforaProject.prototype.findEntityByIdx = function(idx) {
