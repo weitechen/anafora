@@ -49,6 +49,12 @@ ErrorHandler.prototype.handle = function(e, focusProject) {
 	if (e instanceof ErrorException) {
 		this.messageDiv.children("div:first-child").append(e.message);
 	}
+	else if (e instanceof WarningException) {
+		;
+	}
+	else {
+		this.messageDiv.children("div:first-child").children("pre").html(String(e.message).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g,'&gt;').replace(/"/g, '&quot;'));
+	}
 
 	if(_setting != undefined) {
 		var _container = $(this.messageDiv).children("div:nth-child(2)").children("ul");

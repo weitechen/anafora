@@ -105,7 +105,7 @@ function loadNewProject() {
 	editable = (_setting.annotator === _setting.remoteUser);
 
 	// load schema tree
-	$.jstree._themes = _setting.root_url + "/static/themes/";
+	//$.jstree._themes = _setting.root_url + "/static/themes/";
 
 	// load schema
 	var schemaIdx = 0;
@@ -207,8 +207,9 @@ function loadNewProject() {
 				currentAProject = new AnaforaProject(schema, annotatorName, _setting.taskName);	
 			currentAProject.setAnnotateFrame(annotateFrame);
 
-			var xmlDOM = $.parseXML(tXMLText[annotatorName]);
-			try {
+			var xmlDOM;
+			try{
+				xmlDOM = $.parseXML(tXMLText[annotatorName]);
 				currentAProject.readFromXMLDOM(xmlDOM, _setting.isAdjudication);
 			}
 			catch (e) {
@@ -221,7 +222,7 @@ function loadNewProject() {
 					console.log(e);
 				}
 				else {
-					console.log(e);
+					errorHandler.handle(e);
 					throw e;
 				}
 			}
@@ -414,7 +415,7 @@ function processSchemaMenu(aType) {
 	
 }
 
-function schemaCheckedChange(skipAObjList) {
+function schemaCheckedChange(evt) {
 
 	var schema = currentAProject.schema;
 	var checkedType = [];
@@ -423,7 +424,7 @@ function schemaCheckedChange(skipAObjList) {
 		checkedType.push(schema.typeDict[this.id.substring(3).replace("_SLASH_", "/")]);
 	});
 	schema.updateCheckedType(checkedType);
-	currentAProject.updateAnnotateDisplay(skipAObjList);
+	currentAProject.updateAnnotateDisplay()
 	relationFrame.updateRelationFrameDisplay();
 }
 

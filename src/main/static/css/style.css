@@ -1109,3 +1109,8 @@ progress[aria-valuenow]:before  {
 #errorMessage > div > div {
 	font-weight: bold;
 }
+
+#errorMessage > div > ul, #errorMessage > div > pre {
+	max-height: 150px;
+  	overflow-y: scroll; 
+}

@@ -578,7 +578,7 @@ AnnotateFrame.prototype.updateAnnotateFragement = function(overlapList, checkedT
 	this.updateOverlapList(overlapList, undefined, undefined, removeOverlapIdx[0]+1);
 }
 
-AnnotateFrame.prototype.updateOverlapList = function(overlapList, checkedType, diffCheckedType, overlapStartIdx, skipAObjList ) {
+AnnotateFrame.prototype.updateOverlapList = function(overlapList, checkedType, diffCheckedType, overlapStartIdx) {
 	var _self = this;
 	if(overlapList == undefined)
 		overlapList = this.overlap;
@@ -593,7 +593,7 @@ AnnotateFrame.prototype.updateOverlapList = function(overlapList, checkedType, d
 		spanIdx = parseInt(spanIdx);
 		var overlap = overlapList[spanIdx];
 
-		var matchChecked = AnnotateFrame.matchAObjFromOverlap(overlap.aObjList, checkedType, skipAObjList);
+		var matchChecked = AnnotateFrame.matchAObjFromOverlap(overlap.aObjList, checkedType);
 
 		
 		var spanElement = $(_self.spanElementList[overlapStartIdx + spanIdx]);
@@ -646,12 +646,12 @@ AnnotateFrame.prototype.updateOverlapList = function(overlapList, checkedType, d
 	});
 }
 
-AnnotateFrame.matchAObjFromOverlap = function(aObjList, checkedType, filterOutObjList) {
+AnnotateFrame.matchAObjFromOverlap = function(aObjList, checkedType) {
 	
 	var matchedAObj = $.grep(aObjList, function(aObj) {
 		var comparePair = aObj.getAdditionalData("comparePair");
-		// (currentAProject == undefined || aObj != currentAProject.selectedAObj) && 
-		return (filterOutObjList == undefined || filterOutObjList.indexOf(aObj) == -1) && (checkedType == undefined || checkedType.indexOf(aObj.type) != -1) && (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || (comparePair == undefined || !(comparePair[comparePair.length-1] instanceof AdjudicationEntity || comparePair[comparePair.length-1] instanceof AdjudicationRelation)));
+		// (currentAProject == undefined || aObj != currentAProject.selectedAObj) &&  
+		return (propertyFrameList.length == 0 || propertyFrameList.reduce(function (p0, p1) { return p0.isAssignRelation == false && p1.isAssignRelation == false;}) || currentAProject.selectedAObj != aObj) && (checkedType == undefined || checkedType.indexOf(aObj.type) != -1) && (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || (comparePair == undefined || !(comparePair[comparePair.length-1] instanceof AdjudicationEntity || comparePair[comparePair.length-1] instanceof AdjudicationRelation)));
 	});
 
 	// is assign relation in adjudication mode

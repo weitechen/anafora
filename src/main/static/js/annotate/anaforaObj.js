@@ -328,7 +328,7 @@ IAnaforaObj.prototype.getPropertyXMLStr = function() {
 			}
 		}
 		else {
-			rStr += '\t\t\t<' + pType.type + '>' + ((element == undefined) ? "" : element)  + '</' + pType.type + '>\n';
+			rStr += '\t\t\t<' + pType.type + '>' + ((element == undefined) ? "" : String(element).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g,'&gt;').replace(/"/g, '&quot;'))  + '</' + pType.type + '>\n';
 		}
 	})
 
