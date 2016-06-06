@@ -31,7 +31,7 @@ AnaforaProjectManager.rootPath = settings.ANAFORA_PROJECT_FILE_ROOT
 
 projectSetting = None
 
-def index(request, projectName="", corpusName="", taskName="", schema="", schemaMode="", annotatorName=""):
+def index(request, projectName="", corpusName="", taskName="", schema="", schemaMode="", annotatorName="", crossDoc=None):
 
 	if request.method != "GET":
 		return HttpResponseForbidden()
@@ -47,8 +47,22 @@ def index(request, projectName="", corpusName="", taskName="", schema="", schema
 
 	if (schemaMode == "Adjudication"):
 		isAdjudication = True
+	
+	if crossDoc == "_crossDoc":
+		isCrossDoc = True
+	else:
+		isCrossDoc = False
 		
+	account = request.META["REMOTE_USER"]
+	ps = getProjectSetting()
+
+	rawTextList = []
 	rawText = ""
+
+	def readRawText(rawTextFile):
+		with open(rawTextFile) as fhd:
+			rawText = fhd.read()
+		rawTextList.append(rawText.replace("&", "&amp;").replace("<", "&lt;").replace("\r", "&#13;").replace("\n", "&#10;"))
 
 	if projectName == "":
 		pass
@@ -58,15 +72,16 @@ def index(request, projectName="", corpusName="", taskName="", schema="", schema
 		pass
 	else:
 		try:
-			rawTextFile = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName, taskName)
-			fhd = open(rawTextFile)
-			rawText = fhd.read()
-			fhd.close()
+			if crossDoc:
+				rawTextFileList = AnaforaProjectManager.getSubTask(projectName, corpusName, taskName)
+				for rawTextFile in [os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName, sTaskName, sTaskName) for sTaskName in rawTextFileList]:
+					readRawText(rawTextFile)
+			else:
+				rawTextFile = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName, taskName)
+				readRawText(rawTextFile)
 		except:
 			return HttpResponseForbidden("raw text file open error: " + rawTextFile)
 			
-	account = request.META["REMOTE_USER"]
-	ps = getProjectSetting()
 	schemaMap = ps.getSchemaMap()
 	if annotatorName == "":
 		annotatorName = account
@@ -74,15 +89,16 @@ def index(request, projectName="", corpusName="", taskName="", schema="", schema
 		if ";" not in annotatorName:
 			isAdjudication = False
 	
+	
 	js_schemaSpecific = {"Coreference": {"adjudication":["js/annotate/anaforaAdjudicationProjectCoreference.js"]}}
 	contextContent = {
 		'js': (js_lib + js_annotate) if settings.DEBUG else (js_lib + ["js/out.js"]) ,
 		'js_schemaSpecific': js_schemaSpecific, 
 		'css': css,
 		'title': taskName + ' - Anafora',
-		'rawText': rawText.replace("&", "&amp;").replace("<", "&lt;").replace("\r", "&#13;").replace("\n", "&#10;"),
+		'rawText': rawTextList,
 		'root_url': settings.ROOT_URL,
-		'settingVars': {'app_name': "annotate", 'projectName': projectName, 'corpusName': corpusName, 'taskName': taskName, 'schema': schema, 'isAdjudication': isAdjudication, 'annotator': annotatorName, 'remoteUser': request.META["REMOTE_USER"], 'schemaMap': json.dumps( schemaMap )},
+		'settingVars': {'app_name': "annotate", 'projectName': projectName, 'corpusName': corpusName, 'taskName': taskName, 'schema': schema, 'isAdjudication': isAdjudication, 'annotator': annotatorName, 'remoteUser': request.META["REMOTE_USER"], 'schemaMap': json.dumps( schemaMap ), 'isCrossDoc': isCrossDoc },
 	}
 	contextContent.update(csrf(request))
 	context = Context(contextContent)
@@ -211,6 +227,26 @@ def getCorpusFromProjectName(request, projectName):
 	
 	return HttpResponse(json.dumps(corpusName))
 
+def getCrossTask(request, projectName, corpusName, schemaName):
+	""" Given projectName, corpusName, schemaName, return all the available crossDocument Task
+	@type request:	HTTPRequest
+	@type corpusName:	str
+	@type schemaName:	str
+	"""
+	if request.method != "GET":
+		return HttpResponseForbidden()
+
+	if isSchemaExist(schemaName) != True:
+		return HttpResponseNotFound("schema file not found")
+
+	ps = getProjectSetting()
+	try:
+		taskName = AnaforaProjectManager.searchAvailableTask(projectName, corpusName, schemaName, request.META["REMOTE_USER"], ps)
+	except:
+		return HttpResponseNotFound("project or corpus not found")
+
+	return HttpResponse(json.dumps(taskName))
+
 def getAllTask(request, projectName, corpusName, schemaName):
 	# Given projectName, corpusName, schemaName, return all the available task
 	if request.method != "GET":
@@ -239,12 +275,15 @@ def getAdjudicationTaskFromProjectCorpusName(request, projectName, corpusName, s
 	else:
 		return HttpResponseForbidden("access not allowed")
 
-def getTaskFromProjectCorpusName(request, projectName, corpusName, schemaName):
+def getTaskFromProjectCorpusName(request, projectName, corpusName, schemaName, crossDoc = False):
 	if isSchemaExist(schemaName) != True:
 		return HttpResponseNotFound("schema file not found")
 
 	ps = getProjectSetting()
 	try:
+		#if crossDoc:
+		#	taskName = AnaforaProjectManager.searchAvailableCrossTask(projectName, corpusName, schemaName, request.META["REMOTE_USER"], ps)
+		#else:
 		taskName = AnaforaProjectManager.searchAvailableTask(projectName, corpusName, schemaName, request.META["REMOTE_USER"], ps)
 	except:
 		return HttpResponseNotFound("project or corpus not found")

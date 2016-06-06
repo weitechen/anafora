@@ -18,6 +18,8 @@ function ProjectSelector(setting) {
 
 	this.administratorElement.find("ul>li").eq(0).bind('click', function(evt) {ProjectSelector.clickAdjudicationSelect(_self, evt.target);});
 	this.administratorElement.find("ul>li").eq(1).bind('click', function(evt) {ProjectSelector.clickViewSelect(_self, evt.target);});
+	this.administratorElement.find("ul>li").eq(2).bind('click', function(evt) {ProjectSelector.clickCrossDocSelect(_self, evt.target);});
+
 
 	this.projectDir = undefined;
 	this.schemaMap = setting.schemaMap;
@@ -47,6 +49,11 @@ function ProjectSelector(setting) {
 	else
 		this.view = setting.isView;
 
+	if(setting.isCrossDoc == undefined)
+		this.crossDoc = false;
+	else
+		this.crossDoc = false;
+
 	this.selected = {"project": setting.projectName, "corpus": setting.corpusName, "task": setting.taskName, "annotator": setting.annotator };
 	
 	this.baseURL = setting.root_url + "/" + setting.app_name + "/";
@@ -60,6 +67,7 @@ ProjectSelector.prototype.initialProjectDir = function() {
 	this.modeSelect();
 	this.adjudicationSelect();
 	this.viewSelect();
+	this.crossDocSelect();
 
 	if(this.projectDir == undefined) {
 		this.projectDir = {};
@@ -91,7 +99,7 @@ ProjectSelector.prototype.initialProjectDir = function() {
 	this.popup();
 }
 
-ProjectSelector.prototype.getDir = function(projectName, corpusName, schemaName, isAdjudication, isView) {
+ProjectSelector.prototype.getDir = function(projectName, corpusName, schemaName, isAdjudication, isView, isCrossDoc) {
 	var jsonURL = this.baseURL + "getDir/";
 	if(projectName != undefined)
 		jsonURL += projectName + "/";
@@ -106,6 +114,9 @@ ProjectSelector.prototype.getDir = function(projectName, corpusName, schemaName,
 
 		if(isView != undefined && isView)
 			jsonURL += "/view";
+
+		if(isCrossDoc != undefined && isCrossDoc)
+			jsonURL += "/_crossDoc";
 
 		jsonURL += "/";
 	}
@@ -169,7 +180,7 @@ ProjectSelector.prototype.selectTask = function() {
 		throw "Select Mode First";
 	}
 	else {
-		var taskList = this.getDir(this.selected.project, this.selected.corpus, this.schema + ((this.mode === false || this.mode === undefined)?"":"."+this.mode) , this.adjudication, this.view);
+		var taskList = this.getDir(this.selected.project, this.selected.corpus, this.schema + ((this.mode === false || this.mode === undefined)?"":"."+this.mode) , this.adjudication, this.view, this.crossDoc);
 		if(this.view)
 			this.updateSelectMenu("Select Task", taskList, ProjectSelector.clickTaskWithView, ProjectSelector.backToCorpus);
 		else
@@ -215,7 +226,7 @@ ProjectSelector.prototype.openNewProject = function() {
 		throw "openNewProject error: required selected project, corpus, task or schema";
 
 	
-	window.location = this.baseURL + this.selected.project + "/" + this.selected.corpus + "/" + this.selected.task + "/" + this.schema + (this.mode === false || this.mode===undefined ?  "" : "."+this.mode) + (this.adjudication ? ".Adjudication" : "" ) +  "/" + ((this.view != undefined && this.view) ? (this.selected.annotator ) : "") ;
+	window.location = this.baseURL + this.selected.project + "/" + this.selected.corpus + "/" + this.selected.task + "/" + this.schema + (this.mode === false || this.mode===undefined ?  "" : "."+this.mode) + (this.adjudication ? ".Adjudication" : "" ) + (this.crossDoc ? "/_crossDoc" : "") +  "/" + ((this.view != undefined && this.view) ? (this.selected.annotator ) : "") ;
 }
 
 ProjectSelector.clickProject = function(_self, target ) {
@@ -387,6 +398,11 @@ ProjectSelector.clickViewSelect = function(_self, target) {
 	_self.view = !_self.view;
 	_self.viewSelect();
 }
+
+ProjectSelector.clickCrossDocSelect = function(_self, target) {
+	_self.crossDoc = !_self.crossDoc;
+	_self.crossDocSelect();
+}
 ProjectSelector.prototype.modeSelect = function() {
 	var _self = this;
 	if(this.schema != undefined && this.mode !== false) {
@@ -452,6 +468,16 @@ ProjectSelector.prototype.viewSelect = function() {
 	else {
 		this.administratorElement.find("ul>li").eq(1).removeClass("selected");
 
+	}
+}
+
+ProjectSelector.prototype.crossDocSelect = function() {
+	var _self = this;
+	if(this.crossDoc) {
+		this.administratorElement.find("ul>li").eq(2).addClass("selected");
+	}
+	else {
+		this.administratorElement.find("ul>li").eq(2).removeClass("selected");
 	}
 }
 

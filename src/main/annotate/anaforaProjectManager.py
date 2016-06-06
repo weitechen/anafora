@@ -16,6 +16,7 @@ class AnaforaProjectManager:
 
 		return sorted([projectName for projectName in AnaforaProjectManager.projectList])
 
+
 	@staticmethod
 	def getCorpusFromProject(projectName):
 		if projectName not in AnaforaProjectManager.projectList:
@@ -38,6 +39,18 @@ class AnaforaProjectManager:
 		taskNameList = check_output("find " + AnaforaProjectManager.rootPath + projectName + "/" + corpusName + "/ -type f -name '*." + schemaName + ".*.xml' | sed 's#\(.*\)/\(.*\)/\(.*\)/.*#\\3#' | sort -u", shell=True )
 		taskName = [tName for tName in taskNameList.split('\n') if tName != '']
 		return taskName
+
+	"""
+	@staticmethod
+	def searchAvailableCrossTask(projectName, corpusName, schemaName, annotator, projectManager, maxNumOfAnnotator = 2):
+		return AnaforaProjectManager.searchAvailableTask(projectName, corpusName, schemaName, annotator, projectManager, maxNumOfAnnotator = 2)
+	"""
+
+	@staticmethod
+	def getSubTask(projectName, corpusName, taskName):
+		taskPath = os.path.join(AnaforaProjectManager.rootPath, projectName, corpusName, taskName)
+		return [tName for tName in os.listdir(taskPath) if os.path.isdir(os.path.join(taskPath, tName)) and tName[0] != '.' and os.path.isfile(os.path.join(taskPath, tName, tName))]
+
 
 	@staticmethod
 	def searchAvailableTask(projectName, corpusName, schemaName, annotator, projectManager, maxNumOfAnnotator = 2):
