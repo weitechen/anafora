@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 import os
-from unittest import TestCase
+#from unittest import TestCase
+import unittest
 from django.test.client import Client
 from django.test.client import RequestFactory
 from django.core.urlresolvers import resolve
 import views
 import json
 
-class AnnotateURLTest(TestCase):
+class AnnotateURLTest(unittest.TestCase):
 	def setUp(self):
 		self.client = Client()
 		self.factory = RequestFactory()
