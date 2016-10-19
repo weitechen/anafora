@@ -368,6 +368,12 @@ IAnaforaObj.prototype.removeLinkingAObj = function(linkingAObj) {
 	}
 }
 
+IAnaforaObj.prototype.getTaskName = function() {
+	var lastIdx = this.id.lastIndexOf('@');
+	var taskName = this.id.substring(this.id.lastIndexOf('@', lastIdx-1) + 1, lastIdx);
+	return taskName;
+}
+
 IAnaforaObj.prototype.destroy = function() {
 	// clear the linking
 	var linkingAObj;
@@ -693,6 +699,8 @@ Relation.prototype.genElementProperty = function() {
 			catch(err) {
 				console.log("Generate type string element in Relation " + _self.id + " with  property type idx :" + idx.toString());
 				console.log(_self);
+				console.log(err.stack);
+				errorHandler.handle(err, currentAProject);
 				throw err;
 			}
 		}
@@ -702,9 +710,7 @@ Relation.prototype.genElementProperty = function() {
 	return rStr;
 }
 
-
 Relation.prototype.toXMLString = function() {
-
 	var rStr = this.getMetadataXMLStr();
 	rStr += this.getPropertyXMLStr();
 	rStr += this.getAdditionalDataXMLStr();
@@ -723,23 +729,27 @@ Relation.prototype.getMetadataXMLStr = function() {
 }
 
 Relation.prototype.getSpanRange = function() {
-	var rRange = [undefined, undefined];
 	var _self = this;
+	var taskRangeDict = {};
 	$.each(this.propertyList, function(idx) {
 		if(_self.type.propertyTypeList[idx].input == InputType.LIST) {
 			if(_self.propertyList[idx] != undefined) {
 				$.each(_self.propertyList[idx], function(listIdx) {
+					var taskName = _self.propertyList[idx][listIdx].getTaskName();
 					var tRange = _self.propertyList[idx][listIdx].getSpanRange();
-					if(rRange[0] == undefined || rRange[0] > tRange[0])
-						rRange[0] = tRange[0];
-					if(rRange[1] == undefined || rRange[1] < tRange[1])
-						rRange[1] = tRange[1];
+					if(!(taskName in taskRangeDict))
+						taskRangeDict[taskName] = [undefined, undefined];
+					
+					if(taskRangeDict[taskName][0] == undefined || taskRangeDict[taskName][0] > tRange[0])
+						taskRangeDict[taskName][0] = tRange[0];
+					if(taskRangeDict[taskName][1] == undefined || taskRangeDict[taskName][1] < tRange[1])
+						taskRangeDict[taskName][1] = tRange[1];
 				});
 			}
 		}
 	});
 
-	return rRange;
+	return taskRangeDict;
 }
 
 Relation.genFromDOM = function(relationDOM, schema ) {

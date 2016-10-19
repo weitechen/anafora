@@ -1,19 +1,32 @@
 #!/usr/bin/python2.7
-import sys
+import sys, os
 
-from xml.dom.minidom import parseString
+from xml.dom.minidom import parseString, Element
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+import itertools
 
-class ProjectSetting():
+class ProjectSetting(object):
 	def __init__(self):
+		"""
+		@type projectList:  dict of Project
+		@type schemaList:   dict of Schema
+		"""
 		self.projectList = {}
 		self.schemaList = {}
 
 	def parseFromFile(self, filePath):
-		fhd = open(filePath)
-		psXMLStr = reduce(lambda x,y: x+' '+y, fhd.xreadlines())
-		fhd.close()
-		psDOM = parseString(psXMLStr).childNodes[0]
+		""" parse setting XML file
+		@type filePath:		 str
+		"""
+		try:
+			with open(filePath) as fhd:
+				psXMLStr = reduce(lambda x,y: x+' '+y, fhd.xreadlines())
+		except IOError as e:
+			raise ImproperlyConfigured, "Can not find setting file '%s', please check your setting of ``ANAFORA_PROJECT_FILE_ROOT'' and ``ANAFORA_PROJECT_SETTING_FILENAME'' in your setting file" % (filePath)
 
+		psDOM = parseString(psXMLStr).childNodes[0]
+		
 		if psDOM.tagName != "setting":
 			raise Exception("Project Setting XML Dom parse error: " + psDOM.toxml())
 
@@ -21,11 +34,12 @@ class ProjectSetting():
 			if childNode.tagName == "projects":
 				for projectNode in [tNode for tNode in childNode.childNodes if tNode.nodeType == tNode.ELEMENT_NODE]:
 					project = Project.parseFromXMLDOM(projectNode)
-					self.projectList[project.name] = project
+					if os.path.isdir(os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, project.name)):
+						self.projectList[project.name] = project
 			elif childNode.tagName == "schemas":
 				for schemaNode in [tNode for tNode in childNode.childNodes if tNode.nodeType == tNode.ELEMENT_NODE]:
 					schema = Schema.parseFromXMLDOM(schemaNode)
-					self.schemaList[schema.name] = schema
+					self.schemaList[str(schema.name)] = schema
 			else:
 				raise Exception("unhandle tag: " + childNode.tagName)
 
@@ -42,95 +56,107 @@ class ProjectSetting():
 		#link preannotationFromMode in schema
 		for schemaName in self.schemaList:
 			schema = self.schemaList[schemaName]
-			for mode in schema.modes:
-				if mode.name == "default":
-					pass
-				else:
-					if mode.needPreannotation:
-						if mode.preannotationFromMode not in [tMode.name for tMode in schema.modes]:
-							raise Exception('Preannotation mode name "' + str(mode.preannotationFromMode) + '" from mode "' + mode.name + '" of schema "' + schemaName + '" is not exists')
+			for modeName in schema.modes:
+				mode = schema.modes[modeName]
+				if mode.needPreannotation:
+					if mode.preannotationFromMode not in schema.modes:
+						raise Exception('Preannotation mode name "' + str(mode.preannotationFromMode) + '" from mode "' + mode.name + '" of schema "' + schemaName + '" is not exists')
 
-						mode.preannotationFromMode = [tMode for tMode in schema.modes if tMode.name ==  mode.preannotationFromMode][0]
+					mode.preannotationFromMode = schema.getMode(mode.preannotationFromMode)
 
-	def isSchemaExist(self, schemaName, modeName = "default"):
+	def isSchemaExist(self, schemaName, modeName = None):
+		""" check schema exists
+		@type schemaName:	   str
+		@type modeName:		 str
+		@rtype:				 bool
+		"""
 		if schemaName not in self.schemaList:
 			return False
 
-		if modeName not in [tMode.name for tMode in self.schemaList[schemaName].modes]:
+		if modeName not in self.schemaList[schemaName].modes:
 			return False
-
+		
 		return True
 
-	def getSchemaFileNameFromSchemaAndMode(self, schemaName, schemaFileIdx = 0, modeName="default"):
+	def getSchemaFileNameFromSchemaAndMode(self, schemaName, schemaFileIdx = 0, modeName=None):
+		"""
+		@type schemaName:	   str
+		@type schemaFileIdx:	int
+		@type modeName:		 str
+		@rtype:				 str
+		"""
 		needMoreSchema = False
-		if schemaName not in self.schemaList:
-			raise Exception('Schema "' + str(schemaName) + '" is not exists')
-
-		tModeList = [tMode for tMode in self.schemaList[schemaName].modes if tMode.name == modeName]
-		if len(tModeList) == 0:
-			raise Exception('Mode "' + str(modeName) + '" is not exists in schema "' + str(schema) + '"')
-
-		mode = tModeList[0]
+		try:
+				mode = self.getMode(schemaName, modeName)
+		except:
+				raise
 
 		if schemaFileIdx >= len(mode.schemaFile):
-			raise Exception("The schema Index " + str(schemaFileIdx) + " is more than the size of schema files")
+			raise Exception("The schema '%s' " % (schemaName) + ("" if modeName == None else "with mode name '%s' " % modeName) + "of file index " + str(schemaFileIdx) + " is more than the size of schema files")
 
 		if schemaFileIdx+1 < len(mode.schemaFile):
 			needMoreSchema = True
 
 		return (mode.schemaFile[schemaFileIdx], needMoreSchema)
 
-	def getMode(self, schemaName, modeName = "default"):
-		if "-Adjudication" in schemaName:
-			schemaName = schemaName.replace("-Adjudication", "")
-
-		if "-" in schemaName:
-			(schemaName, modeName) = schemaName.split("-")
+	def getMode(self, schemaName, modeName = None):
+		"""
+		@type schemaName:	 str
+		@type modeName:		 str
+		@rtype:				 Mode
+		"""
 
 		try:
 			schema = self.getSchema(schemaName)
 			mode = schema.getMode(modeName)
-		except Exception as e:
-			raise Exception("get mode error!")
+		except:
+			raise
 
 		return mode
 
 	def getSchema(self, schemaName):
-		if "-Adjudication" in schemaName:
-			schemaName = schemaName.replace("-Adjudication", "")
-
-		if "-" in schemaName:
-			(schemaName, modeName) = schemaName.split("-")
-
+		"""
+		@type schemaName:	   str
+		@rtype:				 Schema
+		"""
 		try:
-			schema = self.schemaList[schemaName]
+			print self.schemaList
+			return self.schemaList[schemaName]
 		except:
-			raise Exception
+			raise Exception("Get schema '%s' error" % schemaName)
 
 		return schema
 
 	def getSchemaMap(self):
+		""" generate the schema map dict
+		@rtype:		 dict
+		"""
 		rSchemaMap = {}
 		for schemaName in self.schemaList:
-			modeList = [tMode.name for tMode in self.schemaList[schemaName].modes]
+			modeList = [str(tKey) for tKey in self.schemaList[schemaName].modes.keys()]
 
-			if "default" in modeList:
-				if len(modeList) == 1:
-					rSchemaMap[schemaName] = 0
-				else:
-					raise Exception('Schema "' + schemaName + '" has multiple mode name within the "default" mode')
+			if len(modeList) == 1 and None in self.schemaList[schemaName].modes:
+				rSchemaMap[schemaName] = 0
 			else:
 				rSchemaMap[schemaName] = modeList
 
 		return rSchemaMap
 
-class Schema():
-	def __init__(self, name, modes = []):
+class Schema(object):
+	def __init__(self, name, modes = {}):
+		"""
+		@type name:	 str
+		@type modes:	dict
+		"""
 		self.name = name
 		self.modes = modes
 	
 	@classmethod
 	def parseFromXMLDOM(cls, schemaNode):
+		"""
+		@type schemaNode:   Element
+		@rtype:		 Schema
+		"""
 		if schemaNode.tagName != "schema":
 			raise Exception('schema xml DOM parse error: ' + schemaNode.toxml())
 		name = schemaNode.getAttribute("name")
@@ -142,40 +168,78 @@ class Schema():
 		mode = None
 		for childNode in [tNode for tNode in schemaNode.childNodes if tNode.nodeType == tNode.ELEMENT_NODE]:
 			if childNode.tagName == "mode":
-				mode = Mode.parseFromXMLDOM(childNode)
-				modesList.append(mode)
+				mode = Mode.parseFromXMLDOM(childNode, name)
+				modesList.append((mode.name, mode))
 			elif childNode.tagName == "file":
 				if mode == None:
-					mode = Mode("default", False, None, [])
+					mode = Mode(None, name, False, None, [])
 
 				mode.addSchemaFile(childNode.childNodes[0].nodeValue)
 			else:
 				raise Exception("unhandle tag: " + childNode.tagName)
 
-		if mode.name == "default":
+		modesDict = None
+
+		if mode.name == None:
 			if len(modesList) > 0:
 				raise Exception("default mode and multiple modes are exist at the same time: "+ schemaNode.toxml())
-			modesList.append(mode)
+			modesDict = {None: mode}
+		else:
+			modesDict = dict(modesList)
 
-		return cls(name, modesList)
+		return cls(name, modesDict)
 
-	def getMode(self, modeName):
-		mode = [tMode for tMode in self.modes if tMode.name == modeName][0]
-		return mode
+	def getMode(self, modeName = None):
+		""" getmode from mode name
+		@type modeName: str
+		@rtype:	 Mode
+		"""
+		if modeName not in self.modes:
+			if modeName == None:
+				raise Exception("Get schema '%s' error" % self.name)
+			else:
+				raise Exception("Get schema '%s' with mode name '%s' error" % (self.name, str(modeName)))
+		return self.modes.get(modeName)
 
-class Mode():
-	def __init__(self, name, needPreannotation = False, preannotationFromMode = None, schemaFile = [], directSetGold = False):
+class Mode(object):
+	def __init__(self, name, schema, needPreannotation = False, preannotationFromMode = None, schemaFile = [], directSetGold = False):
+		"""
+		@type name:					str
+		@type schema:				str
+		@type needPreannotation:	bool
+		@type preannotationFromNode:Mode
+		@type schemaFile:			list of str
+		@type directSetGold:		bool
+		"""
 		self.name = name
 		self.needPreannotation = needPreannotation
 		self.preannotationFromMode = preannotationFromMode
 		self.directSetGold = directSetGold
 		self.schemaFile = schemaFile
+		self.schema = schema
 	
+	def getSchemaName(self):
+		"""
+		@rtype: str
+		"""
+		if self.name == None:
+			return self.schema
+
+		return '%s-%s' % (self.schema, self.name)
+
 	def addSchemaFile(self, newSchemaFile):
+		""" Add new schema file to the file list
+		@type newSchemaFile:	str
+		"""
 		self.schemaFile.append(newSchemaFile)
 
 	@classmethod
-	def parseFromXMLDOM(cls, modeNode):
+	def parseFromXMLDOM(cls, modeNode, schemaName):
+		"""
+		@type modeNode: Element
+		@rtype:	 Mode
+		"""
+		
 		if modeNode.tagName != "mode":
 			raise Exception('mode xml DOM parse error: ' + modeNode.toxml())
 		name = modeNode.getAttribute("name")
@@ -194,10 +258,17 @@ class Mode():
 			else:
 				raise Exception("unhandle tag: " + childNode.tagName)
 
-		return cls(name, isPreannotation, preannotationFromMode, schemaFileList, directSetGold)
+		return cls(name, schemaName, isPreannotation, preannotationFromMode, schemaFileList, directSetGold)
 
-class Project():
+class Project(object):
 	def __init__(self, name, admins ,  numOfAnnotator = 2, annotators = [], allowedSchemas = []):
+		"""
+		@type name:		 str
+		@type admins:	   list of str
+		@type numOfAnnotator:   int
+		@type annotators:	   list of str
+		@type allowedSchemas:   list of str
+		"""
 		self.name = name
 		self.admins = admins
 		self.numOfAnnotator = numOfAnnotator
@@ -206,6 +277,10 @@ class Project():
 		
 	@classmethod
 	def parseFromXMLDOM(cls, projectNode):
+		"""
+		@type projectNode:	Element
+		@type:			Project
+		"""
 		if projectNode.tagName != "project":
 			raise Exception('project xml DOM parse error: ' + projectNode.toxml())
 

@@ -70,24 +70,24 @@ PropertyFrame.updateSpanValue = function(e) {
 			updateSpan = new SpanType(newValue, oldSpan.end);
 			isAdd = false;
 		}
-		//currentAProject.selectedAObj.span[spanListIdx].end = newValue;
 		_self.displayAObj.span[spanListIdx].end = newValue;
 	}
 	
+	var annotFrame = currentAProject.getAnnotateFrame(_self.displayAObj);
 	if(isAdd) {
-		//currentAProject.annotateFrame.addSpan(updateSpan, currentAProject.selectedAObj);
-		currentAProject.annotateFrame.addSpan(updateSpan, _self.displayAObj);
+		annotFrame.addSpan(updateSpan, _self.displayAObj);
+		//currentAProject.annotateFrame.addSpan(updateSpan, _self.displayAObj);
 	}
 	else {
-		//currentAProject.annotateFrame.removeSpan(updateSpan, currentAProject.selectedAObj);
-		currentAProject.annotateFrame.removeSpan(updateSpan, _self.displayAObj);
+		annotFrame.removeSpan(updateSpan, _self.displayAObj);
+		//currentAProject.annotateFrame.removeSpan(updateSpan, _self.displayAObj);
 
 	}
 
 	_self.displayBtns(_self.displayAObj);
 	_self.displayPropertyText(_self.displayAObj);
 	updatePropertyFrameSpan();
-	_self.spanTable.children("tbody").children("tr").eq(spanListIdx).children("td").eq(3).text(getTextFromSpan(_entity.span[spanListIdx]));
+	_self.spanTable.children("tbody").children("tr").eq(spanListIdx).children("td").eq(3).text(getTextFromSpan(_entity.span[spanListIdx], _entity.getTaskName()));
 	currentAProject.selectAObj(currentAProject.selectedAObj);
 	currentAProject.moveOutPreannotation(_self.displayAObj);
 	temporalSave();
@@ -127,23 +127,25 @@ PropertyFrame.prototype.removeAObjFromProperty = function(pIdx, pListIdx) {
 		//var prop = currentAProject.selectedAObj.propertyList[pIdx];
 		var prop = this.displayAObj.propertyList[pIdx];
 		var removeAObj = prop[pListIdx];
+		var annotFrame = currentAProject.getAnnotateFrame(removeAObj);
 
 		prop.splice(pListIdx, 1);
 		if(prop.length == 0)
 			prop = undefined;
 
+		
 		if(removeAObj instanceof Entity) {
-			currentAProject.annotateFrame.removeEntityPosit(removeAObj, this.displayAObj);
+			annotFrame.removeEntityPosit(removeAObj, this.displayAObj);
 			if(this.displayAObj !== currentAProject.selectedAObj)
-				currentAProject.annotateFrame.removeEntityPosit(removeAObj, currentAProject.selectedAObj);
+				annotFrame.removeEntityPosit(removeAObj, currentAProject.selectedAObj);
 		}
 		else {
-			currentAProject.annotateFrame.removeRelationPosit(removeAObj, this.displayAObj);
+			annotFrame.removeRelationPosit(removeAObj, this.displayAObj);
 			if(this.displayAObj !== currentAProject.selectedAObj)
-				currentAProject.annotateFrame.removeRelationPosit(removeAObj, currentAProject.selectedAObj);
+				annotFrame.removeRelationPosit(removeAObj, currentAProject.selectedAObj);
 		}
 
-		currentAProject.annotateFrame.updateOverlap(removeAObj);
+		annotFrame.updateOverlap(removeAObj);
 
 		var replaceRow = this.generatePropertyTableRow(propType, pIdx, prop);
 				
@@ -199,6 +201,7 @@ PropertyFrame.prototype.deleteBtnClick = function(evt) {
 		
 		var _self = evt.data._self;
 		var removeAObjType = currentAProject.selectedAObj.type;
+		var annotFrame = currentAProject.getAnnotateFrame(currentAProject.selectedAObj);
 
 		if(currentAProject.selectedAObj instanceof AdjudicationEntity) {
 			currentAProject.removeAObj(currentAProject.selectedAObj.compareAObj[_self.comparedIdx], _self.comparedIdx);
@@ -223,7 +226,9 @@ PropertyFrame.prototype.deleteBtnClick = function(evt) {
 				relationFrame.removeRelationRow();
 
 			currentAProject.removeAObj(currentAProject.selectedAObj);
-			currentAProject.annotateFrame.removeAObj(currentAProject.selectedAObj);
+			if(annotFrame == undefined)
+				annotFrame = currentAProject.getAnnotateFrameByTaskName($("#taskName").children("a").text())
+			annotFrame.removeAObj(currentAProject.selectedAObj);
 			currentAProject.selectedAObj = null;
 		}
 			
@@ -312,28 +317,14 @@ PropertyFrame.delSpanBtnClick = function(evt) {
 	var removeSpan;
 	var affectedOverlap;
 	var overlap;
+	var annotFrame = currentAProject.getAnnotateFrame(entity);
 
 	if(entity.span.length == 1)
 		alert("Can't delete the only span");
 	else {
 		removeSpan = entity.span[spanIdx];
 		entity.removeSpan(spanIdx);
-		currentAProject.annotateFrame.removeSpan(removeSpan, entity);
-		//entity.span.splice(spanIdx, 1);
-
-		// remove posit
-		/*
-		for(var idx=removeSpan.start; idx<removeSpan.end; idx++) {
-			posIdx = currentAProject.annotateFrame.positIndex[idx].indexOf(entity);
-			currentAProject.annotateFrame.positIndex[idx].splice(posIdx, 1);
-
-			if(currentAProject.positIndex[idx].length == 0)
-				delete currentAProject.positIndex[idx];
-		}
-
-		// find overlaps
-		_self.updateSpanList(removeSpan.start, removeSpan.end, entity);
-		*/
+		annotFrame.removeSpan(removeSpan, entity);
 
 		_self.displayPropertyText(entity);
 		_self.displaySpanTable(entity);
@@ -345,7 +336,8 @@ PropertyFrame.delSpanBtnClick = function(evt) {
 
 PropertyFrame.prototype.updateSpanList = function(spanStartPos, spanEndPos, aObj) {
 	var affectedOverlapRange = currentAProject.findOverlapRange(spanStartPos, spanEndPos);
-	var spanList = currentAProject.annotateFrame.frameDiv.children("span");
+	var annotFrame = currentAProject.getAnnotateFrame(aObj);
+	var spanList = annotFrame.frameDiv.children("span");
 	if(affectedOverlapRange[1] == null)
 		affectedOverlapRange[1] = currentAProject.overlap.length;
 
@@ -375,22 +367,19 @@ PropertyFrame.prototype.updateSpanList = function(spanStartPos, spanEndPos, aObj
 		for(var idx = startAffectedRange; idx<affectedOverlapRange[1]-removeOverlapCnt;idx++)
 			overlapList[idx] = currentAProject.overlap[idx];
 		
-		currentAProject.annotateFrame.updateOverlapList(overlapList, currentAProject.schema.checkedType);
+		annoeFrame.updateOverlapList(overlapList, currentAProject.schema.checkedType);
 	}
 }
 
 PropertyFrame.addSpanBtnClick = function(evt) {
 	var _self = evt.data._self;
 	var _entity = evt.data._entity;
-	var newSpan = currentAProject.annotateFrame.getSelectRangeSpan();
+	var annotFrame = currentAProject.getAnnotateFrame(_entity);
+	var newSpan = annotFrame.getSelectRangeSpan();
 
 	if(newSpan.start != newSpan.end) {
 		_entity.addSpan(newSpan);
-		currentAProject.annotateFrame.addSpan(newSpan, _entity);
-		/*
-		currentAProject.annotateFrame.updatePosIndex(_entity);
-		currentAProject.annotateFrame.updateOverlap(_entity);
-		*/
+		annotFrame.addSpan(newSpan, _entity);
 
 		_self.displayPropertyText(_entity);
 		_self.displaySpanTable(_entity);
@@ -461,9 +450,12 @@ PropertyFrame.prototype.hidePropertyText = function() {
 PropertyFrame.prototype.displaySpanTable = function(entity) {
 	var spanTableStr = "";
 	var editableStr = ( this.editable ? "" : "disabled ");
+	var taskName = entity.getTaskName();
+	var annotFrame = currentAProject.getAnnotateFrameByTaskName(taskName);
+
 	$.each(entity.span, function(idx) {
 		// generate span table
-		spanTableStr += '<tr><td class="delBtnCol"><input type="button" value="-" class="delSpanBtn" ' + editableStr + '/></td><td class="spinCol"><input type="number" value="' + this.start.toString() + '" min="0" max="' + (this.end - 1).toString() + '" size="4" ' + editableStr + '/></td><td class="spinCol"><input type="number" value="' + this.end.toString() + '" min="' + (this.start + 1).toString() + '" max="' + rawText.length + '" size="4" ' + editableStr + '/></td><td>' + rawText.substring(this.start, this.end) + "</td></tr>";
+		spanTableStr += '<tr><td class="delBtnCol"><input type="button" value="-" class="delSpanBtn" ' + editableStr + '/></td><td class="spinCol"><input type="number" value="' + this.start.toString() + '" min="0" max="' + (this.end - 1).toString() + '" size="4" ' + editableStr + '/></td><td class="spinCol"><input type="number" value="' + this.end.toString() + '" min="' + (this.start + 1).toString() + '" max="' + annotFrame.rawText.length + '" size="4" ' + editableStr + '/></td><td>' + annotFrame.rawText.substring(this.start, this.end) + "</td></tr>";
 	});
 
 	spanTableStr += '<tr><td colspan=4><input type="button" value="+" class="addSpanBtn" class="addSpanBtn" ' + editableStr + '/></tr></table>';

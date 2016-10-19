@@ -98,6 +98,13 @@ h1 {
   /* display: none; */
 }
 
+#rawText > div {
+   border-top: 1px #B0B0B0 dotted;
+   background-color: #FDFDFD;
+   padding: 5px;
+   margin-bottom: 10px;
+}
+
 
 /*This bit controls the center pane*/
 #aProjectWrapper {
@@ -117,7 +124,7 @@ h1 {
     border-bottom: 1px dotted #949494;
 }
 
-#aProjectWrapper div {
+#aProjectWrapper > div {
   overflow-y: scroll; 
   overflow-x: hidden;
   white-space: pre-wrap;

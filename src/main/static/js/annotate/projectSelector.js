@@ -25,7 +25,7 @@ function ProjectSelector(setting) {
 	this.schemaMap = setting.schemaMap;
 	this.adjSourceSchema = undefined;
 	this.mode = undefined;
-	if(setting.schema == "")
+	if(typeof setting.schema == "undefined")
 		this.schema = undefined;
 	else {
 		if(setting.schema.indexOf(".") >=0) {
@@ -69,7 +69,7 @@ ProjectSelector.prototype.initialProjectDir = function() {
 	this.viewSelect();
 	this.crossDocSelect();
 
-	if(this.projectDir == undefined) {
+	if(typeof this.projectDir == "undefined") {
 		this.projectDir = {};
 		var projectList = this.getDir();
 		$.each(projectList, function(idx, pName) {
@@ -77,7 +77,7 @@ ProjectSelector.prototype.initialProjectDir = function() {
 		});
 	}
 
-	if(this.selected.project === "") {
+	if(typeof this.selected.project == "undefined") {
 		this.selectProject();
 	}
 	else {
@@ -121,11 +121,15 @@ ProjectSelector.prototype.getDir = function(projectName, corpusName, schemaName,
 		jsonURL += "/";
 	}
 
-	var dirJSON = $.ajax({ type: "GET", url: jsonURL, cache: false, async: false, fail: function() {throw "getDir fail";}, error: function() {throw "getDir error";}}).responseText;
+	var dirJSON = $.ajax({ type: "GET", url: jsonURL, cache: false, async: false, error: ProjectSelector.ajaxErrorHandler, beforeSend: function(jqXHR, settings) {jqXHR.url = settings.url;} }).responseText;
 	var dir = $.parseJSON(dirJSON);
 
 	return dir;
 }
+
+ProjectSelector.ajaxErrorHandler = function(jqXHR, textStatus, errorThrown) {
+	throw "== Get Directory Error ==\nStatus Code: " + jqXHR.status.toString() + "\nURL: " + jqXHR.url +  "\nMessage: " + jqXHR.responseText ;}
+
 
 ProjectSelector.prototype.getAnnotator = function(projectName, corpusName, taskName, schemaName) {
 	var jsonURL = this.baseURL + "annotator/";

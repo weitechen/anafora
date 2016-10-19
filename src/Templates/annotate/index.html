@@ -129,7 +129,7 @@
 </div>
 
 {% autoescape off %}
-<div id="rawText">{% for partSubText in rawText %}<div>{{ partSubText }}</div>{% endfor %}</div>
+<div id="rawText">{% for taskName, partSubText in rawText %}<div id="{{ taskName }}">{{ partSubText }}</div>{% endfor %}</div>
 {% endautoescape %}
 <div id="mask"></div>
 <div id="projectSelectorWindow">
