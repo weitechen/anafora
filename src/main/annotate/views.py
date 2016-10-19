@@ -38,7 +38,7 @@ basicContextContent = {
 	'css': css,
 	'title': 'Anafora',
 	'rawText': None,
-	'root_url': settings.ROOT_URL,
+	'ROOT_URL': settings.ROOT_URL,
 	'settingVars': None}
 
 def assignSettingVars(request, projectName = None, corpusName = None, taskName = None, schemaName = None, annotator = None, isAdj = False, isCrossDoc = False):
@@ -258,7 +258,7 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
 		'css': css,
 		'title': taskName + ' - Anafora',
 		'rawText': sorted(rawTextList.items()),
-		'root_url': settings.ROOT_URL,
+		'ROOT_URL': settings.ROOT_URL,
 		'settingVars': {'app_name': "annotate", 'projectName': projectName, 'corpusName': corpusName,
 						'taskName': taskName, 'schema': "%s%s" % (schema, "" if schemaMode== "" else (".%s" % schemaMode)), 'isAdjudication': isAdjudication,
 						'annotator': annotator, 'remoteUser': request.META["REMOTE_USER"],

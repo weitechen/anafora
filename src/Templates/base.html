@@ -11,26 +11,25 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <title>{% block title %}{{ title }}{% endblock %}</title>
 
-<link rel="SHORTCUT ICON" type="image/x-icon" href="{{ HTTP_HOST }}{% static "image/anaforafavicon.png" %}" />
-<link rel="icon" type="image/x-icon" href="{{ HTTP_HOST }}{% static "image/anaforafavicon.png" %}" />
+<link rel="SHORTCUT ICON" type="image/x-icon" href="{% static "image/anaforafavicon.png" %}" />
+<link rel="icon" type="image/x-icon" href="{% static "image/anaforafavicon.png" %}" />
 {% for cssName in css %}
-<link rel="stylesheet" href="{{ HTTP_HOST }}{% static cssName %}" type="text/css" media="screen" />
+<link rel="stylesheet" href="{% static cssName %}" type="text/css" media="screen" />
 {% endfor %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 {% for jsName in js %}
-<script src="{{ HTTP_HOST }}{% static jsName %}" type="text/javascript"></script>
+<script src="{% static jsName %}" type="text/javascript"></script>
 {% endfor %}
 {% for schema, schemaMode in js_schemaSpecific.items %} {% ifequal schema settingVars.schema %} {% if settingVars.isAdjudication %} {% if schemaMode.adjudication %} {% for jsName in schemaMode.adjudication %}
-<script src="{{ HTTP_HOST }}{% static jsName %}" type="text/javascript"></script>
+<script src="{% static jsName %}" type="text/javascript"></script>
 {% endfor %} {% endif %} {% else %} {% if schemaMode.annotate %} {% for jsName in schemaMode.annotate %}
-<script src="{{ HTTP_HOST }}{% static jsName %}" type="text/javascript"></script>
+<script src="{% static jsName %}" type="text/javascript"></script>
 {% endfor %} {% endif %} {% endif %} {% endifequal %} {% endfor %}
 <script type="text/JavaScript">
   var _setting = {
 	{% for varKey, value in settingVars.items %}
 		{{ varKey }}:{% if value|type == 'str' %} "{{ value }}",{% elif value|type == 'int' %}{{ value }},{% elif value|type == 'bool' %} {{ value|yesno:"true,false,undefined" }},{% endif %}{% endfor %}
-		root_url: "{{ request.META.root_url }}"
-		};
+		root_url: "{{ ROOT_URL }}"}
 </script>
 </head>
 <body onload="onLoad()">
