@@ -3,11 +3,9 @@ from django.template import Context, loader
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden
 from django.shortcuts import render
 from django.conf import settings
-# from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_protect
 from django.utils.encoding import smart_unicode, smart_str
 import codecs
-# from Anafora.anaforaProjectManager import AnaforaProjectManager
 from anaforaProjectManager import *
 from projectSetting import *
 import subprocess
@@ -20,10 +18,10 @@ import traceback
 
 css = ["css/style.css", "css/themes/default/style.css"]
 
-js_lib = ["js/lib/" + js_file for js_file in ["jquery.jstree.js", "jquery.jstree.schema.js", "jquery.hotkeys.js", "jquery.ui.position.js", "jquery.contextMenu.js", "jquery.json-2.4.min.js", "jquery.cookie.js"]]
+js_lib = [("js/lib/%s" % js_file) for js_file in ["jquery.jstree.js", "jquery.jstree.schema.js", "jquery.hotkeys.js", "jquery.ui.position.js", "jquery.contextMenu.js", "jquery.json-2.4.min.js", "jquery.cookie.js"]]
 
 
-js_annotate = ["js/annotate/" + js_file for js_file in ["errorHandler.js", "schema.js", "anaforaProject.js", "anaforaObj.js", "annotate.js", "propertyFrame.js", "annotateFrame.js", "aObjSelectionMenu.js", "projectSelector.js", "anaforaAdjudicationProject.js", "anaforaCrossProject.js", "relationFrame.js"]]
+js_annotate = [("js/annotate/%s" % js_file) for js_file in ["errorHandler.js", "schema.js", "anaforaProject.js", "anaforaObj.js", "annotate.js", "propertyFrame.js", "annotateFrame.js", "aObjSelectionMenu.js", "projectSelector.js", "anaforaAdjudicationProject.js", "anaforaCrossProject.js", "relationFrame.js"]]
 
 js_schemaSpecific = {"Coreference": {"adjudication": ["js/annotate/anaforaAdjudicationProjectCoreference.js"]}}
 
