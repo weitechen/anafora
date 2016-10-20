@@ -47,7 +47,7 @@ ErrorHandler.prototype.popup = function() {
 
 ErrorHandler.prototype.handle = function(e, focusProject) {
 	if (e instanceof ErrorException) {
-		this.messageDiv.children("div:first-child").children("pre").append(emessage);
+		this.messageDiv.children("div:first-child").children("pre").append(e.message);
 	}
 	else if (e instanceof WarningException) {
 		;

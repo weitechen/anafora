@@ -131,23 +131,20 @@ AnaforaCrossProject.prototype.readFromXMLDOM = function(xml, subTaskNameList, an
 
 		if(aProject != _self) {
 			aProject.setAnnotateFrame(new AnnotateFrame($(annotateFrameDivList[aProject.task]), _setting, $(annotateFrameDivList[aProject.task]).text()));
-			console.log(aProject.entityList);
-		
-		// update link
-		$.each(aProject.entityList, function(eIdx, entity) {
-			console.log(entity);
-			aProject.updateLinking(entity.type, entity);
-			aProject.annotateFrame.updatePosIndex(entity);
-		});
-
-		$.each(aProject.relationList, function(rIdx, relation) {
-			aProject.updateLinking(relation.type, relation);
-			if(aProject == _self) {
-				_self.projectList[subTaskNameList[0]].annotateFrame.updatePosIndex(relation);
-			}
-			else
-				aProject.annotateFrame.updatePosIndex(relation);
-		});
+			// update link
+			$.each(aProject.entityList, function(eIdx, entity) {
+				aProject.updateLinking(entity.type, entity);
+				aProject.annotateFrame.updatePosIndex(entity);
+			});
+	
+			$.each(aProject.relationList, function(rIdx, relation) {
+				aProject.updateLinking(relation.type, relation);
+				if(aProject == _self) {
+					_self.projectList[subTaskNameList[0]].annotateFrame.updatePosIndex(relation);
+				}
+				else
+					aProject.annotateFrame.updatePosIndex(relation);
+			});
 		}
 	});
 

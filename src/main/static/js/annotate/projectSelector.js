@@ -20,7 +20,6 @@ function ProjectSelector(setting) {
 	this.administratorElement.find("ul>li").eq(1).bind('click', function(evt) {ProjectSelector.clickViewSelect(_self, evt.target);});
 	this.administratorElement.find("ul>li").eq(2).bind('click', function(evt) {ProjectSelector.clickCrossDocSelect(_self, evt.target);});
 
-
 	this.projectDir = undefined;
 	this.schemaMap = setting.schemaMap;
 	this.adjSourceSchema = undefined;
@@ -49,10 +48,11 @@ function ProjectSelector(setting) {
 	else
 		this.view = setting.isView;
 
+	console.log(setting);
 	if(setting.isCrossDoc == undefined)
 		this.crossDoc = false;
 	else
-		this.crossDoc = false;
+		this.crossDoc = setting.isCrossDoc;
 
 	this.selected = {"project": setting.projectName, "corpus": setting.corpusName, "task": setting.taskName, "annotator": setting.annotator };
 	
