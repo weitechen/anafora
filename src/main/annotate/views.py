@@ -181,7 +181,7 @@ def selectCorpus(request, projectName, corpusName):
 	return render(request, 'annotate/index.html', contextContent)
 
 @csrf_protect
-def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMode="", view="", crossDoc="", adjudication="", annotator=None ):  # annotatorName="", crossDoc=None):
+def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMode=None, view="", crossDoc="", adjudication="", annotator=None ):  # annotatorName="", crossDoc=None):
 	if request.method != "GET":
 		return HttpResponseForbidden()
 
@@ -199,7 +199,7 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
 	if adjudication == "Adjudication":
 		isAdjudication = True
 	
-	#schemaName = schema if schemaMode != "" else ("%s-%s" % (schema, schemaMode))
+	#schemaName = schema if schemaMode != " else ("%s-%s" % (schema, schemaMode))
 
 	ps = getProjectSetting()
 	authResponse = authenticate(ps, request, projectName = projectName, corpusName = corpusName, taskName = taskName, schemaName = schema, schemaMode = schemaMode, isAdjudication = isAdjudication, isView = isView, isCrossDoc = isCrossDoc)
@@ -258,7 +258,7 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
 		'rawText': sorted(rawTextList.items()),
 		'ROOT_URL': settings.ROOT_URL,
 		'settingVars': {'app_name': "annotate", 'projectName': projectName, 'corpusName': corpusName,
-						'taskName': taskName, 'schema': "%s%s" % (schema, "" if schemaMode== "" else (".%s" % schemaMode)), 'isAdjudication': isAdjudication,
+						'taskName': taskName, 'schema': "%s%s" % (schema, "" if schemaMode== None else (".%s" % schemaMode)), 'isAdjudication': isAdjudication,
 						'annotator': annotator, 'remoteUser': request.META["REMOTE_USER"],
 						'schemaMap': json.dumps(schemaMap), 'isCrossDoc': isCrossDoc},
 	}
@@ -377,7 +377,7 @@ def getSchema(request, schema, schemaIdx=-1):
 		if "." in schema:
 			[schema, mode] = schema.split(".")
 		else:
-			mode = "default"
+			mode = None
 		(schemaFileName, moreSchema) = ps.getSchemaFileNameFromSchemaAndMode(schema, schemaIdx, mode)
 
 		schemaFile = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, ".schema", schemaFileName)

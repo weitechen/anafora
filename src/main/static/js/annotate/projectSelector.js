@@ -48,7 +48,6 @@ function ProjectSelector(setting) {
 	else
 		this.view = setting.isView;
 
-	console.log(setting);
 	if(setting.isCrossDoc == undefined)
 		this.crossDoc = false;
 	else

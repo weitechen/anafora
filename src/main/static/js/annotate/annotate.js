@@ -44,11 +44,20 @@ function onLoad() {
 				break
 			}
 		}
+
 		if(newSubTaskIdx != currentScrollTask) {
 			currentScrollTask = newSubTaskIdx;
 			$('#taskName').children("a").text(subTaskNameList[currentScrollTask]);
 		}
 		});
+		$('#taskName').addClass("dropdown");
+		$('#taskName').append("<ul></ul>");
+		$.each(subTaskNameList, function(idx, subTaskName ) {
+			var liElem = $('<li><a href="#">' + subTaskName + '</a></li>');
+			liElem.bind('click', function() {$("#rawText").scrollTop($("#rawText").scrollTop() + $('#' + $(this).text()).position().top + 1);});
+			$('#taskName ul').append(liElem);
+		});
+		
 	}
 	projectSelector = undefined;
 	
@@ -136,7 +145,7 @@ function loadNewProject() {
 	var schemaStr;
 
 	do {
-		var schemaJSONStr = $.ajax({ type: "GET", url: _setting.root_url + "/" + _setting.app_name + "/schema/" + _setting.schema +  "/" + schemaIdx.toString(), cache: false, async: false}).responseText;
+		var schemaJSONStr = $.ajax({ type: "GET", url: _setting.root_url + "/" + _setting.app_name + "/schema/" + _setting.schema +  "/" + schemaIdx.toString(), cache: false, async: false, error: function (xhr, ajaxOptions, thrownError) { errorHandler.handle(new ErrorException("Get Schema File: " + _setting.schema + " Error"), currentAProject); console.log(xhr.responseText);  }}).responseText;
 		var schemaJSON = $.parseJSON(schemaJSONStr);
 		var schemaXMLStr = schemaJSON.schemaXML;
 		var xmlDom = $.parseXML( schemaXMLStr ) ;
@@ -188,7 +197,7 @@ function loadNewProject() {
 				xmlAnaforaText = {};
 				if(Object.keys(xmlAnaforaText).length == 0) {
 					var subTaskListStr;
-					$.ajax({ type: "GET", url: _setting.root_url + "/" + _setting.app_name + "/getDir/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/" , success: function(data) {subTaskListStr = data;}, cache: false, async: false, statusCode: {403: function() {throw "Permission Deny"; }, 404: function() { ;} }});
+					$.ajax({ type: "GET", url: _setting.root_url + "/" + _setting.app_name + "/getDir/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/_cross/"  , success: function(data) {subTaskListStr = data;}, cache: false, async: false, statusCode: {403: function() {throw "Permission Deny"; }, 404: function() { ;} }});
 					var subTaskList = $.parseJSON(subTaskListStr);
 					$.each(subTaskList, function(idx, subTaskName) {
 						xmlAnaforaText[subTaskName] = "";
@@ -487,7 +496,7 @@ function processSchemaMenu(aType) {
 	
 }
 
-function schemaCheckedChange(evt) {
+function schemaCheckedChange(evt, skipAObjList) {
 
 	var schema = currentAProject.schema;
 	var checkedType = [];
@@ -496,8 +505,8 @@ function schemaCheckedChange(evt) {
 		checkedType.push(schema.typeDict[this.id.substring(3).replace("_SLASH_", "/")]);
 	});
 	schema.updateCheckedType(checkedType);
-	currentAProject.updateAnnotateDisplay()
-	relationFrame.updateRelationFrameDisplay();
+	currentAProject.updateAnnotateDisplay(skipAObjList)
+	relationFrame.updateRelationFrameDisplay(skipAObjList);
 }
 
 function checkEmptyProperty() {

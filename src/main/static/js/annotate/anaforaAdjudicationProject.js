@@ -148,8 +148,6 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 		var currentDiffProp = relation0.type.propertyTypeList.length + 1;
 		$.each(relationList[1], function(key1, relation1) {
 			comparePairRelationList1 = relation1.getAdditionalData("comparePair");
-			if(relation0.id == "22@r@doc0021_CLIN@ahoward" && relation1.id == "14@r@doc0021_CLIN@krwr4334")
-				console.log("160@r");
 			if(relation0.type == relation1.type) {
 
 				var diffProp = IAdjudicationAnaforaObj.compareAObjPropertyList(relation0, relation1, AnaforaAdjudicationProject.adjEntityComparePropertyFunc);

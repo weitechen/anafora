@@ -608,6 +608,7 @@ AnnotateFrame.prototype.updateAnnotateFragement = function(overlapList, checkedT
 
 AnnotateFrame.prototype.updateOverlapList = function(overlapList, checkedType, diffCheckedType, overlapStartIdx) {
 	var _self = this;
+
 	if(overlapList == undefined)
 		overlapList = this.overlap;
 
@@ -674,12 +675,12 @@ AnnotateFrame.prototype.updateOverlapList = function(overlapList, checkedType, d
 	});
 }
 
-AnnotateFrame.matchAObjFromOverlap = function(aObjList, checkedType) {
+AnnotateFrame.matchAObjFromOverlap = function(aObjList, checkedType, skipAObjList) {
 	
 	var matchedAObj = $.grep(aObjList, function(aObj) {
 		var comparePair = aObj.getAdditionalData("comparePair");
 		// (currentAProject == undefined || aObj != currentAProject.selectedAObj) &&  
-		return (propertyFrameList.length == 0 || propertyFrameList.reduce(function (p0, p1) { return p0.isAssignRelation == false && p1.isAssignRelation == false;}) || currentAProject.selectedAObj != aObj) && (checkedType == undefined || checkedType.indexOf(aObj.type) != -1) && (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || (comparePair == undefined || !(comparePair[comparePair.length-1] instanceof AdjudicationEntity || comparePair[comparePair.length-1] instanceof AdjudicationRelation)));
+		return (propertyFrameList.length == 0 || propertyFrameList.reduce(function (p0, p1) { return p0.isAssignRelation == false && p1.isAssignRelation == false;}) || currentAProject.selectedAObj != aObj) && (checkedType == undefined || checkedType.indexOf(aObj.type) != -1) && (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || (comparePair == undefined || !(comparePair[comparePair.length-1] instanceof AdjudicationEntity || comparePair[comparePair.length-1] instanceof AdjudicationRelation))) && (skipAObjList == undefined || skipAObjList.indexOf(aObj) == -1);
 	});
 
 	// is assign relation in adjudication mode

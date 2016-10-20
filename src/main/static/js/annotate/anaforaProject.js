@@ -381,18 +381,18 @@ AnaforaProject.getAdjudicationAnnotator = function(setting) {
 	}
 }
 
-AnaforaProject.prototype.updateAnnotateDisplay = function() {
+AnaforaProject.prototype.updateAnnotateDisplay = function(skipAObjList) {
 	var checkedType = this.schema.checkedType;
 	var diffCheckedType = this.schema.getDiffCheckedType();
 	var _self = this;
 
 	if(this.annotateFrame == undefined) {
 		$.each(this.projectList, function(subTaskName, aProject) {
-			aProject.annotateFrame.updateOverlapList(undefined, this.schema.checkedType, diffCheckedType);
+			aProject.annotateFrame.updateOverlapList(undefined, this.schema.checkedType, diffCheckedType, skipAObjList);
 		});
 	}
 	else
-		this.annotateFrame.updateOverlapList(undefined, this.schema.checkedType, diffCheckedType);
+		this.annotateFrame.updateOverlapList(undefined, this.schema.checkedType, diffCheckedType, skipAObjList);
 }
 
 AnaforaProject.prototype.findEntityByIdx = function(idx) {

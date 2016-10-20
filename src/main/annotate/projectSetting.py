@@ -120,10 +120,11 @@ class ProjectSetting(object):
 		@rtype:				 Schema
 		"""
 		try:
-			print self.schemaList
 			return self.schemaList[schemaName]
-		except:
+		except KeyError:
 			raise Exception("Get schema '%s' error" % schemaName)
+		except:
+			raise
 
 		return schema
 

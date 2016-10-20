@@ -26,16 +26,16 @@
 				$(obj).trigger('node_change', [state]);
 				return s;
 			},
-			selectAObjList : function(aObjList, needTempSave, skipObjList) {
+			selectAObjList : function(typeList, needTempSave, skipAObjList) {
 				var _this = this;
 				if(needTempSave) {
 					this.data.restoreData = this.get_checked();
 				}
 				this.uncheck_all();
-				$.each(aObjList, function() {
+				$.each(typeList, function() {
 					_this.change_state($("#" + this.id, false));
 				});
-				schemaCheckedChange();
+				schemaCheckedChange(undefined, skipAObjList);
 			},
 			restore : function() {
 				var _this = this;

@@ -34,6 +34,17 @@ class AnnotateURLTest(unittest2.TestCase):
 		resolver = resolve('/annotate/CrossDocument/ColonCancer/ID017/CrossCoreference.Coref2/_crossDoc/')
 		self.assertEqual(resolver.view_name, 'annotate.views.annotateNormal')
 		self.assertDictEqual(resolver.kwargs, {"projectName": "CrossDocument", "corpusName": "ColonCancer", "taskName": "ID017", "schema": "CrossCoreference", "schemaMode": "Coref2", "view": None, "crossDoc":"_crossDoc", "adjudication":None, "annotator": None})
+
+		resolver = resolve('/annotate/getDir/Temporal/ColonCancer/Temporal/')
+		self.assertEqual(resolver.view_name, 'annotate.views.getTaskFromProjectCorpusName')
+
+		resolver = resolve('/annotate/getDir/Temporal/ColonCancer/Temporal/')
+		self.assertEqual(resolver.view_name, 'annotate.views.getTaskFromProjectCorpusName')
+		self.assertDictEqual(resolver.kwargs, {"projectName": "Temporal", "corpusName": "ColonCancer", "schema": "Temporal", "schemaMode": None, "view": None, "crossDoc": None, "adjudication":None, "annotator": None})
+
+		resolver = resolve('/annotate/getDir/Temporal/ColonCancer/SeaIce/_crossDoc/')
+		self.assertEqual(resolver.view_name, 'annotate.views.getSubTaskFromProjectCorpusTaskName')
+		self.assertDictEqual(resolver.kwargs, {"projectName": "Temporal", "corpusName": "ColonCancer", "schema": "SeaIce", "schemaMode": None, "view": None, "crossDoc": None, "adjudication":None, "annotator": None})
 	def test_getXML(self):
 		response = self.client.get('/annotate/Temporal/ColonCancer/ID060_clinic_176/Temporal.Entity/krwr4334/', REMOTE_USER = 'wtchen')
 		self.assertEqual(response.status_code, 200)

@@ -166,17 +166,11 @@ class AnaforaProjectManager:
 		mode = ps.getMode(schemaName, modeName)
 		if mode.needPreannotation:
 			newTaskWithPreList = []
-			print "==== New Task List: ",
-			print standardAvailableTasks["n"]
-			print " ===="
 			for newTaskName in standardAvailableTasks["n"]:
-				print "checking new taskName: %s" % newTaskName
 				subTaskList = AnaforaProjectManager.getAllSubTaskFromProjectCorpusTaskName(ps, projectName, corpusName, newTaskName)
 				taskPath = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, newTaskName)
 				allHasPreannotation = True if len(subTaskList) > 0 else False
 				
-				print "subTaskList: ",
-				print subTaskList
 				for subTaskName in subTaskList:
 					hasPreannotation = False
 					subTaskPath = os.path.join(taskPath, subTaskName)
@@ -187,7 +181,6 @@ class AnaforaProjectManager:
 							continue
 					
 						if subTaskFile.taskName == subTaskName and subTaskFile.schemaName == schemaName and subTaskFile.modeName == modeName and subTaskFile.isPreannotation:
-							print "get preannotation!: %s" % projectXMLFileName
 							hasPreannotation = True
 							break
 
@@ -198,8 +191,6 @@ class AnaforaProjectManager:
 				if allHasPreannotation:
 					newTaskWithPreList.append(newTaskName)
 
-			print "final list: ",
-			print newTaskWithPreList
 			standardAvailableTasks["n"] = newTaskWithPreList
 
 		return standardAvailableTasks
