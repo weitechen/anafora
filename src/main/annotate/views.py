@@ -609,12 +609,12 @@ def isSchemaExist(schemaName, modeName = None):
 
 
 def isAdjudicator(request):
-	return request.META["REMOTE_ADMIN"]
-	#if "REMOTE_ADMIN" in request.META:
-	#	return request.META["REMOTE_ADMIN"]
-	#else:
-	#	testAdjudicator = request.META["REMOTE_USER"]
-	#	return (grpID in [g.gr_gid for g in grp.getgrall() if testAdjudicator in g.gr_mem])
+	#return request.META["REMOTE_ADMIN"]
+	if "REMOTE_ADMIN" in request.META:
+		return request.META["REMOTE_ADMIN"]
+	else:
+		testAdjudicator = request.META["REMOTE_USER"]
+		return (grpID in [g.gr_gid for g in grp.getgrall() if testAdjudicator in g.gr_mem])
 
 
 def getProjectSetting():

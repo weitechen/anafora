@@ -248,8 +248,9 @@ IAnaforaObj.parsePropertyValueFromDOM = function(propertiesDOM, objType) {
 		var matchPropertyList = $.grep(objType.propertyTypeList, function(item) {
 			return (item.type == propertyName);
 		});
-		if (matchPropertyList.length != 1)
+		if (matchPropertyList.length != 1) {
 			throw "Parsing property error: " + propertyName;
+		}
 		var propertyIdx = $(objType.propertyTypeList).index(matchPropertyList[0]);
 		
 		if($(this).text() != "") {
@@ -572,6 +573,7 @@ Entity.genFromDOM = function(entityDOM, schema) {
 					break;
 				case "parentsType":
 					parentType = schema.getTypeByTypeName($(this).text());
+						
 					if(parentType != type.parentType)
 						throw "parent type error:" + parentType.type + ', ' + type.parentType.type ;
 					

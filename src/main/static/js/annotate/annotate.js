@@ -280,6 +280,7 @@ function loadNewProject() {
 					console.log(e);
 				}
 				else {
+					console.log(e);
 					errorHandler.handle(e);
 					throw e;
 				}
@@ -863,7 +864,6 @@ function addNewAObj(aType) {
 		taskName = $("#taskName").children("a").text();
 	else
 		taskName = document.getSelection().focusNode.parentElement.id;
-	console.log(taskName);
 
 	if($("#taskName").children("a").text() != taskName)
 		$('#taskName').children("a").text(taskName);
@@ -884,7 +884,6 @@ function addNewAObj(aType) {
 			}
 		}
 		else {
-			console.log(taskName);
 			newID = currentAProject.getNewRelationId(taskName);
 			newAObj = new Relation(newID, aType);
 		}
