@@ -22,10 +22,6 @@ class AnaforaProjectManager:
 		AnaforaProjectManager.loadProject(ps)
 
 		return sorted(AnaforaProjectManager.projectList.keys())
-		#   for projectName in [pName for pName in os.listdir(AnaforaProjectManager.rootPath) if os.path.isdir(os.path.join(AnaforaProjectManager.rootPath, pName)) and pName[0] != '.']:
-		#	  AnaforaProjectManager.projectList[projectName] = []
-
-		#return sorted([projectName for projectName in AnaforaProjectManager.projectList])
 
 	@staticmethod
 	def getCorpusFromProject(ps, projectName):
@@ -129,11 +125,6 @@ class AnaforaProjectManager:
 
 		return taskName
 
-	"""
-	@staticmethod
-	def searchAvailableCrossTask(projectName, corpusName, schemaName, annotator, projectManager, maxNumOfAnnotator = 2):
-		return AnaforaProjectManager.searchAvailableTask(projectName, corpusName, schemaName, annotator, projectManager, maxNumOfAnnotator = 2)
-	"""
 
 	@staticmethod
 	def getParentTaskFromProjectCorpusName(ps, projectName, corpusName):
@@ -144,7 +135,6 @@ class AnaforaProjectManager:
 		@rtype:			  	list of str
 		"""
 		AnaforaProjectManager.checkExist(ps, projectName, corpusName)
-		#corpusPath = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName)
 		return AnaforaProjectManager.getAllTask(ps, projectName, corpusName)
 
 	@staticmethod
@@ -175,19 +165,29 @@ class AnaforaProjectManager:
 		standardAvailableTasks = AnaforaProjectManager.searchAvailableTask(ps, projectName, corpusName, annotator, schemaName, modeName, needPreannotation = False)
 		mode = ps.getMode(schemaName, modeName)
 		if mode.needPreannotation:
-			newTaskList = standardAvailableTasks["n"]
+			newTaskWithPreList = []
+			print "==== New Task List: ",
+			print standardAvailableTasks["n"]
+			print " ===="
 			for newTaskName in standardAvailableTasks["n"]:
+				print "checking new taskName: %s" % newTaskName
 				subTaskList = AnaforaProjectManager.getAllSubTaskFromProjectCorpusTaskName(ps, projectName, corpusName, newTaskName)
 				taskPath = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, newTaskName)
-				allHasPreannotation = True
+				allHasPreannotation = True if len(subTaskList) > 0 else False
 				
+				print "subTaskList: ",
+				print subTaskList
 				for subTaskName in subTaskList:
 					hasPreannotation = False
 					subTaskPath = os.path.join(taskPath, subTaskName)
 					for projectXMLFileName in [pFileName for pFileName in os.listdir(subTaskPath) if os.path.isfile(os.path.join(subTaskPath, pFileName)) and pFileName[0] != '.' and pFileName[-4:] == ".xml"]:
-						subTaskFile = TaskFile(projectXMLFileName)
+						try:
+							subTaskFile = TaskFile(projectXMLFileName)
+						except ValidationError:
+							continue
 					
 						if subTaskFile.taskName == subTaskName and subTaskFile.schemaName == schemaName and subTaskFile.modeName == modeName and subTaskFile.isPreannotation:
+							print "get preannotation!: %s" % projectXMLFileName
 							hasPreannotation = True
 							break
 
@@ -195,10 +195,13 @@ class AnaforaProjectManager:
 						allHasPreannotation = False
 						break
 
-				if allHasPreannotation != True:
-					newTaskList.remove(newTaskName)
+				if allHasPreannotation:
+					newTaskWithPreList.append(newTaskName)
 
-			standardAvailableTasks["n"] = newTaskList
+			print "final list: ",
+			print newTaskWithPreList
+			standardAvailableTasks["n"] = newTaskWithPreList
+
 		return standardAvailableTasks
 				
 	@staticmethod
@@ -261,13 +264,6 @@ class AnaforaProjectManager:
 							hasAdjudication = True
 						else:
 							numOfAnnotatorFile += 1
-				#elif annotator not in projectXMLFileName and (taskName + '.' + schemaName + "." in projectXMLFileName ) and projectXMLFileName != taskName:
-				#elif taskFile.annotator != annotator and   in projectXMLFileName and (taskName + '.' + schemaName + "." in projectXMLFileName ) and projectXMLFileName != taskName:
-					#if taskName + "." + schemaName + ".preannotation." in projectXMLFileName:
-					#	hasPreannotation = True
-					#else:
-						# data file not belong to this annotator
-					#	numOfAnnotatorFile += 1
 
 			if (numOfAnnotatorFile < maxNumOfAnnotator or (numOfAnnotatorFile > 0 and annotator == "gold") or (os.path.exists(os.path.join(taskPath, ".nolimit")))) and (needPreannotation != True or hasPreannotation) and (hasGold != True) and (hasAdjudication != True) and taskName not in completedTask and taskName not in inProgressTask and os.path.exists(os.path.join(taskPath, ".noassign")) != True:
 				newTask.append(taskName)
@@ -312,8 +308,6 @@ class AnaforaProjectManager:
 				taskFile = TaskFile(projectXMLFileName)
 				if taskFile.taskName == taskName and taskFile.schemaName == schemaName and taskFile.modeName == modeName:
 					if taskFile.isAdjudication:
-				#if taskName + '.' + schemaName + '-Adjudication.' in projectXMLFileName and projectXMLFileName[:len(taskName)] == taskName:
-					# adjudication file for adjudicator is exists
 						if taskFile.annotator == adjudicator:
 							if taskFile.isCompleted:
 								completedTask.append(taskName)
@@ -322,7 +316,6 @@ class AnaforaProjectManager:
 							break
 						else:
 							hasOtherAdjudicator = True
-				#elif adjudicator not in projectXMLFileName and (taskName + '.' + schemaName +'.' in projectXMLFileName ) and projectXMLFileName[:len(taskName)] == taskName and (".completed.xml" in projectXMLFileName) and projectXMLFileName != taskName and ".preannotation." not in projectXMLFileName:
 					else:
 						if taskFile.isGold:
 							hasGold = True
@@ -401,6 +394,4 @@ class AnaforaProjectManager:
 		path = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName)
 		#fileList = glob.glob(path + "/" + taskName + '.' + schemaName + ".*.completed.xml")
 		fileList = glob.glob(os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName, '%s.%s%s.*.completed.xml' % (taskName, mode.getSchemaName(), "-Adjudication" if isAdjudication else "")))
-		#return sorted([term.split("/")[-1].split(".")[-3] for term in fileList])
 		return sorted([annotatorMatcher.group(1) for annotatorMatcher in [re.search(AnaforaProjectManager.annotatorRE, term) for term in fileList] if annotatorMatcher != None])
-		#return sorted([term.split("/")[-1].split(".")[-3] for term in fileList])

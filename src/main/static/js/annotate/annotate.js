@@ -186,7 +186,6 @@ function loadNewProject() {
 			}
 			else if(_setting.isCrossDoc) {
 				xmlAnaforaText = {};
-				//AnaforaProject.getXML(function(data) {xmlAnaforaText[_setting.taskName] = data;}, _setting, _setting.annotator, false);
 				if(Object.keys(xmlAnaforaText).length == 0) {
 					var subTaskListStr;
 					$.ajax({ type: "GET", url: _setting.root_url + "/" + _setting.app_name + "/getDir/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/" , success: function(data) {subTaskListStr = data;}, cache: false, async: false, statusCode: {403: function() {throw "Permission Deny"; }, 404: function() { ;} }});

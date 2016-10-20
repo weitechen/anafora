@@ -97,8 +97,6 @@ def authenticate(ps, request, projectName = "", corpusName = "", taskName = "", 
 	@rtype:			HttpResponse
 	"""
 
-	print (request, projectName, corpusName)
-
 	if isAdjudication:
 		if request.META["REMOTE_ADMIN"] != True:
 			return HttpResponseForbidden("%s does not have the authenticate right to adjudicate" % request.META["REMOTE_USER"])
@@ -423,7 +421,7 @@ def getCrossTaskFromProjectCorpusName(request, projectName, corpusName, schemaNa
 	if request.method != "GET":
 		return HttpResponseForbidden()
 
-	if isSchemaExist(schemaName, modeName) != True:
+	if not isSchemaExist(schemaName, modeName):
 		return HttpResponseNotFound("schema file not found")
 
 	ps = getProjectSetting()
@@ -432,7 +430,6 @@ def getCrossTaskFromProjectCorpusName(request, projectName, corpusName, schemaNa
 	except Exception as e:
 		errorStr = traceback.format_exc()
 		return HttpResponseNotFound(errorStr)
-		#return HttpResponseNotFound(str(e))
 
 	return HttpResponse(json.dumps(taskName))
 
@@ -581,17 +578,14 @@ def setCompleted(request, projectName, corpusName, taskName, schemaName, schemaM
 			shell=True)
 		#mode = ps.getMode(*(schemaName.replace("-Adjudication", "").split("-")))
 		mode = ps.getMode(schemaName, schemaMode)
-		print (isAdj,mode.directSetGold)
 		if isAdj != None or mode.directSetGold:
 			# set as gold
 			fileNameGold = os.path.join(filePath, "%s.%s%s.gold.completed.xml" %(taskName, schemaName, "" if schemaMode == None else "-%s" % schemaMode))
-			print ("%s.completed.xml" % fileName, fileNameGold)
 			subprocess.call(["cp", "%s.completed.xml" % fileName, fileNameGold])
 			schema = ps.getSchema(schemaName)
 			for tMode in [schema.modes[modeName] for modeName in schema.modes if schema.modes[modeName].needPreannotation and schema.modes[modeName].preannotationFromMode == mode]:
 
 				fileNamePreannotation = os.path.join(filePath, "%s.%s-%s.preannotation.completed.xml" % (taskName , schema.name, tMode.name))
-				print ("cp", fileNameGold, fileNamePreannotation)
 				subprocess.call(["cp", fileNameGold, fileNamePreannotation])
 
 		return HttpResponse()
