@@ -26,7 +26,7 @@
 				$(obj).trigger('node_change', [state]);
 				return s;
 			},
-			selectAObjList : function(aObjList, needTempSave) {
+			selectAObjList : function(aObjList, needTempSave, skipObjList) {
 				var _this = this;
 				if(needTempSave) {
 					this.data.restoreData = this.get_checked();
