@@ -289,9 +289,9 @@ function loadNewProject() {
 					console.log(e);
 				}
 				else {
-					console.log(e);
-					errorHandler.handle(e);
-					throw e;
+					err = new ErrorException(e)
+					errorHandler.handle(err);
+					throw err;
 				}
 			}
 			aProjectList.push(currentAProject);

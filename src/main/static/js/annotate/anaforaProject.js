@@ -309,9 +309,9 @@ AnaforaProject.prototype.readFromXMLDOM = function(xml, isAdjudication) {
 
 	var idx;
 	// parse annotations
-	//try {
 
 		$(annotationDOM).children().each( function() {
+		try {
 			if (this.tagName == "entity") {
 				var entity = Entity.genFromDOM(this, _self.schema);
 				idx = parseInt(entity.id.split('@')[0]);
@@ -325,7 +325,13 @@ AnaforaProject.prototype.readFromXMLDOM = function(xml, isAdjudication) {
 				_self.relationList[idx] = relation;
 				_self.addTypeCount(relation.type);
 			}
+		}
+		catch(err) {
+			err += "\nwith XMLDOM: \n" + this.innerHTML;
+			throw err;
+		}
 		});
+	
 
 	this.maxEntityIdx = Object.keys(this.entityList).max();
 	this.maxRelationIdx = Object.keys(this.relationList).max();

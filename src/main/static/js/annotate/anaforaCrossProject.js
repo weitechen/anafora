@@ -85,6 +85,7 @@ AnaforaCrossProject.prototype.readFromXMLDOM = function(xml, subTaskNameList, an
 	});
 
 	$(annotationDOM).children().each( function() {
+		try {
 		var id = this.getElementsByTagName("id")[0].childNodes[0].nodeValue;
 		var aObj = undefined;
 		if(this.tagName == "entity") {
@@ -115,6 +116,10 @@ AnaforaCrossProject.prototype.readFromXMLDOM = function(xml, subTaskNameList, an
 		else {
 			targetAProject.relationList[aObj.sID] = aObj;
 		}
+		}
+		catch(err) {
+			console.log(err);
+			throw new ErrorException(err + "\nwith XMLDOM: \n" + this.innerHTML); }
 	});
 
 

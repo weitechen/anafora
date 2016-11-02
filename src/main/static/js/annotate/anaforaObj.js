@@ -25,6 +25,17 @@ function SpanType(start, end) {
 	this.end = end;
 }
 
+function invertColor(hexTripletColor) {
+    var color = hexTripletColor;
+    //color = color.substring(1);           // remove #
+    color = parseInt(color, 16);          // convert to integer
+    color = 0xFFFFFF ^ color;             // invert three bytes
+    color = color.toString(16);           // convert to hex
+    color = ("000000" + color).slice(-6); // pad with leading zeros
+    //color = "#" + color;                  // prepend #
+    return color;
+}
+
 SpanType.sort = function(spanA, spanB) {
 	if(spanA.start == spanB.start) { 
 		var endDiff = (spanA.end - spanB.end);
@@ -101,9 +112,6 @@ SpanType.merge = function(span1, span2) {
 }
 
 function IAnaforaObj(id, type, propertyList, additionalList, comment) {
-	/*
-	 @type id:	str
-	 */
 	if(id != undefined) {
 		var idTerm = id.split("@");
 		if(idTerm.length != 4) {
@@ -131,11 +139,6 @@ function IAnaforaObj(id, type, propertyList, additionalList, comment) {
 
 		this.linkingAObjList = [];
 	}
-	/*
-	else {
-		throw new InvalidAnaforaObjException("input id is undefined");
-	}
-	*/
 }
 
 IAnaforaObj.prototype.addListProperty = function(aObj, pIdx, lIdx) {
@@ -555,6 +558,7 @@ Entity.prototype.getSpanRange = function() {
 Entity.genFromDOM = function(entityDOM, schema) {
 	var id = undefined, span = undefined, type = undefined, propertyList=undefined, additionList=undefined, comment=undefined;
 	if(entityDOM.tagName == "entity") {
+		type = schema.getTypeByTypeName( entityDOM.getElementsByTagName("type")[0].innerHTML);
 		$(entityDOM).children().each( function() {
 			switch(this.tagName) {
 				case "id":
@@ -568,12 +572,12 @@ Entity.genFromDOM = function(entityDOM, schema) {
 						span.push(new SpanType(parseInt(ttSpan[0]), parseInt(ttSpan[1])));
 					}
 					break;
+				
 				case "type":
-					type = schema.getTypeByTypeName($(this).text());
+					//type = schema.getTypeByTypeName($(this).text());
 					break;
 				case "parentsType":
 					parentType = schema.getTypeByTypeName($(this).text());
-						
 					if(parentType != type.parentType)
 						throw "parent type error:" + parentType.type + ', ' + type.parentType.type ;
 					
@@ -597,7 +601,6 @@ Entity.genFromDOM = function(entityDOM, schema) {
 
 	return new Entity(id, type, span, propertyList, additionList, comment);
 }
-
 
 function Relation(id, type, propertyList, additionList, comment) {
 	IAnaforaObj.call(this, id, type, propertyList, additionList, comment);
@@ -676,7 +679,7 @@ Relation.prototype.genElementStr = function() {
 }
 
 Relation.prototype.genElementHead = function() {
-	return rStr = '<span><span class="jstreeschema" style="background-color:#' + this.type.color + '"></span>' + this.type.type;
+	return rStr = '<span><span class="jstreeschema" style="background-color:#' + this.type.color + ';color:#' + invertColor(this.type.color) + '">' + (this.isCrossObj() ? 'C' : '') + '</span>' + this.type.type;
 }
 
 Relation.prototype.genElementProperty = function() {
@@ -700,8 +703,6 @@ Relation.prototype.genElementProperty = function() {
 			}
 			catch(err) {
 				console.log("Generate type string element in Relation " + _self.id + " with  property type idx :" + idx.toString());
-				console.log(_self);
-				console.log(err.stack);
 				errorHandler.handle(err, currentAProject);
 				throw err;
 			}
@@ -752,6 +753,28 @@ Relation.prototype.getSpanRange = function() {
 	});
 
 	return taskRangeDict;
+}
+
+Relation.prototype.isCrossObj = function() {
+	var _self = this;
+	var isCrossObj = false;
+	var taskName = this.getTaskName();
+	$.each(this.type.propertyTypeList, function(idx) {
+		if(_self.type.propertyTypeList[idx].input == InputType.LIST) {
+			if(_self.propertyList[idx] != undefined) {
+				$.each(_self.propertyList[idx], function(pIdx) {
+					if(_self.propertyList[idx][pIdx].getTaskName() != taskName)
+						isCrossObj = true;
+						return false ;
+				});
+				if(isCrossObj)
+					return false;
+			}
+		}
+	});
+
+	return isCrossObj;
+
 }
 
 Relation.genFromDOM = function(relationDOM, schema ) {
@@ -1201,7 +1224,7 @@ IAdjudicationAnaforaObj.compareAObjPropertyList = function(aObj0, aObj1, compFun
 		{
 			console.log(aObj0);
 			console.log(aObj1);
-			throw "error";
+			throw err;
 		}
 	}
 

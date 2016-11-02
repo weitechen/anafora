@@ -47,7 +47,10 @@ ErrorHandler.prototype.popup = function() {
 
 ErrorHandler.prototype.handle = function(e, focusProject) {
 	if (e instanceof ErrorException) {
+		if((typeof e.message) == "string")
+			e.message = e.message.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g,'&gt;').replace(/"/g, '&quot;');
 		this.messageDiv.children("div:first-child").children("pre").append(e.message);
+		console.log(e.stack);
 	}
 	else if (e instanceof WarningException) {
 		;
