@@ -236,6 +236,27 @@ IAnaforaObj.prototype.getSpanRange = function() {
 	throw('getSpanRange not implement yet');
 }
 
+IAnaforaObj.prototype.isCrossObj = function() {
+	var _self = this;
+	var isCrossObj = false;
+	var taskName = this.getTaskName();
+	$.each(this.type.propertyTypeList, function(idx) {
+		if(_self.type.propertyTypeList[idx].input == InputType.LIST) {
+			if(_self.propertyList[idx] != undefined) {
+				$.each(_self.propertyList[idx], function(pIdx) {
+					if(_self.propertyList[idx][pIdx].getTaskName() != taskName)
+						isCrossObj = true;
+						return false ;
+				});
+				if(isCrossObj)
+					return false;
+			}
+		}
+	});
+
+	return isCrossObj;
+}
+
 IAnaforaObj.parsePropertyValueFromDOM = function(propertiesDOM, objType) {
 	var propertyList = [];
 	propertyList.repeat(undefined, objType.propertyTypeList.length);
@@ -755,27 +776,6 @@ Relation.prototype.getSpanRange = function() {
 	return taskRangeDict;
 }
 
-Relation.prototype.isCrossObj = function() {
-	var _self = this;
-	var isCrossObj = false;
-	var taskName = this.getTaskName();
-	$.each(this.type.propertyTypeList, function(idx) {
-		if(_self.type.propertyTypeList[idx].input == InputType.LIST) {
-			if(_self.propertyList[idx] != undefined) {
-				$.each(_self.propertyList[idx], function(pIdx) {
-					if(_self.propertyList[idx][pIdx].getTaskName() != taskName)
-						isCrossObj = true;
-						return false ;
-				});
-				if(isCrossObj)
-					return false;
-			}
-		}
-	});
-
-	return isCrossObj;
-
-}
 
 Relation.genFromDOM = function(relationDOM, schema ) {
 	var id = undefined, type = undefined, propertyList=undefined,additionList=undefined, comment=undefined;
