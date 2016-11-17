@@ -98,7 +98,8 @@ def authenticate(ps, request, projectName = "", corpusName = "", taskName = "", 
 	"""
 
 	if isAdjudication:
-		if request.META["REMOTE_ADMIN"] != True:
+		#if request.META["REMOTE_ADMIN"] != True:
+		if not isAdjudicator():
 			return HttpResponseForbidden("%s does not have the authenticate right to adjudicate" % request.META["REMOTE_USER"])
 	
 	if isView:
@@ -207,7 +208,6 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
 		return authResponse
 
 
-	account = request.META["REMOTE_USER"]
 	ps = getProjectSetting()
 
 	rawTextList = {}
