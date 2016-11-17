@@ -275,11 +275,13 @@ def _annotateNormal(request, projectName="", corpusName="", taskName="", schema=
 	"""
 
 
-def getCompleteAnnotator(request, projectName, corpusName, taskName, schemaName, modeName = None):
-	if isSchemaExist(schemaName, modeName) != True:
+def getCompleteAnnotator(request, projectName, corpusName, taskName, schemaName, schemaMode = None, isAdj = None):
+	if isSchemaExist(schemaName, schemaMode) != True:
 		return HttpResponseNotFound("schema file not found")
+
+	ps = getProjectSetting()
 	if isAdjudicator(request):
-		annotatorName = AnaforaProjectManager.getCompleteAnnotator(schemaName, projectName, corpusName, taskName)
+		annotatorName = AnaforaProjectManager.getCompletedAnnotator(ps, projectName, corpusName, taskName, schemaName, schemaMode)
 		return HttpResponse(json.dumps(annotatorName))
 
 	return HttpResponseForbidden("access not allowed")
@@ -313,7 +315,7 @@ def getAnnotator(request, projectName, corpusName, taskName, schemaName, schemaM
 	return HttpResponseForbidden("access not allowed")
 
 
-def getAnaforaXMLFile(request, projectName, corpusName, taskName, schema, modeName = None, annotatorName="", subTaskName="" ):
+def getAnaforaXMLFile(request, projectName, corpusName, taskName, schemaName, schemaMode = None, isAdj = None, annotatorName="", subTaskName=""):
 	"""
 	Given projectName, corpusName, taskName and schema, return the XML data file content
 
@@ -323,10 +325,10 @@ def getAnaforaXMLFile(request, projectName, corpusName, taskName, schema, modeNa
 	if request.method != "GET":
 		return HttpResponseForbidden()
 
-	if isSchemaExist(schema, modeName) != True:
+	if isSchemaExist(schemaName, schemaMode) != True:
 		return HttpResponseNotFound("schema file not found")
 
-	schema = schema.replace(".", "-")
+	#schema = schema.replace(".", "-")
 
 	if annotatorName != "" and annotatorName != request.META["REMOTE_USER"] and isAdjudicator(request) is not True and annotatorName != "preannotation":
 		return HttpResponseForbidden("access not allowed")
@@ -334,9 +336,9 @@ def getAnaforaXMLFile(request, projectName, corpusName, taskName, schema, modeNa
 	account = request.META["REMOTE_USER"] if annotatorName == "" else annotatorName
 	anaforaXMLFile = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName)
 	if subTaskName == None:
-		anaforaXMLFile = os.path.join(anaforaXMLFile, "%s.%s.%s" % (taskName, schema, account))
+		anaforaXMLFile = os.path.join(anaforaXMLFile, "%s.%s.%s" % (taskName, reduce(lambda a,b: "%s-%s" % (a,b), (schemaName, ) + ((schemaMode,) if schemaMode != None else ()) + (("Adjudication",) if isAdj != None else ())), account))
 	else:
-		anaforaXMLFile = os.path.join(anaforaXMLFile, subTaskName,  "%s.%s.%s" % (subTaskName, schema, account))
+		anaforaXMLFile = os.path.join(anaforaXMLFile, subTaskName,  "%s.%s.%s" % (subTaskName, reduce(lambda a,b: "%s-%s" % (a,b), (schemaName, ) + ((schemaMode,) if schemaMode != None else ()) + (("Adjudication",) if isAdj != None else ())), account))
 
 	if os.path.exists("%s.completed.xml" % anaforaXMLFile):
 		anaforaXMLFile = "%s.completed.xml" % anaforaXMLFile
@@ -458,16 +460,16 @@ def getAllTask(request, projectName, corpusName, schemaName, schemaMode = None, 
 		return HttpResponseForbidden("access not allowed")
 
 
-def getAdjudicationTaskFromProjectCorpusName(request, projectName, corpusName, schemaName, modeName = None):
+def getAdjudicationTaskFromProjectCorpusName(request, projectName, corpusName, schemaName, schemaMode = None):
 	if request.method != "GET":
 		return HttpResponseForbidden()
 
-	if isSchemaExist(schemaName, modeName) != True:
+	if isSchemaExist(schemaName, schemaMode) != True:
 		return HttpResponseNotFound("schema file not found")
 
+	ps = getProjectSetting()
 	if isAdjudicator(request):
-		taskName = AnaforaProjectManager.searchAvailableAdjudicationTask(projectName, corpusName, schemaName,
-																		 request.META["REMOTE_USER"])
+		taskName = AnaforaProjectManager.searchAvailableAdjudicationTask(ps, projectName, corpusName, request.META["REMOTE_USER"], schemaName, schemaMode)
 		return HttpResponse(json.dumps(taskName))
 	else:
 		return HttpResponseForbidden("access not allowed")

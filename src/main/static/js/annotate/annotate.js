@@ -730,13 +730,13 @@ function registerHotkey(schema) {
 	// next, prev annotation (219, 221)
 	body.bind("keydown", function(evt) {
 		switch(evt.which){
-			case 188:
+			case 188:	// comma
 				if(_setting.isAdjudication && evt.ctrlKey)
 					moveAnnotation(-1);
 				else
 					moveAnnotation(-1, true);
 				break;
-			case 190:
+			case 190:	// period
 				if(_setting.isAdjudication && evt.ctrlKey)
 					moveAnnotation(1);
 				else

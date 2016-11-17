@@ -298,6 +298,8 @@ class AnaforaProjectManager:
 			for projectXMLFileName in [pFileName for pFileName in os.listdir(taskPath) if os.path.isfile(os.path.join(taskPath, pFileName)) and pFileName[0] != '.' and pFileName[-4:] == ".xml"]:
 				taskFile = TaskFile(projectXMLFileName)
 				if taskFile.taskName == taskName and taskFile.schemaName == schemaName and taskFile.modeName == modeName:
+					print (taskFile.annotator, taskFile.taskName, taskFile.schemaName, taskFile.modeName, taskFile.isAdjudication)
+					print adjudicator
 					if taskFile.isAdjudication:
 						if taskFile.annotator == adjudicator:
 							if taskFile.isCompleted:
@@ -312,6 +314,7 @@ class AnaforaProjectManager:
 							hasGold = True
 						elif taskFile.isCompleted:
 							numOfAnnotatorFile += 1
+			print (inProgressTask, completedTask)
 
 			if numOfAnnotatorFile >= maxNumOfAnnotator and (hasOtherAdjudicator == False or os.path.exists(os.path.join(taskPath, ".nolimit"))) and taskName not in completedTask and taskName not in inProgressTask and (hasGold != True):
 				newTask.append(taskName)
