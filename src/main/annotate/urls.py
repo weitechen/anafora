@@ -20,7 +20,7 @@ urlpatterns = [
 	url(r'^schema/(?P<schema>[^\/]+)/?$', views.getSchema),
 	url(r'^saveFile/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?(?:\.(?P<isAdj>Adjudication))?/?$', views.writeFile),
 	url(r'^setCompleted/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?(?:\.(?P<isAdj>Adjudication))?/?$', views.setCompleted),
-	url(r'^(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schema>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?(?:\.(?P<adjudication>Adjudication))?(?:\/(?P<view>view))?(?:\/(?P<annotator>[^\/]+))?/?$', views.annotateNormal),
+	url(r'^(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schema>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?(?:\.(?P<adjudication>Adjudication))?(?:\/(?P<view>view))?(?:/(?P<crossDoc>_crossDoc))?(?:\/(?P<annotator>[^\/]+))?/?$', views.annotateNormal),
 	url(r'^(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/?$', views.selectCorpus),
 	url(r'^(?P<projectName>[^\/]+)/?$', views.selectProject),
 	url(r'^/?$', views.index),

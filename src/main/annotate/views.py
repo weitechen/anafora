@@ -99,7 +99,7 @@ def authenticate(ps, request, projectName = "", corpusName = "", taskName = "", 
 
 	if isAdjudication:
 		#if request.META["REMOTE_ADMIN"] != True:
-		if not isAdjudicator():
+		if not isAdjudicator(request):
 			return HttpResponseForbidden("%s does not have the authenticate right to adjudicate" % request.META["REMOTE_USER"])
 	
 	if isView:
