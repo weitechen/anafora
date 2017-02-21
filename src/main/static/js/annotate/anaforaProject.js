@@ -291,39 +291,21 @@ AnaforaProject.prototype.readFromXMLDOM = function(xml, isAdjudication) {
 
 	var idx;
 	// parse annotations
-	//try {
+	$(annotationDOM).children().each( function() {
+		if (this.tagName == "entity") {
+			var entity = Entity.genFromDOM(this, _self.schema);
+			idx = parseInt(entity.id.split('@')[0]);
+			_self.entityList[idx] = entity;
 
-		$(annotationDOM).children().each( function() {
-			if (this.tagName == "entity") {
-				var entity = Entity.genFromDOM(this, _self.schema);
-				idx = parseInt(entity.id.split('@')[0]);
-				_self.entityList[idx] = entity;
-	
-				_self.addTypeCount(entity.type);
-			}
-			else if (this.tagName == "relation") {
-				var relation = Relation.genFromDOM(this, _self.schema);
-				idx = parseInt(relation.id.split('@')[0]);
-				_self.relationList[idx] = relation;
-				_self.addTypeCount(relation.type);
-			}
-		});
-	/*
-	} catch (e) {
-		if (e instanceof ErrorException) {
-			console.log("Error Exception");
+			_self.addTypeCount(entity.type);
 		}
-		else if(e instanceof WarningException) {
-			console.log("Warning Exception");
+		else if (this.tagName == "relation") {
+			var relation = Relation.genFromDOM(this, _self.schema);
+			idx = parseInt(relation.id.split('@')[0]);
+			_self.relationList[idx] = relation;
+			_self.addTypeCount(relation.type);
 		}
-		else if (e instanceof InvalidAnaforaObjException) {
-			console.log("InvalidAnaforaObjException");
-		}
-		else {
-			console.log("other exception");
-		}
-	}
-	*/
+	});
 
 	this.maxEntityIdx = Object.keys(this.entityList).max();
 	this.maxRelationIdx = Object.keys(this.relationList).max();

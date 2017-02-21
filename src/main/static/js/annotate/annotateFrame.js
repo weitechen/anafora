@@ -650,8 +650,7 @@ AnnotateFrame.matchAObjFromOverlap = function(aObjList, checkedType) {
 	
 	var matchedAObj = $.grep(aObjList, function(aObj) {
 		var comparePair = aObj.getAdditionalData("comparePair");
-		// (currentAProject == undefined || aObj != currentAProject.selectedAObj) &&  
-		return (propertyFrameList.length == 0 || propertyFrameList.reduce(function (p0, p1) { return p0.isAssignRelation == false && p1.isAssignRelation == false;}) || currentAProject.selectedAObj != aObj) && (checkedType == undefined || checkedType.indexOf(aObj.type) != -1) && (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || (comparePair == undefined || !(comparePair[comparePair.length-1] instanceof AdjudicationEntity || comparePair[comparePair.length-1] instanceof AdjudicationRelation)));
+		return (checkedType == undefined || checkedType.indexOf(aObj.type) != -1) && (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || (comparePair == undefined || !(comparePair[comparePair.length-1] instanceof AdjudicationEntity || comparePair[comparePair.length-1] instanceof AdjudicationRelation)));
 	});
 
 	// is assign relation in adjudication mode
