@@ -578,6 +578,9 @@ def setCompleted(request, projectName, corpusName, taskName, schemaName, schemaM
 		subprocess.call(
 			"sed -u -i 's/<progress>in-progress<\/progress>/<progress>completed<\/progress>/' %s.completed.xml" % (fileName),
 			shell=True)
+		subprocess.call(
+			"sed -u -i 's/@%s/@gold/' %s.completed.xml" % (request.META["REMOTE_USER"], fileName),
+			shell=True)
 		#mode = ps.getMode(*(schemaName.replace("-Adjudication", "").split("-")))
 		mode = ps.getMode(schemaName, schemaMode)
 		if isAdj != None or mode.directSetGold:
@@ -585,7 +588,8 @@ def setCompleted(request, projectName, corpusName, taskName, schemaName, schemaM
 			fileNameGold = os.path.join(filePath, "%s.%s%s.gold.completed.xml" %(taskName, schemaName, "" if schemaMode == None else "-%s" % schemaMode))
 			subprocess.call(["cp", "%s.completed.xml" % fileName, fileNameGold])
 			schema = ps.getSchema(schemaName)
-			for tMode in [schema.modes[modeName] for modeName in schema.modes if schema.modes[modeName].needPreannotation and schema.modes[modeName].preannotationFromMode == mode]:
+			#print [schema.modes[modeName] for modeName in schema.modes if schema.modes[modeName].needPreannotation and schema.modes[modeName].preannotationFromMode == mode]
+			for tMode in [schema.modes[modeName] for modeName in schema.modes if schema.modes[modeName].needPreannotation and schema.modes[modeName].preannotationFromMode != None and schema.modes[modeName].preannotationFromMode.name == mode.name]:
 
 				fileNamePreannotation = os.path.join(filePath, "%s.%s-%s.preannotation.completed.xml" % (taskName , schema.name, tMode.name))
 				subprocess.call(["cp", fileNameGold, fileNamePreannotation])

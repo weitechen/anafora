@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
-from unittest import TestCase
+#from unittest import TestCase
+from unittest2 import TestCase
 from django.conf import settings
 from projectSetting import Schema, Mode, Project, ProjectSetting
 from django.core.exceptions import ImproperlyConfigured
@@ -177,9 +178,9 @@ class ProjectSettingTests(TestCase):
 
 		ps = ProjectSetting()
 		ps.parseFromFile(os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, settings.ANAFORA_PROJECT_SETTING_FILENAME))
-		self.assertEqual(len(ps.projectList), 4)
-		self.assertListEqual(sorted(["Demo","EventWorkshop", "Temporal", "CrossDocument"]), sorted(ps.projectList.keys()))
-		self.assertListEqual(sorted(["Temporal", "UMLS", "Coreference", "CrossCoreference", 'CrossTemporal', "PropBank", "Medicine", "BLT", "BLT-alt", "THYME_QA", "TimeNorm", "Thyme2v1"]), sorted(ps.schemaList.keys()))
+		self.assertEqual(len(ps.projectList), 8)
+		self.assertListEqual(sorted(["Demo","EventWorkshop", "Temporal", "CrossDocument", "EPIC", "SHARP",  "THYME-subevent", "THYMEColonFinal" ]), sorted([str(projName) for projName in ps.projectList.keys()]))
+		self.assertListEqual(sorted(["Temporal", "UMLS", "Coreference", "PropBank", "Medicine", "BLT", "BLT-alt", "THYME_QA", "TimeNorm", "Thyme2v1"]), sorted(ps.schemaList.keys()))
 		project0 = ps.projectList["EventWorkshop"]
 		self.assertEqual(project0.name, "EventWorkshop")
 		self.assertListEqual(project0.admins, ["anaforaadmin"])
@@ -268,7 +269,7 @@ class ProjectSettingTests(TestCase):
 		ps.parseFromFile(self.settingFile)
 				
 		schemaMap = ps.getSchemaMap()
-		self.assertListEqual(sorted(["Temporal", "UMLS", "Coreference", "CrossCoreference", 'CrossTemporal', "PropBank", "Medicine", "BLT", "BLT-alt", "THYME_QA", "TimeNorm", "Thyme2v1"]), sorted(schemaMap.keys()))
+		self.assertListEqual(sorted(["Temporal", "UMLS", "Coreference", "PropBank", "Medicine", "BLT", "BLT-alt", "THYME_QA", "TimeNorm", "Thyme2v1"]), sorted(schemaMap.keys()))
 		self.assertListEqual(sorted(["Entity", "Relation", "RelationReGold"]), sorted(schemaMap["Temporal"]))
 		self.assertListEqual(sorted(["Entity", "Relation"]), sorted(schemaMap["UMLS"]))
 		self.assertEqual(0, schemaMap["Coreference"])
@@ -278,4 +279,4 @@ class ProjectSettingTests(TestCase):
 		self.assertEqual(0, schemaMap["BLT-alt"])
 		self.assertEqual(0, schemaMap["THYME_QA"])
 		self.assertEqual(0, schemaMap["TimeNorm"])
-		self.assertListEqual(sorted(["Coreference", "Correction"]), sorted(schemaMap["Thyme2v1"]))
+		self.assertListEqual(sorted(["Coreference", "Correction", "Anatomy"]), sorted(schemaMap["Thyme2v1"]))

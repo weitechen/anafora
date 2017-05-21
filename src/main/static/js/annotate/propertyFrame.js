@@ -433,6 +433,8 @@ PropertyFrame.prototype.displayRelation = function(relation) {
 
 PropertyFrame.prototype.displayPropertyAType = function(entity) {
 	this.typeColorBlock.css("background-color", "#" + entity.type.color);
+	this.typeColorBlock.css("color", '#' + invertColor(entity.type.color));
+	this.typeColorBlock.text(entity.isCrossObj() ? 'C' : '');
 	this.typeName.text(entity.type.type);
 	this.objID.text(entity.id);
 }

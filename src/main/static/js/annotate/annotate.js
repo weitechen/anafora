@@ -869,10 +869,34 @@ function addNewAObj(aType) {
 	var newAObj;
 	var newID;
 	var taskName;
+	if(_setting.isCrossDoc) {
+
+		var subTaskElemList = $("#rawText > div");
+		var subTaskNameList = $.map(subTaskElemList, function(taskElem) { return taskElem.id; });
+				
+		var newSubTaskIdx = subTaskNameList.length -1;
+
+		for(var elementIdx = 0;elementIdx < subTaskNameList.length - 1;elementIdx++) {
+			if($(subTaskElemList[elementIdx]).position().top <=0 && $(subTaskElemList[elementIdx+1]).position().top >0){
+				newSubTaskIdx = elementIdx;
+				break
+			}
+		}
+		taskName = subTaskNameList[newSubTaskIdx];
+	}
+	else {
+		taskName = _setting.taskName;
+	}
+
+	/*
 	if(document.getSelection().focusNode == undefined)
 		taskName = $("#taskName").children("a").text();
-	else
+	else {
 		taskName = document.getSelection().focusNode.parentElement.id;
+		if(taskName == "rawText")
+			taskName = document.getSelection().focusNode.id;
+	}
+	*/
 
 	if($("#taskName").children("a").text() != taskName)
 		$('#taskName').children("a").text(taskName);

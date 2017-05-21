@@ -53,16 +53,21 @@ class ProjectSetting(object):
 					if schemaName not in self.schemaList:
 						raise Exception('schema name "' + str(schemaName) + '" in project "' + projectName + '" is not exist')
 					project.allowedSchemas[idx] = self.schemaList[schemaName]
+
 		#link preannotationFromMode in schema
 		for schemaName in self.schemaList:
 			schema = self.schemaList[schemaName]
 			for modeName in schema.modes:
 				mode = schema.modes[modeName]
-				if mode.needPreannotation:
-					if mode.preannotationFromMode not in schema.modes:
-						raise Exception('Preannotation mode name "' + str(mode.preannotationFromMode) + '" from mode "' + mode.name + '" of schema "' + schemaName + '" is not exists')
 
-					mode.preannotationFromMode = schema.getMode(mode.preannotationFromMode)
+				if mode.needPreannotation:
+					#if mode.preannotationFromMode not in schema.modes:
+					#	raise Exception('Preannotation mode name "' + str(mode.preannotationFromMode) + '" from mode "' + mode.name + '" of schema "' + schemaName + '" is not exists')
+					if mode.preannotationFromMode.strip() == "":
+						mode.preannotationFromMode = None
+					else:
+						mode.preannotationFromMode = schema.getMode(mode.preannotationFromMode)
+					
 
 	def isSchemaExist(self, schemaName, modeName = None):
 		""" check schema exists
