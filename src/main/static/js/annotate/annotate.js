@@ -294,6 +294,7 @@ function loadNewProject() {
 					throw err;
 				}
 			}
+			
 			aProjectList.push(currentAProject);
 			if(annotatorName == "preannotation") {
 				currentAProject.completed = false;

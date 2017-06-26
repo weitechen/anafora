@@ -354,6 +354,7 @@ AnaforaProject.prototype.readFromXMLDOM = function(xml, isAdjudication) {
 
 	$.each(this.relationList, function(idx, relation) {
 		// update relation list link
+		console.log(_self.relationList[idx]);
 		if ($.inArray(relation.type, _self.schema.linkingType) != -1)
 			_self.updateLinking(relation.type, relation);
 
@@ -418,11 +419,12 @@ AnaforaProject.prototype.getAObjFromID = function(id) {
 		else if(valList[1] == "r")
 			return this.relationList[sID];
 		else
-			throw ErrorException("Invalid id ''" + id + "''");
+			throw new ErrorException("Invalid id ''" + id + "''");
 	}
 	else {
-		if(this.parentProject == undefined)
-			throw ErrorException("Can not find subTaskName ''" + valList[2] + "'' without parent project");
+		if(this.parentProject == undefined) {
+			throw new ErrorException("Can not find subTaskName ``" + valList[2] + "'' when searching annotation ``" + id + "'' without parent project");
+		}
 		return this.parentProject.projectList[valList[2]].getAObjFromID(id);
 	}
 }

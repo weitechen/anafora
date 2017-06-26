@@ -333,7 +333,6 @@ AnnotateFrame.prototype.removeEntityPosit = function(entity, removeAObj, directR
 			_self.removeSpanPosit(span, entity, removeAObj, directRemove);
 		});
 	}
-
 }
 
 AnnotateFrame.prototype.removeRelationPosit = function(relation, removeAObj, directRemove) {

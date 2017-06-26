@@ -8,7 +8,7 @@ AObjSelectionMenu.prototype.createMenu = function(aObjList, spanElement) {
 	this.element.children("ul").children("li").remove();
 
 	$.each(aObjList, function() {
-		var elementLi = $('<li><span class="jstreeschema" style="background-color:#' + this.type.color + '"></span>' + getTextFromEntity(this) + '</li>');
+		var elementLi = $('<li><span class="jstreeschema" style="background-color:#' + this.type.color + '">' + (this.isCrossObj() ? 'C' : '') + '</span>' + getTextFromEntity(this) + '</li>');
 		_self.element.children("ul").append(elementLi);
 	});
 

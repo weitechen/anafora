@@ -467,6 +467,9 @@ Entity.sort = function(entityA,entityB) {
 	if(entityB instanceof EmptyEntity)
 		return 1;
 
+	if(entityA.getTaskName() != entityB.getTaskName())
+		return (entityA.getTaskName() < entityB.getTaskName()) ? -1 : 1;
+
 	var idx, compare;
 	for(idx=0; idx<Math.min(entityA.span.length, entityB.span.length); idx++) {
 		if((compare = SpanType.sort(entityA.span[idx], entityB.span[idx])) != 0)
@@ -647,6 +650,13 @@ Relation.sort = function(relationA, relationB) {
 		return -1;
 	if(relationB instanceof EmptyRelation)
 		return 1;
+
+	if(relationA.isCrossObj() && !relationB.isCrossObj()) {
+		return -1;
+	}
+	if(!relationA.isCrossObj() && relationB.isCrossObj()) {
+		return 1;
+	}
 	var idx, compare;
 	var firstListA = relationA.getFirstListProperty();
 	var firstListB = relationB.getFirstListProperty();
