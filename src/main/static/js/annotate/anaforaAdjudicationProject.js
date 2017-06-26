@@ -31,10 +31,73 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 
 	// compare 
 	$.each(projectList, function(annotator, aProject) {
-		entityList[idx] = $.map( aProject.entityList, function(value) {return value;});
+		entityList[idx] = [];
+		$.each(aProject.entityList, function(eID, entity) {
+			var tAnnotator =  entity.id.substring(entity.id.lastIndexOf('@')+1);
+			if(tAnnotator == "gold") {
+				if(eID in _self.entityList) {
+					var originEntity = _self.entityList[eID];
+					// go through all the linkingAObj in entity, replace with originEntity
+					$.each(entity.linkingAObjList, function(ttIdx, linkingAObj) {
+						$.each(linkingAObj.type.propertyTypeList, function(tttIdx, pType) {
+							if(pType.input == InputType.LIST && linkingAObj.propertyList[tttIdx] != undefined) {
+								var pIdx = linkingAObj.propertyList[tttIdx].indexOf(entity);
+								if(pIdx > -1)
+									linkingAObj.propertyList[tttIdx][pIdx] = originEntity;
+							}
+						});
+					});
+					// move linkedAObj from entity1 to entity0
+					originEntity.linkingAObjList = originEntity.linkingAObjList.concat(entity.linkingAObjList);
+					if(_self.annotateFrame != undefined)
+						_self.annotateFrame.removeEntityPosit(originEntity, entity, true);
+				}
+				else {
+					_self.entityList[eID] = entity;
+					entity.setAdditionalData("adjudication", "gold");
+				}
+				delete _self.projectList[annotator].entityList[eID];
+			}
+			else {
+				entityList[idx].push(entity);
+			}
+		});
+		//entityList[idx] = $.map( aProject.entityList, function(value) {return value;});
 		entityList[idx].sort(Entity.sort);
 
-		relationList[idx] = $.map( aProject.relationList, function(value) {return value;});
+		relationList[idx] = [];
+		$.each(aProject.relationList, function(rID, relation) {
+			var relation = aProject.relationList[rID];
+			var tAnnotator =  relation.id.substring(relation.id.lastIndexOf('@')+1);
+			if(tAnnotator == "gold") {
+				if(rID in _self.relationList) {
+					var originRelation = _self.relationList[rID];
+					// go through all the linkingAObj in relation, replace with originRelation
+					$.each(relation.linkingAObjList, function(ttIdx, linkingAObj) {
+						$.each(linkingAObj.type.propertyTypeList, function(tttIdx, pType) {
+							if(pType.input == InputType.LIST && linkingAObj.propertyList[tttIdx] != undefined) {
+								var pIdx = linkingAObj.propertyList[tttIdx].indexOf(relation);
+								if(pIdx > -1)
+									linkingAObj.propertyList[tttIdx][pIdx] = originRelation;
+							}
+						});
+					});
+					// move linkedAObj from relation1 to relation0
+					originRelation.linkingAObjList = originRelation.linkingAObjList.concat(relation.linkingAObjList);
+					//if(_self.annotateFrame != undefined)
+					//	_self.annotateFrame.removeEntityPosit(originRelation, relation, true);
+				}
+				else {
+					_self.relationList[rID] = relation;
+					relation.setAdditionalData("adjudication", "gold");
+				}
+				delete _self.projectList[annotator].relationList[rID];
+			}
+			else {
+				relationList[idx].push(relation);
+			}
+		});
+		//relationList[idx] = $.map( aProject.relationList, function(value) {return value;});
 		relationList[idx].sort(Relation.sort);
 
 		idx++;
@@ -44,6 +107,7 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 	});
 
 	//// check the AdjuidcationEntity
+	var needAdjEntityPairList = [];
 	entityListIdx = [];
 	entityListIdx[0] = 0;
 	entityListIdx[1] = 0;
@@ -70,6 +134,7 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 			if( entityList0[ idx0 ].type === entityList1[ idx1+followIdx ].type ) {
 				entity0 = entityList[idx][ entityListIdx[idx] ];
 				entity1 = entityList[xIdx][ entityListIdx[xIdx] + followIdx ];
+					
 				term0 = entity0.id.split('@');
 				term1 = entity1.id.split('@');
 				annotator0 = term0[3];
@@ -115,25 +180,73 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 					needAddAdjudicationEntity = compareRObj.needAddAdjudicationEntity;
 					diffProp = compareRObj.diffProp;
 					spanEqual = compareRObj.spanEqual;
+					if(needAddAdjudicationEntity) 
+						needAdjEntityPairList.push([compareRObj, [entity0, entity1]]);
 				}
 
+				/*
 				if(needAddAdjudicationEntity) {
-					if(spanEqual && diffProp.length == 0 && _self.identicalEntityMarkAsGold) {
-						_self.markGold(entity0);
-						entity1.setAdditionalData("adjudication", "not gold");
+					var newAdjEntity = undefined;
+					
+					if(entity0.getAdditionalData("comparePair") != undefined || entity1.getAdditionalData("comparePair") != undefined) {
+						var hasAlignedEntity = undefined;
+						[entity1, entity0].forEach(function(tEntity) {
+
+							var comparePairList;
+							if((comparePairList = tEntity.getAdditionalData("comparePair")) != undefined) {
+								;
+								
+							}
+						});
+
+						if(entity0.getAdditionalData("comparePair") != undefined)
+							hasAlignedEntity = entity0;
+						else
+							hasAlignedEntity = entity1;
 					}
-					var newAdjEntity = new AdjudicationEntity(this.getNewEntityId(), entity0.type, [entity0, entity1], diffProp);
-					this.addAdjEntityToAdjudicationInCompareEntityPair(entity0, entity1, newAdjEntity);
-					this.addAdjEntityToAdjudicationInCompareEntityPair(entity1, entity0, newAdjEntity);
-					this.addAdjAObj(newAdjEntity);
-					if(_self.annotateFrame != undefined)
-						_self.annotateFrame.updatePosIndex(newAdjEntity);
-					_self.addTypeCount(newAdjEntity.type);
+					else {
+						if(spanEqual && diffProp.length == 0 && _self.identicalEntityMarkAsGold) {
+							_self.markGold(entity0);
+							entity1.setAdditionalData("adjudication", "not gold");
+						}
+						var newAdjEntity = new AdjudicationEntity(this.getNewEntityId(), entity0.type, [entity0, entity1], diffProp);
+						this.addAdjEntityToAdjudicationInCompareEntityPair(entity0, entity1, newAdjEntity);
+						this.addAdjEntityToAdjudicationInCompareEntityPair(entity1, entity0, newAdjEntity);
+						this.addAdjAObj(newAdjEntity);
+						if(_self.annotateFrame != undefined)
+							_self.annotateFrame.updatePosIndex(newAdjEntity);
+						_self.addTypeCount(newAdjEntity.type);
+					}
 				}
+				*/
 			}
 			followIdx++;
 		}
 		entityListIdx[idx]++;
+	}
+
+	needAdjEntityPairList.sort(function(compareList0, compareList1) { return compareList1[0].matchScore - compareList0[0].matchScore; });
+	for(comparePair of needAdjEntityPairList) {
+		var newAdjEntity = undefined;
+		var compareRObj = comparePair[0];
+		var diffProp = compareRObj.diffProp;
+		var spanEqual = compareRObj.spanEqual;
+		entity0 = comparePair[1][0];
+		entity1 = comparePair[1][1];
+
+		if(entity0.getAdditionalData("comparePair") != undefined || entity1.getAdditionalData("comparePair") != undefined)
+			continue;
+		if(spanEqual && diffProp.length == 0 && _self.identicalEntityMarkAsGold) {
+			_self.markGold(entity0);
+			entity1.setAdditionalData("adjudication", "not gold");
+		}
+		var newAdjEntity = new AdjudicationEntity(this.getNewEntityId(), entity0.type, [entity0, entity1], diffProp);
+		this.addAdjEntityToAdjudicationInCompareEntityPair(entity0, entity1, newAdjEntity);
+		this.addAdjEntityToAdjudicationInCompareEntityPair(entity1, entity0, newAdjEntity);
+		this.addAdjAObj(newAdjEntity);
+		if(_self.annotateFrame != undefined)
+			_self.annotateFrame.updatePosIndex(newAdjEntity);
+		_self.addTypeCount(newAdjEntity.type);
 	}
 
 	//// check the AdjuidcationRelation
@@ -144,12 +257,31 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 	var comparePairRelationList0;
 	var comparePairRelationList1;
 
+	// Move gold relation to local relation
+	/*
+	$.each(projectList, function(annotator, aProject) {
+		$.each(aProject.relationList, function(rIdx, relation) {
+			var term = relation.id.split('@');
+			var goldAnnotator = term[3];
+			if(goldAnnotator == "gold") {
+				if(!(rIdx in _self.relationList)) {
+					_self.relationList[rIdx] = relation;
+				}
+				delete projectList[annotator].relationList[rIdx];
+			}
+		});
+	});
+	*/
+	
 	$.each(relationList[0], function(key0, relation0) {
+		term0 = relation0.id.split('@');
+		annotator0 = term0[3];
 		var currentDiffProp = relation0.type.propertyTypeList.length + 1;
+
 		$.each(relationList[1], function(key1, relation1) {
+			term1 = relation1.id.split('@');
+			annotator1 = term1[3];
 			comparePairRelationList1 = relation1.getAdditionalData("comparePair");
-			if(relation0.id == "22@r@doc0021_CLIN@ahoward" && relation1.id == "14@r@doc0021_CLIN@krwr4334")
-				console.log("160@r");
 			if(relation0.type == relation1.type) {
 
 				var diffProp = IAdjudicationAnaforaObj.compareAObjPropertyList(relation0, relation1, AnaforaAdjudicationProject.adjEntityComparePropertyFunc);
@@ -202,6 +334,7 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 				}
 			}
 		});
+		
 	});
 
 	// recount the adjudicationEntityList, typeCount, update posit index, and count the adjudication complete number
@@ -224,9 +357,9 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 	});
 
 	this.totalAdjudication -= Object.keys(this.adjudicationEntityList).length;
-	this.totalAdjudication -= Object.keys(this.entityList).length;
+	this.totalAdjudication += Object.keys(this.entityList).length;
 	this.totalAdjudication -= Object.keys(this.adjudicationRelationList).length;
-	this.totalAdjudication -= Object.keys(this.relationList).length;
+	this.totalAdjudication += Object.keys(this.relationList).length;
 
 
 	this.completeAdjudication += Object.keys(this.entityList).length;
@@ -622,6 +755,18 @@ AnaforaAdjudicationProject.prototype.setCompletedProcess = function() {
 				if(_self.entityList[newIdx] != undefined)
 					throw "entity idx:" + newIdx.toString() + " not empty!";
 
+				$.each(entity.type.propertyTypeList, function(idx, propType) {
+					if(propType.input == InputType.LIST) {
+						if(entity.propertyList[idx] != undefined) {
+							$.each(entity.propertyList[idx], function(aIdx, aObj) {
+								var tComparePairList = undefined;
+								if(aObj.getAdditionalData("adjudication") !== "gold" && aObj.id.split('@')[3] != "gold" && ((tComparePairList = aObj.getAdditionalData("comparePair")) !== undefined && ((tComparePairList[tComparePairList.length-1] instanceof AdjudicationEntity) || (tComparePairList[tComparePairList.length-1] instanceof AdjudicationRelation))))
+									entity.propertyList[idx][aIdx] = tComparePairList[0];
+	
+							});
+						}
+					}
+				});
 				_self.entityList[newIdx] = entity;
 
 			}
@@ -640,6 +785,19 @@ AnaforaAdjudicationProject.prototype.setCompletedProcess = function() {
 				if(_self.relationList[newIdx] != undefined)
 					throw "relation idx:" + newIdx.toString() + " not empty!";
 
+				$.each(relation.type.propertyTypeList, function(idx, propType) {
+					if(propType.input == InputType.LIST) {
+						if(relation.propertyList[idx] != undefined) {
+							$.each(relation.propertyList[idx], function(aIdx, aObj) {
+								var tComparePairList = undefined;
+								if(aObj.getAdditionalData("adjudication") !== "gold" && aObj.id.split('@')[3] != "gold" && ((tComparePairList = aObj.getAdditionalData("comparePair")) !== undefined && ((tComparePairList[tComparePairList.length-1] instanceof AdjudicationEntity) || (tComparePairList[tComparePairList.length-1] instanceof AdjudicationRelation))))
+									relation.propertyList[idx][aIdx] = tComparePairList[0];
+	
+							});
+						}
+					}
+				});
+
 				_self.relationList[newIdx] = relation;
 
 			}
@@ -649,8 +807,22 @@ AnaforaAdjudicationProject.prototype.setCompletedProcess = function() {
 
 	// adjudication entity and relation list: set the adjudication annotation to the selected gold annotation, move to the project entity and relation list; delete non-gold adjudication annotation
 	$.each(this.adjudicationEntityList, function(idx, entity) {
+		var comparePairList = undefined;
 		if(entity.decideIdx !== undefined) {
 			entity.compareAObj[entity.decideIdx].id = entity.id;
+
+			$.each(entity.type.propertyTypeList, function(idx, propType) {
+				if(propType.input == InputType.LIST) {
+					if(entity.compareAObj[entity.decideIdx].propertyList[idx] != undefined) {
+						$.each(entity.compareAObj[entity.decideIdx].propertyList[idx], function(aIdx, aObj) {
+							var comparePairList = undefined;
+							if(aObj.getAdditionalData("adjudication") !== "gold" && aObj.id.split('@')[3] != "gold" && ((comparePairList = aObj.getAdditionalData("comparePair")) !== undefined && ((comparePairList[comparePairList.length-1] instanceof AdjudicationEntity) || (comparePairList[comparePairList.length-1] instanceof AdjudicationRelation))))
+								entity.compareAObj[entity.decideIdx].propertyList[idx][aIdx] = comparePairList[0];
+
+						});
+					}
+				}
+			});
 			_self.entityList[idx] = entity.compareAObj[entity.decideIdx];
 			_self.entityList[idx].setAdditionalData("adjudication", undefined);
 			_self.entityList[idx].setAdditionalData("comparePair", undefined);
@@ -661,6 +833,18 @@ AnaforaAdjudicationProject.prototype.setCompletedProcess = function() {
 	$.each(this.adjudicationRelationList, function(idx, relation) {
 		if(relation.decideIdx !== undefined) {
 			relation.compareAObj[relation.decideIdx].id = relation.id;
+			$.each(relation.type.propertyTypeList, function(idx, propType) {
+				if(propType.input == InputType.LIST) {
+					if(relation.compareAObj[relation.decideIdx].propertyList[idx] != undefined) {
+						$.each(relation.compareAObj[relation.decideIdx].propertyList[idx], function(aIdx, aObj) {
+							var comparePairList = undefined;
+							if(aObj.getAdditionalData("adjudication") !== "gold" && aObj.id.split('@')[3] != "gold" && ((comparePairList = aObj.getAdditionalData("comparePair")) !== undefined && ((comparePairList[comparePairList.length-1] instanceof AdjudicationEntity) || (comparePairList[comparePairList.length-1] instanceof AdjudicationRelation))))
+								relation.compareAObj[relation.decideIdx].propertyList[idx][aIdx] = comparePairList[0];
+
+						});
+					}
+				}
+			});
 			_self.relationList[idx] = relation.compareAObj[relation.decideIdx];
 			_self.relationList[idx].setAdditionalData("adjudication", undefined);
 			_self.relationList[idx].setAdditionalData("comparePair", undefined);
@@ -931,7 +1115,7 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml) {
 				}
 				else {
 					$.each(entity.type.propertyTypeList, function(pIdx, pType) {
-						if(pType.input == InputType.LIST) {
+						if(pType.input == InputType.LIST && entity.propertyList[pIdx] != undefined) {
 							$.each(entity.propertyList[pIdx], function(plIdx) {
 								if(entity.propertyList[pIdx][plIdx] instanceof EmptyEntity) {
 									var emptyEntity = entity.propertyList[pIdx][plIdx];

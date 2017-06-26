@@ -11,12 +11,8 @@ var editable = false;
 var propertyFrameList = [];
 var relationFrame = undefined;
 var isChanged = false;
-var errorHandler = undefined;
 
 function onLoad() {
-	// set error handler
-	errorHandler = new ErrorHandler($("#errorMessage"));
-
 	// read schemaMap in _setting
 	var tDiv = document.createElement('div');
 	tDiv.innerHTML = _setting.schemaMap;
@@ -33,7 +29,6 @@ function onLoad() {
 	// set menu
 	navMenu = $("#headerWrapper > ul");
 
-
 	// set file menu
 	var fileMenu = $(navMenu.children("li").get(0)).children("ul").children("li");
 	fileMenu.eq(0).bind("click", function() { if(getIsChanged() && window.confirm("Save Task?")) { saveFile(); } projectSelector.selectProject(); projectSelector.popup(); });
@@ -44,7 +39,6 @@ function onLoad() {
 		projectSelector.popup();
 	else
 		loadNewProject();
-
 }
 
 function confirmLeave(evt) {
@@ -105,7 +99,7 @@ function loadNewProject() {
 	editable = (_setting.annotator === _setting.remoteUser);
 
 	// load schema tree
-	//$.jstree._themes = _setting.root_url + "/static/themes/";
+	$.jstree._themes = _setting.root_url + "/static/themes/";
 
 	// load schema
 	var schemaIdx = 0;
@@ -174,11 +168,22 @@ function loadNewProject() {
 		setIsChanged(false);
 	}
 
+
 	// load anafora data
 	aProjectWrapper = $("#aProjectWrapper");
 
+	//rawText = document.getElementById("rawText").outerHTML.replace(' id="rawText"', '') ;
+	//rawText = document.getElementById("rawText").innerHTML;
+
+	//var annotatorDiv = $('<div>' + rawText + '</div>');
+	//var annotatorDiv = $("#rawText").clone().attr('id', '');
 	var annotatorDiv = $("#rawText");
+	//rawText = document.getElementById("rawText").innerHTML;
 	rawText = annotatorDiv.text();
+	//annotatorDiv.css("display", "inline");
+	//rawText = annotatorDiv.text();
+	//var annotatorDiv = $("#rawText");
+	//annotatorDiv.css("display", "inline");
 
 	if(_setting.isAdjudication) {
 		annotatorDiv.addClass("adjudicationText");
@@ -207,25 +212,8 @@ function loadNewProject() {
 				currentAProject = new AnaforaProject(schema, annotatorName, _setting.taskName);	
 			currentAProject.setAnnotateFrame(annotateFrame);
 
-			var xmlDOM;
-			try{
-				xmlDOM = $.parseXML(tXMLText[annotatorName]);
-				currentAProject.readFromXMLDOM(xmlDOM, _setting.isAdjudication);
-			}
-			catch (e) {
-				if (e instanceof ErrorException) {
-					errorHandler.handle(e, currentAProject);
-					throw e;
-				}
-				else if(e instanceof WarningException) {
-					console.log("Warning Exception");
-					console.log(e);
-				}
-				else {
-					errorHandler.handle(e);
-					throw e;
-				}
-			}
+			var xmlDOM = $.parseXML(tXMLText[annotatorName]);
+			currentAProject.readFromXMLDOM(xmlDOM, _setting.isAdjudication);
 			aProjectList.push(currentAProject);
 			if(annotatorName == "preannotation") {
 				currentAProject.completed = false;
@@ -329,8 +317,7 @@ function loadNewProject() {
 		if(currentAProject.projectList != undefined) {
 			$.each( currentAProject.projectList, function(annotator, aProject) {
 				$.each(aProject.relationList, function(key, tRelation) {
-					//if( currentAProject.comparePairRelation[tRelation] == undefined)
-					if(tRelation.getAdditionalData("comparePair") == undefined)
+					if(tRelation.getAdditionalData("comparePair") == undefined && !(key in currentAProject.relationList))
 						displayRelationList.push(tRelation);
 				});
 			});
@@ -424,7 +411,7 @@ function schemaCheckedChange(evt) {
 		checkedType.push(schema.typeDict[this.id.substring(3).replace("_SLASH_", "/")]);
 	});
 	schema.updateCheckedType(checkedType);
-	currentAProject.updateAnnotateDisplay()
+	currentAProject.updateAnnotateDisplay();
 	relationFrame.updateRelationFrameDisplay();
 }
 
@@ -714,7 +701,6 @@ function restore() {
 	}
 
 	schemaDiv.jstree("restore");
-	//currentAProject.selectAObj(currentAProject.selectedAObj);
 }
 function assignEntityToRelation(propIdx) {
 	if(currentAProject != undefined && currentAProject.selectedAObj != null) {

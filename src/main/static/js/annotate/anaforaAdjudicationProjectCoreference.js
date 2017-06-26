@@ -3,7 +3,6 @@ function AnaforaAdjudicationProjectCoreference(schema, task) {
 	AnaforaAdjudicationProject.call(this, schema, task);
 
 	this.identicalEntityMarkAsGold = false;
-
 }
 
 AnaforaAdjudicationProjectCoreference.prototype = new AnaforaAdjudicationProject();
@@ -121,8 +120,7 @@ AnaforaAdjudicationProjectCoreference.prototype.relationAdjFilter = function(dif
 
 Entity.coreferenceComparePairCheck = function(entity0, entity1) {
 	var needAddAdjudicationEntity = (Entity.sort(entity0, entity1) == 0);
-	return {"needAddAdjudicationEntity": needAddAdjudicationEntity, "diffProp":[], "spanEqual": needAddAdjudicationEntity};
+	return {"needAddAdjudicationEntity": needAddAdjudicationEntity, "diffProp":[], "spanEqual": needAddAdjudicationEntity, "matchScore": (needAddAdjudicationEntity ? 0.8 : 0.2) };
 }
-
 
 Entity.comparePairCheck = Entity.coreferenceComparePairCheck;

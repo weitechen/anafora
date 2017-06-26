@@ -91,6 +91,8 @@ PropertyFrame.updateSpanValue = function(e) {
 	currentAProject.selectAObj(currentAProject.selectedAObj);
 	currentAProject.moveOutPreannotation(_self.displayAObj);
 	temporalSave();
+
+
 }
 
 PropertyFrame.prototype.hide = function() {
@@ -136,12 +138,15 @@ PropertyFrame.prototype.removeAObjFromProperty = function(pIdx, pListIdx) {
 			currentAProject.annotateFrame.removeEntityPosit(removeAObj, this.displayAObj);
 			if(this.displayAObj !== currentAProject.selectedAObj)
 				currentAProject.annotateFrame.removeEntityPosit(removeAObj, currentAProject.selectedAObj);
+			//currentAProject.annotateFrame.removeEntityPosit(removeAObj, currentAProject.selectedAObj);
 		}
 		else {
 			currentAProject.annotateFrame.removeRelationPosit(removeAObj, this.displayAObj);
 			if(this.displayAObj !== currentAProject.selectedAObj)
 				currentAProject.annotateFrame.removeRelationPosit(removeAObj, currentAProject.selectedAObj);
 		}
+			//currentAProject.annotateFrame.removeRelationPosit(removeAObj, currentAProject.selectedAObj);
+
 
 		currentAProject.annotateFrame.updateOverlap(removeAObj);
 
@@ -492,6 +497,8 @@ PropertyFrame.prototype.displayPropertyTable = function(entity) {
 	// this.propertyTable.children("tbody").children("tr").remove();
 	this.propertyTable.children("tbody").remove();
 	this.propertyTable.append(propertyTable);
+
+
 }
 
 PropertyFrame.prototype.generatePropertyTable = function(aObj, comparedIdx, diffProp) {
@@ -526,16 +533,23 @@ PropertyFrame.prototype.generatePropertyTableRow = function(pType, pIdx, pValue,
 		case InputType.LIST:
 			tValue += 'class="propertyAObj">';
 			if(pValue != undefined)
+				//tValue += '&nbsp;';
+			//else 
 			{
 				$.each(pValue, function(listIdx, listElement) {
+						
 					tValue += '<div class="propertySubAObj">' + PropertyFrame.generateRemoveBtn() + listElement.genElementStr() + "</div>";
+					//tValue += listElement.genElementStr() + " <br />";
 				});
+				//tValue = tValue.substr(0, tValue.length - 7);
 			}
 			tValue += '</td>';
 			break;
 		case InputType.MULTICHOICE:
 			tValue += 'class="propertyNormal propertyValue">';
 			if(pValue != undefined)
+				//tValue += '&nbsp;'
+			//else 
 			{
 				var tValueList = "";
 				$.each(pValue, function(idx) {
@@ -561,6 +575,8 @@ PropertyFrame.prototype.generatePropertyTableRow = function(pType, pIdx, pValue,
 		default:
 			tValue += 'class="propertyNormal propertyValue">';
 			if(pValue != undefined)
+				//tValue += '&nbsp;';
+			//else 
 				tValue += pValue;
 	
 			tValue += "</td>";
@@ -650,7 +666,7 @@ PropertyFrame.prototype.generatePropertyTableRow = function(pType, pIdx, pValue,
 			currentAProject.drawAObj(currentAProject.selectedAObj);
 
 			var checkedTypeList = currentAProject.selectedAObj.type.propertyTypeList[pIdx].instanceOfList;
-			schemaDiv.jstree("selectAObjList", checkedTypeList, needSchemaTempSave, [currentAProject.selectedAObj] );
+			schemaDiv.jstree("selectAObjList", checkedTypeList, needSchemaTempSave);
 			//_self.restore();
 // _self.propertyTable.children("tbody").find(".propertyValue").index(this);
 

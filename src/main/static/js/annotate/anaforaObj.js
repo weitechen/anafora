@@ -7,19 +7,6 @@ Array.prototype.max = function() {
 	return Math.max.apply(null, this);
 }
 
-function InvalidAnaforaObjException(message) {
-	ErrorException.call(message);
-	this.message = message;
-	if ("captureStackTrace" in ErrorException)
-		ErrorException.captureStackTrace(this, InvalidArgumentException);
-	else
-		this.stack = (new ErrorException()).stack;
-}
-
-InvalidAnaforaObjException.prototype = Object.create(ErrorException.prototype);
-InvalidAnaforaObjException.prototype.name = "InvalidAnaforaObjException";
-InvalidAnaforaObjException.prototype.constructor = InvalidAnaforaObjException;
-
 function SpanType(start, end) {
 	this.start = start;
 	this.end = end;
@@ -101,18 +88,8 @@ SpanType.merge = function(span1, span2) {
 }
 
 function IAnaforaObj(id, type, propertyList, additionalList, comment) {
-	/*
-	 @type id:	str
-	 */
 	if(id != undefined) {
-		var idTerm = id.split("@");
-		if(idTerm.length != 4) {
-			throw new InvalidAnaforaObjException("The input ID format error: <b>" + String(id) + "</b>\nshould be <b>\'sID@e/r@Annotator@Task\'</b>");
-		}
-
 		this.id = id;
-		this.sID = parseInt(idTerm[0]);
-		
 		this.type = type;
 		this.comment = comment;
 		if(propertyList == undefined){
@@ -131,11 +108,6 @@ function IAnaforaObj(id, type, propertyList, additionalList, comment) {
 
 		this.linkingAObjList = [];
 	}
-	/*
-	else {
-		throw new InvalidAnaforaObjException("input id is undefined");
-	}
-	*/
 }
 
 IAnaforaObj.prototype.addListProperty = function(aObj, pIdx, lIdx) {
@@ -328,7 +300,7 @@ IAnaforaObj.prototype.getPropertyXMLStr = function() {
 			}
 		}
 		else {
-			rStr += '\t\t\t<' + pType.type + '>' + ((element == undefined) ? "" : String(element).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g,'&gt;').replace(/"/g, '&quot;'))  + '</' + pType.type + '>\n';
+			rStr += '\t\t\t<' + pType.type + '>' + ((element == undefined) ? "" : element)  + '</' + pType.type + '>\n';
 		}
 	})
 
@@ -395,6 +367,7 @@ function Entity(id, type, span, propertyList, additionList, comment) {
 	}
 }
 
+
 Entity.prototype = new IAnaforaObj();
 Entity.prototype.constructor = Entity;
 
@@ -451,17 +424,24 @@ Entity.sort = function(entityA,entityB) {
 }
 
 Entity.comparePairCheck = function(entity0, entity1) {
-	 
 	var spanEqual = false;
 	var needAddAdjudicationEntity = false;
 	var diffProp = IAdjudicationAnaforaObj.compareAObjPropertyList(entity0, entity1);
+	var diffPropCount = diffProp.length;
+	var matchScore = 0.0;
+	if(entity0.type.propertyTypeList.length == 0)
+		matchScore += 0.2;
+	else
+		matchScore += (0.2 * (1.0 - diffPropCount/entity0.type.propertyTypeList.length));
 	
 	if(Entity.sort(entity0, entity1) == 0) {
 		spanEqual = true;
 		needAddAdjudicationEntity = true;
+		matchScore += 0.8;
 	}
 	else {
-		diffPropCount = diffProp.length;
+		var spanIntList = Entity.calSpanUnionAndIntersec(entity0, entity1);
+		matchScore += 0.8 * spanIntList[0]/spanIntList[1];
 
 		//comparePairList0 = this.comparePairEntity[entity0];
 		var comparePairList0 = entity0.getAdditionalData("comparePair");
@@ -475,7 +455,76 @@ Entity.comparePairCheck = function(entity0, entity1) {
 				
 	}
 
-	return {"needAddAdjudicationEntity": needAddAdjudicationEntity, "diffProp": diffProp, "spanEqual": spanEqual};
+	return {"needAddAdjudicationEntity": needAddAdjudicationEntity, "diffProp": diffProp, "spanEqual": spanEqual, "matchScore": matchScore };
+}
+
+Entity.calSpanUnionAndIntersec = function(entity0, entity1) {
+	var unionLen = 0;
+	var interLen = 0;
+	var spanIdx0 = 0, spanIdx1 = 0;
+	var span0, span1;
+
+	var spanList0 = entity0.span;
+	var spanList1 = entity1.span;
+	var span0 = spanList0[0];
+	var span1 = spanList1[0];
+	var spanShift0 = 0, spanShift1 = 0 ;
+	while(span0 != undefined || span1 != undefined) {
+		if(span0 == undefined) {
+			unionLen += (span1.end - span1.start - spanShift1);
+			spanShift1 = 0;
+			span1 = spanList1[++spanIdx1];
+		}
+		else if(span1 == undefined) {
+			unionLen += (span0.end - span0.start - spanShift0);
+			spanShift0 = 0;
+			span0 = spanList0[++spanIdx0]
+		}
+		else if(span0.end <= (span1.start + spanShift1)) {
+			unionLen += (span0.end - span0.start - spanShift0);
+			spanShift0 = 0;
+			span0 = spanList0[++spanIdx0];
+		}
+		else if(span0.start >= span1.end) {
+			unionLen += (span1.end - span1.start - spanShift1);
+			spanShift1 = 0;
+			span1 = spanList1[++spanIdx1];
+		}
+		else {
+			if(span0.start + spanShift0 < span1.start + spanShift1) {
+				unionLen += (span1.start + spanShift1) - (span0.start + spanShift0);
+				spanShift0 += (span1.start + spanShift1) - (span0.start + spanShift0);
+			}
+			else if(span0.start + spanShift0 > span1.start + spanShift1) {
+				unionLen += (span0.start + spanShift0) - (span1.start + spanShift1);
+				spanShift1 += (span0.start + spanShift0) - (span1.start + spanShift1);
+			}
+
+			var minEnd = Math.min(span0.end, span1.end);
+			var sInterLen = (minEnd - span0.start - spanShift0);
+			interLen += sInterLen;
+			unionLen += sInterLen;
+
+			if(span0.end < span1.end) {
+				spanShift1 += sInterLen;
+				spanShift0 = 0;
+				span0 = spanList0[++spanIdx0];
+			}
+			else if(span0.end > span1.end) {
+				spanShift0 += sInterLen;
+				spanShift1 = 0;
+				span1 = spanList1[++spanIdx1];
+			}
+			else {
+				spanShift0 = 0;
+				spanShift1 = 0;
+				span0 = spanList0[++spanIdx0];
+				span1 = spanList1[++spanIdx1];
+			}
+		}
+	}
+
+	return [interLen, unionLen];
 }
 
 Entity.prototype.addSpan = function(newSpan) {
@@ -680,7 +729,7 @@ Relation.prototype.genElementProperty = function() {
 			try {
 				rStr += '[' + propertyType.type + ':&nbsp;'
 				if(propertyType.input == InputType.LIST) {
-					$.each(_self.propertyList[idx], function(idx, objElement) {
+					$.each(_self.propertyList[idx], function(tIdx, objElement) {
 						rStr += objElement.genElementStr() + ", ";
 					});
 					rStr = rStr.substr(0, rStr.length - 2);
