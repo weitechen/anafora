@@ -32,7 +32,7 @@ class TaskFile(object):
 		if len(fileName) <= 4 or fileName[-4:] != ".xml":
 			raise ValidationError, "XML File format error ('%s'). %s" % (str(fileName), TaskFile.formatStr)
 		if fileName.count('.') <= 3:
-			raise ValidationError, "XML File format error ('%s'), should be '$taskName.$schemaName.$annotator.(completed/inpgrogress).xml'" % (str(fileName), TaskFile.formatStr)
+			raise ValidationError, "XML File format error ('%s'), should be '$taskName.$schemaName.$annotator.(completed/inpgrogress).xml'" % (str(fileName))
 
 		taskTerms = fileName.split('.')
 		if taskTerms[-2] == "completed":
