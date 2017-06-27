@@ -52,15 +52,11 @@ h1 {
     bottom: 5px;
     left: 5px;
     margin-top: 50px;
-    /* height:100%; */
     overflow-y: auto;
     overflow-x: auto;
 }
 
 #schema {
-    /* height: 100%; */
-    /* width: 200px; */
-    /* margin:0 auto; */
     z-index:-2;
     color: #000000;
     background-color: #ffffff;
@@ -98,6 +94,13 @@ h1 {
   /* display: none; */
 }
 
+#rawText > div {
+   border-top: 1px #B0B0B0 dotted;
+   background-color: #FDFDFD;
+   padding: 5px;
+   margin-bottom: 10px;
+}
+
 
 /*This bit controls the center pane*/
 #aProjectWrapper {
@@ -117,7 +120,7 @@ h1 {
     border-bottom: 1px dotted #949494;
 }
 
-#aProjectWrapper div {
+#aProjectWrapper > div {
   overflow-y: scroll; 
   overflow-x: hidden;
   white-space: pre-wrap;
@@ -147,7 +150,6 @@ h1 {
     overflow-x: auto;
 }
 
-/*#relationFrame { */
 #aProjectWrapper table {
   position: absolute;
   display: none;
@@ -160,22 +162,17 @@ h1 {
   border-top: 1px dotted #949494;
 }
 
-/* #relationFrame thead { */
-
-
 
 #aProjectWrapper table th {
   background-color: #909090;
 }
 
-/* #relationFrame td, #relationFrame th { */
 #aProjectWrapper table td, #aProjectWrapper table th {
 	padding: 5px;
 	vertical-align: top;
 	border: 0px;
 }
 
-/* #relationFrame td { */
 #aProjectWrapper table td {
 	margin-bottom: 2px;
 	cursor: pointer;
@@ -233,25 +230,11 @@ h1 {
 
   overflow-x: hidden;
   overflow-y: auto;
-  
 }
 
 #propertyWrapper .propertyHidden {
   display: none;
 }
-/*
-span.event {
-  background-color: #00ccff;
-  cursor: pointer;
-  opacity: 1.0;
-}
-
-span.eventWrong {
-  background-color: red;
-  cursor: pointer;
-  opacity: 1.0;
-}
-*/
 
 span.jstreeschema {
   display: inline-block;
@@ -261,6 +244,8 @@ span.jstreeschema {
   width: 12px;
   height: 12px;
   border: 1px solid #000000;
+  text-align: center;
+  line-height: 13px;
 }
 
 #aProjectWrapper div span {

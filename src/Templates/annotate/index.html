@@ -28,6 +28,7 @@
   
   <li id="account" style="float:right"><a href="#"></a></li>
   <li id="taskName" style="float:right"><a href="#"></a></li>
+  </li>
 </ul>
 </div>
 
@@ -129,7 +130,7 @@
 </div>
 
 {% autoescape off %}
-<div id="rawText">{{ rawText }}</div>
+<div id="rawText">{% for taskName, partSubText in rawText %}<div id="{{ taskName }}">{{ partSubText }}</div>{% endfor %}</div>
 {% endautoescape %}
 <div id="mask"></div>
 <div id="projectSelectorWindow">
@@ -143,7 +144,8 @@
     <h4>Select Schema and Mode</h4>
     <div><h5 style="display:block">Schema</h5><ul></ul></div>
     <div><h5 style="display:block">Mode</h5><ul></ul></div>
-    <div><h5 style="display:block">Administrator</h5><ul><li>Adjudication</li><li>View</li></ul></div>
+    <div><h5 style="display:block">Administrator</h5><ul><li>Adjudication</li><li>View</li></ul>
+         <h5 style="display:block">Cross-Document</h5><ul><li>Enable</li></ul></div>
   </div>
   <div class="btnArea">
     <div class="btnEnable">Cancel</div><div class="btnDisable">Open</div>
@@ -151,5 +153,5 @@
 </div>
 <div id="overlapContextMenu"></div>
 <div id="propertyContextMenu"></div>
-<div id="errorMessage"><div><div>Error</div><pre></pre></div><div><div>Global Info</div><ul></ul></div><div><div>Local Info</div><ul></ul></div><div>Please contact your administrator with above information</div></div>
+<div id="errorMessage"><div><div>Error</div><pre></pre></div><div><div>Global Info</div><ul></ul></div><div><div>Local Info</div><ul></ul></div><div>Check your browser console for details. Please contact your administrator with above information.</div></div>
 {% endblock %}

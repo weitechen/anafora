@@ -11,6 +11,10 @@ var editable = false;
 var propertyFrameList = [];
 var relationFrame = undefined;
 var isChanged = false;
+var errorHandler = undefined;
+var currentScrollTask = 0;
+var subTaskNameList = undefined;
+var subTaskElemList = undefined;
 
 function onLoad() {
 	// read schemaMap in _setting
@@ -22,21 +26,49 @@ function onLoad() {
 	// read annotator in _setting
 
 	$('#account').children("a").text(_setting.remoteUser);
-	projectSelector = new ProjectSelector(_setting);
-	//projectSelector = undefined;
-	
+	$('#taskName').children("a").text($("#rawText > div:nth-child(1)").attr('id'));
+	if(_setting.isCrossDoc) {
+		subTaskElemList = $("#rawText > div");
+		subTaskNameList = $.map(subTaskElemList, function(taskElem) { return taskElem.id; });
+		subTaskCnt = subTaskNameList.length;
+				
+		$('#rawText').scroll(function() {
+		var newSubTaskIdx = subTaskNameList.length -1;
 
+		for(var elementIdx = 0;elementIdx < subTaskNameList.length - 1;elementIdx++) {
+			if($(subTaskElemList[elementIdx]).position().top <=0 && $(subTaskElemList[elementIdx+1]).position().top >0){
+				newSubTaskIdx = elementIdx;
+				break
+			}
+		}
+
+		if(newSubTaskIdx != currentScrollTask) {
+			currentScrollTask = newSubTaskIdx;
+			$('#taskName').children("a").text(subTaskNameList[currentScrollTask]);
+		}
+		});
+		$('#taskName').addClass("dropdown");
+		$('#taskName').append("<ul></ul>");
+		$.each(subTaskNameList, function(idx, subTaskName ) {
+			var liElem = $('<li><a href="#">' + subTaskName + '</a></li>');
+			liElem.bind('click', function() {$("#rawText").scrollTop($("#rawText").scrollTop() + $('#' + $(this).text()).position().top + 1);});
+			$('#taskName ul').append(liElem);
+		});
+		
+	}
+	projectSelector = undefined;
+	
 	// set menu
 	navMenu = $("#headerWrapper > ul");
 
 	// set file menu
 	var fileMenu = $(navMenu.children("li").get(0)).children("ul").children("li");
-	fileMenu.eq(0).bind("click", function() { if(getIsChanged() && window.confirm("Save Task?")) { saveFile(); } projectSelector.selectProject(); projectSelector.popup(); });
+	fileMenu.eq(0).bind("click", function() { if(getIsChanged() && window.confirm("Save Task?")) { saveFile(); } if(projectSelector == undefined) {projectSelector = new ProjectSelector(_setting);} projectSelector.selectProject(); projectSelector.popup(); });
 	fileMenu.eq(1).bind("click", function() { saveFile(); });
 	fileMenu.eq(3).bind("click", function() { if(_setting.isAdjudication){ currentAProject.adjudicationCompleted();} else{ temporalSave();saveFile();setCompleted();} });
 
 	if(_setting.projectName == "" || _setting.corpusName == "" || _setting.taskName == "" || _setting.schema === undefined)
-		projectSelector.popup();
+		projectSelector = new ProjectSelector(_setting);
 	else
 		loadNewProject();
 }
@@ -108,7 +140,7 @@ function loadNewProject() {
 	var schemaStr;
 
 	do {
-		var schemaJSONStr = $.ajax({ type: "GET", url: _setting.root_url + "/" + _setting.app_name + "/schema/" + _setting.schema +  "/" + schemaIdx.toString(), cache: false, async: false}).responseText;
+		var schemaJSONStr = $.ajax({ type: "GET", url: _setting.root_url + "/" + _setting.app_name + "/schema/" + _setting.schema +  "/" + schemaIdx.toString(), cache: false, async: false, error: function (xhr, ajaxOptions, thrownError) { errorHandler.handle(new ErrorException("Get Schema File: " + _setting.schema + " Error"), currentAProject); console.log(xhr.responseText);  }}).responseText;
 		var schemaJSON = $.parseJSON(schemaJSONStr);
 		var schemaXMLStr = schemaJSON.schemaXML;
 		var xmlDom = $.parseXML( schemaXMLStr ) ;
@@ -156,6 +188,18 @@ function loadNewProject() {
 					}
 				});
 			}
+			else if(_setting.isCrossDoc) {
+				xmlAnaforaText = {};
+				if(Object.keys(xmlAnaforaText).length == 0) {
+					var subTaskListStr;
+					$.ajax({ type: "GET", url: _setting.root_url + "/" + _setting.app_name + "/getDir/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/_cross/"  , success: function(data) {subTaskListStr = data;}, cache: false, async: false, statusCode: {403: function() {throw "Permission Deny"; }, 404: function() { ;} }});
+					var subTaskList = $.parseJSON(subTaskListStr);
+					$.each(subTaskList, function(idx, subTaskName) {
+						xmlAnaforaText[subTaskName] = "";
+						AnaforaCrossProject.getXML(function(data) {xmlAnaforaText[subTaskName] = data;}, _setting, "preannotation", false, subTaskName);
+					});
+				}
+			}
 			else {
 				// try to load preannotation project	
 				xmlAnaforaText = {};
@@ -190,13 +234,19 @@ function loadNewProject() {
 	}
 	aProjectWrapper.append(annotatorDiv);
 
-	var annotateFrame = new AnnotateFrame(annotatorDiv, _setting, rawText);
+	var annotateFrame = undefined;
+	if (!_setting.isCrossDoc)
+		annotateFrame = new AnnotateFrame(annotatorDiv, _setting, rawText);
+
 	if(xmlAnaforaText != "") {
 		var tXMLText = {};
 		if(xmlAnaforaText instanceof Object) 
 			tXMLText = xmlAnaforaText;
 		else
-			tXMLText[_setting.annotator] = xmlAnaforaText;
+			if(_setting.isCrossDoc)
+				tXMLText[_setting.taskName] = xmlAnaforaText;
+			else
+				tXMLText[_setting.annotator] = xmlAnaforaText;
 			
 		$.each(tXMLText, function(annotatorName) {
 			if(_setting.isAdjudication && annotatorName == _setting.annotator && Object.keys(tXMLText).length == 1) {
@@ -205,6 +255,15 @@ function loadNewProject() {
 				else
 					currentAProject = new AnaforaAdjudicationProject(schema,  _setting.taskName);	
 			}
+			else if(_setting.isCrossDoc) {
+				if(annotatorName == _setting.taskName) {
+					currentAProject = new AnaforaCrossProject(schema, _setting.annotator, _setting.taskName);
+				}
+				else {
+					currentAProject = new AnaforaProject(schema, _setting.annotator, annotatorName);
+					annotateFrame = new AnnotateFrame($("#" + annotatorName), _setting, $("#" + annotatorName).text());
+				}
+			}
 			else if(annotatorName == "preannotation") {
 				currentAProject = new AnaforaProject(schema, _setting.annotator, _setting.taskName);
 			}
@@ -212,8 +271,36 @@ function loadNewProject() {
 				currentAProject = new AnaforaProject(schema, annotatorName, _setting.taskName);	
 			currentAProject.setAnnotateFrame(annotateFrame);
 
-			var xmlDOM = $.parseXML(tXMLText[annotatorName]);
-			currentAProject.readFromXMLDOM(xmlDOM, _setting.isAdjudication);
+			var xmlDOM;
+			try{
+				xmlDOM = $.parseXML(tXMLText[annotatorName]);
+				if(currentAProject instanceof AnaforaCrossProject) {
+					var subTaskDiv = {};
+					$.each(subTaskElemList, function(stIdx, divElement) {
+						subTaskDiv[divElement.id] = divElement;
+					});
+					
+					currentAProject.readFromXMLDOM(xmlDOM, subTaskNameList, subTaskDiv);
+				}
+				else
+					currentAProject.readFromXMLDOM(xmlDOM, _setting.isAdjudication);
+			}
+			catch (e) {
+				if (e instanceof ErrorException) {
+					errorHandler.handle(e, currentAProject);
+					throw e;
+				}
+				else if(e instanceof WarningException) {
+					console.log("Warning Exception");
+					console.log(e);
+				}
+				else {
+					err = new ErrorException(e)
+					errorHandler.handle(err);
+					throw err;
+				}
+			}
+			
 			aProjectList.push(currentAProject);
 			if(annotatorName == "preannotation") {
 				currentAProject.completed = false;
@@ -243,6 +330,19 @@ function loadNewProject() {
 			currentAProject.addAnaforaProjectList(tAProjectList);
 			}
 		$("#aProjectWrapper").css("margin-right", "540px");
+	}
+	else if(_setting.isCrossDoc) {
+		if(!(currentAProject instanceof AnaforaCrossProject)) {
+			currentAProject = new AnaforaCrossProject(schema, _setting.annotator, _setting.taskName);
+		
+		//currentAProject.setAnnotateFrame(annotateFrame);
+			var tAProjectList = {};
+			$.each(aProjectList, function(idx, aProject) {
+				tAProjectList[aProject.task] = aProject;
+			});
+			currentAProject.addAnaforaProjectList(tAProjectList);
+		}
+		$("#aProjectWrapper").css("margin-right", "270px");
 	}
 	else {
 		$("#aProjectWrapper").css("margin-right", "270px");
@@ -301,7 +401,7 @@ function loadNewProject() {
 		$(entitySpanElementStr).appendTo(this);
         	};
 
-	currentAProject.annotateFrame.updateAnnotateFragement();
+	currentAProject.updateAllFrameFragement();
 	// extend entire word
 	annotatorDiv.bind("mouseup", function(evt) { if ((window.getSelection && window.getSelection().toString()!=="" ) || (document.selection && document.selection.createRange().text !== "" ) ){ if(evt.altKey || evt.ctrlKey){;}else{ snapSelectionToWord();} }});
 	// load relation list
@@ -312,7 +412,7 @@ function loadNewProject() {
 		displayRelationList = displayRelationList.concat( $.map(currentAProject.relationList, function (value, key) { return value; }) );
 	}
 
-	if (currentAProject instanceof AnaforaAdjudicationProject) {
+	if (currentAProject instanceof AnaforaAdjudicationProject || currentAProject instanceof AnaforaCrossProject) {
 		displayRelationList = displayRelationList.concat( $.map(currentAProject.adjudicationRelationList, function(value) { return value; }) );
 		if(currentAProject.projectList != undefined) {
 			$.each( currentAProject.projectList, function(annotator, aProject) {
@@ -341,21 +441,20 @@ function loadNewProject() {
 		setInterval( saveFile, 120000);
 
 	// set task name on nav menu	
-	$('#taskName').children("a").text(_setting.taskName);
 }
 
 function saveFile() {
 	if(getIsChanged() && editable) {
-		$.ajax({type: 'POST', url:  _setting.root_url + "/" + _setting.app_name + "/saveFile/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/" + _setting.schema + (_setting.isAdjudication ? ".Adjudication" : "") + "/", data: {'fileContent':localStorage["anafora"]}, cache: false, async: false, headers:{"X-CSRFToken":$.cookie('csrftoken') }, success: function(data) {setIsChanged(false);localStorage.removeItem("anafora");},error: function (xhr, ajaxOptions, thrownError) { console.log(xhr.responseText); }} );
+		console.log(_setting.root_url + "/" + _setting.app_name + "/saveFile/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/" + _setting.schema + (_setting.isAdjudication ? ".Adjudication" : "") + "/");
+		$.ajax({type: 'POST', url:  _setting.root_url + "/" + _setting.app_name + "/saveFile/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/" + _setting.schema + (_setting.isAdjudication ? ".Adjudication" : "") + "/", data: {'fileContent':localStorage["anafora"]}, cache: false, async: false, headers:{"X-CSRFToken":$.cookie('csrftoken') }, success: function(data) {setIsChanged(false);localStorage.removeItem("anafora");},error: function (xhr, ajaxOptions, thrownError) { errorHandler.handle(new ErrorException("Save File Error"), currentAProject); console.log(xhr.responseText);  }} );
 	}
 }
 
 function setCompleted() {
 	if ( editable ) {
-		$.ajax({type: 'POST', url:  _setting.root_url + "/" + _setting.app_name + "/setCompleted/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/" + _setting.schema + (_setting.isAdjudication ? ".Adjudication" : "") + "/", cache: false, async: false, headers:{"X-CSRFToken":$.cookie('csrftoken') }, success: function(data) {$(navMenu.children("li").get(0)).children("ul").children("li").eq(3).addClass("disable");currentAProject.completed=false;}});
+		$.ajax({type: 'POST', url:  _setting.root_url + "/" + _setting.app_name + "/setCompleted/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/" + _setting.schema + (_setting.isAdjudication ? ".Adjudication" : "") + "/", cache: false, async: false, headers:{"X-CSRFToken":$.cookie('csrftoken') }, success: function(data) {$(navMenu.children("li").get(0)).children("ul").children("li").eq(3).addClass("disable");currentAProject.completed=true;}, error: function (xhr, ajaxOptions, thrownError) { errorHandler.handle(new ErrorException("Set Completed Error"), currentAProject); console.log(xhr.responseText);  }});
 	}
 }
-
 
 function setIsChanged(_isChanged) {
 	var fileMenu = $(navMenu.children("li").get(0)).children("ul").children("li");
@@ -374,6 +473,7 @@ function setIsChanged(_isChanged) {
 function getIsChanged() {
 	return isChanged;
 }
+
 function processSchemaMenu(aType) {
 	var rStr = '<li><a href="#">' + aType.type;
 	var rElement;
@@ -402,7 +502,7 @@ function processSchemaMenu(aType) {
 	
 }
 
-function schemaCheckedChange(evt) {
+function schemaCheckedChange(evt, skipAObjList) {
 
 	var schema = currentAProject.schema;
 	var checkedType = [];
@@ -411,8 +511,8 @@ function schemaCheckedChange(evt) {
 		checkedType.push(schema.typeDict[this.id.substring(3).replace("_SLASH_", "/")]);
 	});
 	schema.updateCheckedType(checkedType);
-	currentAProject.updateAnnotateDisplay();
-	relationFrame.updateRelationFrameDisplay();
+	currentAProject.updateAnnotateDisplay(skipAObjList)
+	relationFrame.updateRelationFrameDisplay(skipAObjList);
 }
 
 function checkEmptyProperty() {
@@ -485,9 +585,11 @@ function annotateClick(evt) {
 			return false;
 	}
 	var aObj;
-	var overlapIdx = currentAProject.annotateFrame.getSpanElementIndex($(this));
+	var subTaskName = $(this).parent().attr('id');
+	var annotFrame = currentAProject.getAnnotateFrameByTaskName(subTaskName);
+	var overlapIdx = annotFrame.getSpanElementIndex($(this));
 	//var aObjList = currentAProject.overlap[overlapIdx].aObjList;
-	var aObjList = currentAProject.annotateFrame.overlap[overlapIdx].aObjList;
+	var aObjList = annotFrame.overlap[overlapIdx].aObjList;
 	var checkedType = currentAProject.schema.checkedType;
 	var matchChecked = AnnotateFrame.matchAObjFromOverlap(aObjList, checkedType);
 
@@ -502,19 +604,22 @@ function annotateClick(evt) {
 
 function getTextFromEntity(entity) {
 	var _spanText;
+	var taskName = entity.getTaskName();
 	$.each(entity.span, function(idx) {
 		// generate display text
 		if(idx == 0)
-			_spanText = getTextFromSpan(this);
+			_spanText = getTextFromSpan(this, taskName);
 		else
-			_spanText += "..." + getTextFromSpan(this);
+			_spanText += "..." + getTextFromSpan(this, taskName);
 	});
 
 	return _spanText;
 }
 
-function getTextFromSpan(span) {
-	return rawText.substring(span.start, span.end);
+function getTextFromSpan(span, taskName) {
+	var annotFrame = currentAProject.getAnnotateFrameByTaskName(taskName);
+
+	return annotFrame.rawText.substring(span.start, span.end);
 }
 
 function temporalSave() {
@@ -631,13 +736,13 @@ function registerHotkey(schema) {
 	// next, prev annotation (219, 221)
 	body.bind("keydown", function(evt) {
 		switch(evt.which){
-			case 188:
+			case 188:	// comma
 				if(_setting.isAdjudication && evt.ctrlKey)
 					moveAnnotation(-1);
 				else
 					moveAnnotation(-1, true);
 				break;
-			case 190:
+			case 190:	// period
 				if(_setting.isAdjudication && evt.ctrlKey)
 					moveAnnotation(1);
 				else
@@ -714,9 +819,9 @@ function assignEntityToRelation(propIdx) {
 
 function moveAnnotation(step, adj) {
 	if(currentAProject != undefined) {
-		var tAObj = currentAProject.annotateFrame.moveAnnotation(step, adj, currentAProject.selectedAObj);
+		var annotFrame = currentAProject.getAnnotateFrame(currentAProject.selectedAObj);
+		var tAObj = annotFrame.moveAnnotation(step, adj, currentAProject.selectedAObj);
 		if(tAObj != undefined) {
-			
 			if(tAObj instanceof Relation) {
 				relationFrame.relationClick(relationFrame.searchRowFromRelation(tAObj));
 			}
@@ -768,22 +873,60 @@ function splitAdjAObj() {
 function addNewAObj(aType) {
 	var newAObj;
 	var newID;
+	var taskName;
+	if(_setting.isCrossDoc) {
+
+		var subTaskElemList = $("#rawText > div");
+		var subTaskNameList = $.map(subTaskElemList, function(taskElem) { return taskElem.id; });
+				
+		var newSubTaskIdx = subTaskNameList.length -1;
+
+		for(var elementIdx = 0;elementIdx < subTaskNameList.length - 1;elementIdx++) {
+			if($(subTaskElemList[elementIdx]).position().top <=0 && $(subTaskElemList[elementIdx+1]).position().top >0){
+				newSubTaskIdx = elementIdx;
+				break
+			}
+		}
+		taskName = subTaskNameList[newSubTaskIdx];
+	}
+	else {
+		taskName = _setting.taskName;
+	}
+
+	/*
+	if(document.getSelection().focusNode == undefined)
+		taskName = $("#taskName").children("a").text();
+	else {
+		taskName = document.getSelection().focusNode.parentElement.id;
+		if(taskName == "rawText")
+			taskName = document.getSelection().focusNode.id;
+	}
+	*/
+
+	if($("#taskName").children("a").text() != taskName)
+		$('#taskName').children("a").text(taskName);
+	
+	var annotFrame = currentAProject.getAnnotateFrameByTaskName(taskName);
 	if (editable) {
 		
 		if( aType instanceof EntityType) {
-			var newSpan = currentAProject.annotateFrame.getSelectRangeSpan();
-			if(newSpan.start == newSpan.end)
+			try{
+				var newSpan = annotFrame.getSelectRangeSpan();
+				if(newSpan.start == newSpan.end)
+					return ;
+				newID = currentAProject.getNewEntityId(taskName);
+				newAObj = new Entity(newID, aType, [newSpan]);
+			}
+			catch(err) {
 				return ;
-			newID = currentAProject.getNewEntityId();
-			newAObj = new Entity(newID, aType, [newSpan]);
+			}
 		}
 		else {
-			newID = currentAProject.getNewRelationId();
+			newID = currentAProject.getNewRelationId(taskName);
 			newAObj = new Relation(newID, aType);
-			
 		}
 		currentAProject.addAObj(newAObj);
-		currentAProject.annotateFrame.addAObj(newAObj);
+		annotFrame.addAObj(newAObj);
 
 		// update schema tree count
 		var tree = $.jstree._reference(schemaDiv);

@@ -13,7 +13,10 @@ function AnnotateFrame(frameElement, setting, rawText) {
 	        selector: '.multipleAObj', 
 		trigger: 'left',
 		build: function($trigger, e) {
+			
 			var overlapSpan = e.target;
+			var subTaskName = $(overlapSpan).parent().attr('id');
+			var _self = currentAProject.getAnnotateFrameByTaskName(subTaskName);
 			var overlapIdx = _self.frameDiv.find("span").index(overlapSpan);
 			var aObjList = _self.overlap[overlapIdx].aObjList;
 			var checkedType = currentAProject.schema.checkedType;
@@ -137,15 +140,23 @@ AnnotateFrame.prototype.removeEntity = function(removeEntity) {
 }
 
 AnnotateFrame.prototype.removeRelation = function(removeRelation) {
+	var _self = this;
 	if(removeRelation instanceof Relation) {
-
 		this.removeRelationPosit(removeRelation);
-		var tRange = removeRelation.getSpanRange();
-		this.updateOverlapRange(tRange[0], tRange[1]);
+		var tRangeDict = removeRelation.getSpanRange();
+		$.each(tRangeDict, function(subTaskName, tRange) {
+			var annotFrame = currentAProject.getAnnotateFrameByTaskName(subTaskName);
+			if(annotFrame != undefined)
+				annotFrame.updateOverlapRange(tRange[0], tRange[1]);
+		});
 	}
 }
 
 AnnotateFrame.prototype.addSpan = function(newSpan, aObj) {
+	var annotFrame = currentAProject.getAnnotateFrame(aObj);
+	if(annotFrame != this)
+		currentAProject.projectList[aObj.getTaskName()].annotateFrame.addSpan(newSpan, aObj);
+
 	this.addSpanPosit(newSpan, aObj);
 
 	var comparePairList = aObj.getAdditionalData("comparePair");
@@ -252,45 +263,56 @@ AnnotateFrame.prototype.removeSpanPosit = function(span, removingAObj, removedAO
 
 AnnotateFrame.prototype.addEntityPosit = function(entity, addedAObj) {
 	var _self = this;
-
-	if(addedAObj instanceof EmptyEntity)
-		return ;
-
-	if(addedAObj == undefined)
-		addedAObj = entity;
+	var annotFrame = currentAProject.getAnnotateFrame(entity)
+	if(_self != annotFrame && annotFrame != undefined )
+		annotFrame.addEntityPosit(entity, addedAObj);
+	else {
 	
-	$.each(entity.span, function(idx, span) {
-		_self.addSpanPosit(span, entity, addedAObj);
-	});
 
+		if(addedAObj instanceof EmptyEntity)
+			return ;
+	
+		if(addedAObj == undefined)
+			addedAObj = entity;
+		
+		$.each(entity.span, function(idx, span) {
+			_self.addSpanPosit(span, entity, addedAObj);
+		});
+	}
 	
 }
 
 AnnotateFrame.prototype.addRelationPosit = function(relation, addedAObj) {
 	var _self = this;
-	if(relation instanceof AdjudicationRelation) {
-		this.addRelationPosit(relation.compareAObj[0], relation);
-		this.addRelationPosit(relation.compareAObj[1], relation);
-	}
+	var annotFrame = currentAProject.getAnnotateFrame(relation);
+	if(_self != annotFrame && annotFrame != undefined)
+		annotFrame.addRelationPosit(relation, addedAObj);
 	else {
-		$.each(relation.propertyList, function(idx) {
-			if(relation.type.propertyTypeList[idx].input == InputType.LIST && relation.propertyList[idx] != undefined) {
-				$.each(relation.propertyList[idx], function(listIdx) {
-					if(relation.propertyList[idx][listIdx] instanceof EmptyEntity || relation.propertyList[idx][listIdx] instanceof EmptyRelation)
-						return true;
-					else if(relation.propertyList[idx][listIdx] instanceof Entity)
-						_self.addEntityPosit(relation.propertyList[idx][listIdx], addedAObj);
-					else if(relation.propertyList[idx][listIdx] instanceof Relation)
-						_self.addRelationPosit(relation.propertyList[idx][listIdx], addedAObj);
-					else {
-						console.log("error ");
-						console.log(relation.propertyList[idx]);
-						console.log(relation.propertyList[idx][listIdx]);
-						throw " object is not aObj";
-					}
-				});
-			}
-		});
+
+		if(relation instanceof AdjudicationRelation) {
+			this.addRelationPosit(relation.compareAObj[0], relation);
+			this.addRelationPosit(relation.compareAObj[1], relation);
+		}
+		else {
+			$.each(relation.propertyList, function(idx) {
+				if(relation.type.propertyTypeList[idx].input == InputType.LIST && relation.propertyList[idx] != undefined) {
+					$.each(relation.propertyList[idx], function(listIdx) {
+						if(relation.propertyList[idx][listIdx] instanceof EmptyEntity || relation.propertyList[idx][listIdx] instanceof EmptyRelation)
+							return true;
+						else if(relation.propertyList[idx][listIdx] instanceof Entity)
+							_self.addEntityPosit(relation.propertyList[idx][listIdx], addedAObj);
+						else if(relation.propertyList[idx][listIdx] instanceof Relation)
+							_self.addRelationPosit(relation.propertyList[idx][listIdx], addedAObj);
+						else {
+							console.log("error ");
+							console.log(relation.propertyList[idx]);
+							console.log(relation.propertyList[idx][listIdx]);
+							throw " object is not aObj";
+						}
+					});
+				}
+			});
+		}
 	}
 }
 
@@ -302,10 +324,15 @@ AnnotateFrame.prototype.removeEntityPosit = function(entity, removeAObj, directR
 		directRemove = false;
 
 	var _self = this;
-	$.each(entity.span, function(idx, span) {
-		_self.removeSpanPosit(span, entity, removeAObj, directRemove);
-	});
-
+	var annotFrame = currentAProject.getAnnotateFrame(entity);
+	if(annotFrame != this && annotFrame != undefined) {
+		currentAProject.projectList[entity.getTaskName()].annotateFrame.removeEntityPosit(entity, removeAObj, directRemove);
+	}
+	else {
+		$.each(entity.span, function(idx, span) {
+			_self.removeSpanPosit(span, entity, removeAObj, directRemove);
+		});
+	}
 }
 
 AnnotateFrame.prototype.removeRelationPosit = function(relation, removeAObj, directRemove) {
@@ -580,6 +607,7 @@ AnnotateFrame.prototype.updateAnnotateFragement = function(overlapList, checkedT
 
 AnnotateFrame.prototype.updateOverlapList = function(overlapList, checkedType, diffCheckedType, overlapStartIdx) {
 	var _self = this;
+
 	if(overlapList == undefined)
 		overlapList = this.overlap;
 
@@ -646,11 +674,12 @@ AnnotateFrame.prototype.updateOverlapList = function(overlapList, checkedType, d
 	});
 }
 
-AnnotateFrame.matchAObjFromOverlap = function(aObjList, checkedType) {
+AnnotateFrame.matchAObjFromOverlap = function(aObjList, checkedType, skipAObjList) {
 	
 	var matchedAObj = $.grep(aObjList, function(aObj) {
 		var comparePair = aObj.getAdditionalData("comparePair");
-		return (checkedType == undefined || checkedType.indexOf(aObj.type) != -1) && (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || (comparePair == undefined || !(comparePair[comparePair.length-1] instanceof AdjudicationEntity || comparePair[comparePair.length-1] instanceof AdjudicationRelation)));
+
+		return (propertyFrameList.length == 0 || propertyFrameList.reduce(function (p0, p1) { return p0.isAssignRelation == false && p1.isAssignRelation == false;}) || currentAProject.selectedAObj != aObj) && (checkedType == undefined || checkedType.indexOf(aObj.type) != -1) && (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || (comparePair == undefined || !(comparePair[comparePair.length-1] instanceof AdjudicationEntity || comparePair[comparePair.length-1] instanceof AdjudicationRelation))) && (skipAObjList == undefined || skipAObjList.indexOf(aObj) == -1);
 	});
 
 	// is assign relation in adjudication mode
