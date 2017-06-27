@@ -11,6 +11,7 @@ from django.conf.urls.static import static
 # from django.contrib import admin
 # admin.autodiscover()
 
+urlpatterns = [
     url(r'^annotate/', include('annotate.urls')),
     url(r'^$', annotate.views.index),
 #    url(r'^' + settings.STATIC_URL + '(?P<path>.*)$','django.views.static.serve', {'document_root': settings.STATIC_ROOT}  ),

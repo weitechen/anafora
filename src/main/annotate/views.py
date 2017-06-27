@@ -585,7 +585,6 @@ def setCompleted(request, projectName, corpusName, taskName, schemaName, schemaM
 		mode = ps.getMode(schemaName, schemaMode)
 		if isAdj != None or mode.directSetGold:
 			# set as gold
-<<<<<<< HEAD
 			if mode.directSetGold:
 				subprocess.call("sed -u -i 's/@%s/@gold/' %s.completed.xml" % (request.META["REMOTE_USER"], fileName), shell=True)
 			fileNameGold = filePath + "/" + taskName + "." + schemaName.replace("-Adjudication", "") +  ".gold.completed.xml"
@@ -595,16 +594,6 @@ def setCompleted(request, projectName, corpusName, taskName, schemaName, schemaM
 				if tMode.needPreannotation and tMode.preannotationFromMode is not None and tMode.preannotationFromMode.name == mode.name:
 					fileNamePreannotation = filePath + "/" + taskName + "." + schema.name + "-" + tMode.name +  ".preannotation.completed.xml"
 					subprocess.call(["cp", fileNameGold, fileNamePreannotation])
-=======
-			fileNameGold = os.path.join(filePath, "%s.%s%s.gold.completed.xml" %(taskName, schemaName, "" if schemaMode == None else "-%s" % schemaMode))
-			subprocess.call(["cp", "%s.completed.xml" % fileName, fileNameGold])
-			schema = ps.getSchema(schemaName)
-			#print [schema.modes[modeName] for modeName in schema.modes if schema.modes[modeName].needPreannotation and schema.modes[modeName].preannotationFromMode == mode]
-			for tMode in [schema.modes[modeName] for modeName in schema.modes if schema.modes[modeName].needPreannotation and schema.modes[modeName].preannotationFromMode != None and schema.modes[modeName].preannotationFromMode.name == mode.name]:
-
-				fileNamePreannotation = os.path.join(filePath, "%s.%s-%s.preannotation.completed.xml" % (taskName , schema.name, tMode.name))
-				subprocess.call(["cp", fileNameGold, fileNamePreannotation])
->>>>>>> 14898872f995fe1c725e27d7cbe04da423e9bd81
 
 		return HttpResponse()
 	else:
