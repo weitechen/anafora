@@ -1115,7 +1115,7 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml) {
 				}
 				else {
 					$.each(entity.type.propertyTypeList, function(pIdx, pType) {
-						if(pType.input == InputType.LIST) {
+						if(pType.input == InputType.LIST && entity.propertyList[pIdx] != undefined) {
 							$.each(entity.propertyList[pIdx], function(plIdx) {
 								if(entity.propertyList[pIdx][plIdx] instanceof EmptyEntity) {
 									var emptyEntity = entity.propertyList[pIdx][plIdx];

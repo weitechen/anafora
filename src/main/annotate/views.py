@@ -18,7 +18,7 @@ from django.core.cache import cache
 
 css = ["css/style.css", "css/themes/default/style.css"]
 
-js_lib = ["js/lib/" + js_file for js_file in ["jquery.jstree.js", "jquery.jstree.schema.js", "jquery.hotkeys.js", "jquery.ui.position.js", "jquery.contextMenu.js", "jquery.json-2.4.min.js", "jquery.cookie.js"]]
+js_lib = ["js/lib/" + js_file for js_file in ["jquery.jstree.js", "jquery.jstree.schema.js", "jquery.hotkeys.js", "jquery.ui.position.min.js", "jquery.contextMenu.min.js", "jquery.json-2.4.min.js", "jquery.cookie.js"]]
 
 js_annotate = ["js/annotate/" + js_file for js_file in  ["errorHandler.js", "schema.js", "anaforaProject.js", "anaforaObj.js", "annotate.js", "propertyFrame.js", "annotateFrame.js", "aObjSelectionMenu.js", "projectSelector.js", "anaforaAdjudicationProject.js", "relationFrame.js"]]
 
@@ -314,11 +314,13 @@ def setCompleted(request, projectName, corpusName, taskName, schemaName):
 		mode = ps.getMode(*(schemaName.replace("-Adjudication", "").split("-")))
 		if "-Adjudication" in schemaName or mode.directSetGold:
 			# set as gold
+			if mode.directSetGold:
+				subprocess.call("sed -u -i 's/@%s/@gold/' %s.completed.xml" % (request.META["REMOTE_USER"], fileName), shell=True)
 			fileNameGold = filePath + "/" + taskName + "." + schemaName.replace("-Adjudication", "") +  ".gold.completed.xml"
 			subprocess.call(["cp", fileName + ".completed.xml", fileNameGold])
 			schema = ps.getSchema(schemaName.split("-")[0])
 			for tMode in schema.modes:
-				if tMode.needPreannotation and tMode.preannotationFromMode == mode:
+				if tMode.needPreannotation and tMode.preannotationFromMode is not None and tMode.preannotationFromMode.name == mode.name:
 					fileNamePreannotation = filePath + "/" + taskName + "." + schema.name + "-" + tMode.name +  ".preannotation.completed.xml"
 					subprocess.call(["cp", fileNameGold, fileNamePreannotation])
 
