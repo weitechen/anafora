@@ -58,9 +58,6 @@ h1 {
 }
 
 #schema {
-    /* height: 100%; */
-    /* width: 200px; */
-    /* margin:0 auto; */
     z-index:-2;
     color: #000000;
     background-color: #ffffff;
@@ -98,6 +95,12 @@ h1 {
   /* display: none; */
 }
 
+#rawText > div {
+   border-top: 1px #B0B0B0 dotted;
+   background-color: #FDFDFD;
+   padding: 5px;
+   margin-bottom: 10px;
+}
 
 /*This bit controls the center pane*/
 #aProjectWrapper {
@@ -117,7 +120,7 @@ h1 {
     border-bottom: 1px dotted #949494;
 }
 
-#aProjectWrapper div {
+#aProjectWrapper > div {
   overflow-y: scroll; 
   overflow-x: hidden;
   white-space: pre-wrap;
@@ -147,7 +150,6 @@ h1 {
     overflow-x: auto;
 }
 
-/*#relationFrame { */
 #aProjectWrapper table {
   position: absolute;
   display: none;
@@ -160,22 +162,17 @@ h1 {
   border-top: 1px dotted #949494;
 }
 
-/* #relationFrame thead { */
-
-
 
 #aProjectWrapper table th {
   background-color: #909090;
 }
 
-/* #relationFrame td, #relationFrame th { */
 #aProjectWrapper table td, #aProjectWrapper table th {
 	padding: 5px;
 	vertical-align: top;
 	border: 0px;
 }
 
-/* #relationFrame td { */
 #aProjectWrapper table td {
 	margin-bottom: 2px;
 	cursor: pointer;
@@ -233,25 +230,11 @@ h1 {
 
   overflow-x: hidden;
   overflow-y: auto;
-  
 }
 
 #propertyWrapper .propertyHidden {
   display: none;
 }
-/*
-span.event {
-  background-color: #00ccff;
-  cursor: pointer;
-  opacity: 1.0;
-}
-
-span.eventWrong {
-  background-color: red;
-  cursor: pointer;
-  opacity: 1.0;
-}
-*/
 
 span.jstreeschema {
   display: inline-block;
@@ -261,6 +244,8 @@ span.jstreeschema {
   width: 12px;
   height: 12px;
   border: 1px solid #000000;
+  text-align: center;
+  line-height: 13px;
 }
 
 #aProjectWrapper div span {
@@ -989,18 +974,14 @@ progress[aria-valuenow]:before  {
 	padding: 10px;
 }
 
-#schemaSelector div ul {
-	padding-left: 10px;
-}
-
 #projectSelectorWindow h5 {
 	display: none;
 	border-bottom: 1px solid #9a9a9a;
 	margin: 0px;
 }
 
-#projectSelector ul {
-	max-height: 300px;
+#projectSelectorWindow ul {
+	max-height: 220px;
 	max-width: 260px;
 
 	overflow-y: auto;
@@ -1085,4 +1066,36 @@ progress[aria-valuenow]:before  {
 	width: 100%; height: 100%;
 	opacity: 0.6;
 	z-index: 999;
+}
+
+#errorMessage {
+	display:none;
+	background: white;
+	padding: 20px; 	
+	border: 2px solid #ddd;
+	float: left;
+	font-size: 1.2em;
+	position: fixed;
+	top: 50%; left: 50%;
+	z-index: 99999;
+	box-shadow: 0px 0px 20px #999; /* CSS3 */
+        -moz-box-shadow: 0px 0px 20px #999; /* Firefox */
+        -webkit-box-shadow: 0px 0px 20px #999; /* Safari, Chrome */
+	border-radius:3px 3px 3px 3px;
+        -moz-border-radius: 3px; /* Firefox */
+        -webkit-border-radius: 3px; /* Safari, Chrome */
+}
+
+#errorMessage > div {
+	padding-bottom: 10px;
+	border-top: 1px solid #B9B9B9;
+}
+
+#errorMessage > div > div {
+	font-weight: bold;
+}
+
+#errorMessage > div > ul, #errorMessage > div > pre {
+	max-height: 150px;
+  	overflow-y: scroll; 
 }

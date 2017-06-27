@@ -18,12 +18,13 @@ function ProjectSelector(setting) {
 
 	this.administratorElement.find("ul>li").eq(0).bind('click', function(evt) {ProjectSelector.clickAdjudicationSelect(_self, evt.target);});
 	this.administratorElement.find("ul>li").eq(1).bind('click', function(evt) {ProjectSelector.clickViewSelect(_self, evt.target);});
+	this.administratorElement.find("ul>li").eq(2).bind('click', function(evt) {ProjectSelector.clickCrossDocSelect(_self, evt.target);});
 
 	this.projectDir = undefined;
 	this.schemaMap = setting.schemaMap;
 	this.adjSourceSchema = undefined;
 	this.mode = undefined;
-	if(setting.schema == "")
+	if(typeof setting.schema == "undefined")
 		this.schema = undefined;
 	else {
 		if(setting.schema.indexOf(".") >=0) {
@@ -47,6 +48,11 @@ function ProjectSelector(setting) {
 	else
 		this.view = setting.isView;
 
+	if(setting.isCrossDoc == undefined)
+		this.crossDoc = false;
+	else
+		this.crossDoc = setting.isCrossDoc;
+
 	this.selected = {"project": setting.projectName, "corpus": setting.corpusName, "task": setting.taskName, "annotator": setting.annotator };
 	
 	this.baseURL = setting.root_url + "/" + setting.app_name + "/";
@@ -60,8 +66,9 @@ ProjectSelector.prototype.initialProjectDir = function() {
 	this.modeSelect();
 	this.adjudicationSelect();
 	this.viewSelect();
+	this.crossDocSelect();
 
-	if(this.projectDir == undefined) {
+	if(typeof this.projectDir == "undefined") {
 		this.projectDir = {};
 		var projectList = this.getDir();
 		$.each(projectList, function(idx, pName) {
@@ -69,7 +76,7 @@ ProjectSelector.prototype.initialProjectDir = function() {
 		});
 	}
 
-	if(this.selected.project === "") {
+	if(typeof this.selected.project == "undefined") {
 		this.selectProject();
 	}
 	else {
@@ -91,7 +98,7 @@ ProjectSelector.prototype.initialProjectDir = function() {
 	this.popup();
 }
 
-ProjectSelector.prototype.getDir = function(projectName, corpusName, schemaName, isAdjudication, isView) {
+ProjectSelector.prototype.getDir = function(projectName, corpusName, schemaName, isAdjudication, isView, isCrossDoc) {
 	var jsonURL = this.baseURL + "getDir/";
 	if(projectName != undefined)
 		jsonURL += projectName + "/";
@@ -107,14 +114,20 @@ ProjectSelector.prototype.getDir = function(projectName, corpusName, schemaName,
 		if(isView != undefined && isView)
 			jsonURL += "/view";
 
+		if(isCrossDoc != undefined && isCrossDoc)
+			jsonURL += "/_crossDoc";
+
 		jsonURL += "/";
 	}
 
-	var dirJSON = $.ajax({ type: "GET", url: jsonURL, cache: false, async: false, fail: function() {throw "getDir fail";}, error: function() {throw "getDir error";}}).responseText;
+	var dirJSON = $.ajax({ type: "GET", url: jsonURL, cache: false, async: false, error: ProjectSelector.ajaxErrorHandler, beforeSend: function(jqXHR, settings) {jqXHR.url = settings.url;} }).responseText;
 	var dir = $.parseJSON(dirJSON);
 
 	return dir;
 }
+
+ProjectSelector.ajaxErrorHandler = function(jqXHR, textStatus, errorThrown) {
+	throw "== Get Directory Error ==\nStatus Code: " + jqXHR.status.toString() + "\nURL: " + jqXHR.url +  "\nMessage: " + jqXHR.responseText ;}
 
 ProjectSelector.prototype.getAnnotator = function(projectName, corpusName, taskName, schemaName) {
 	var jsonURL = this.baseURL + "annotator/";
@@ -169,7 +182,7 @@ ProjectSelector.prototype.selectTask = function() {
 		throw "Select Mode First";
 	}
 	else {
-		var taskList = this.getDir(this.selected.project, this.selected.corpus, this.schema + ((this.mode === false || this.mode === undefined)?"":"."+this.mode) , this.adjudication, this.view);
+		var taskList = this.getDir(this.selected.project, this.selected.corpus, this.schema + ((this.mode === false || this.mode === undefined)?"":"."+this.mode) , this.adjudication, this.view, this.crossDoc);
 		if(this.view)
 			this.updateSelectMenu("Select Task", taskList, ProjectSelector.clickTaskWithView, ProjectSelector.backToCorpus);
 		else
@@ -215,7 +228,7 @@ ProjectSelector.prototype.openNewProject = function() {
 		throw "openNewProject error: required selected project, corpus, task or schema";
 
 	
-	window.location = this.baseURL + this.selected.project + "/" + this.selected.corpus + "/" + this.selected.task + "/" + this.schema + (this.mode === false || this.mode===undefined ?  "" : "."+this.mode) + (this.adjudication ? ".Adjudication" : "" ) +  "/" + ((this.view != undefined && this.view) ? (this.selected.annotator ) : "") ;
+	window.location = this.baseURL + this.selected.project + "/" + this.selected.corpus + "/" + this.selected.task + "/" + this.schema + (this.mode === false || this.mode===undefined ?  "" : "."+this.mode) + (this.adjudication ? ".Adjudication" : "" ) + (this.crossDoc ? "/_crossDoc" : "") +  "/" + ((this.view != undefined && this.view) ? (this.selected.annotator ) : "") ;
 }
 
 ProjectSelector.clickProject = function(_self, target ) {
@@ -387,6 +400,11 @@ ProjectSelector.clickViewSelect = function(_self, target) {
 	_self.view = !_self.view;
 	_self.viewSelect();
 }
+
+ProjectSelector.clickCrossDocSelect = function(_self, target) {
+	_self.crossDoc = !_self.crossDoc;
+	_self.crossDocSelect();
+}
 ProjectSelector.prototype.modeSelect = function() {
 	var _self = this;
 	if(this.schema != undefined && this.mode !== false) {
@@ -452,6 +470,16 @@ ProjectSelector.prototype.viewSelect = function() {
 	else {
 		this.administratorElement.find("ul>li").eq(1).removeClass("selected");
 
+	}
+}
+
+ProjectSelector.prototype.crossDocSelect = function() {
+	var _self = this;
+	if(this.crossDoc) {
+		this.administratorElement.find("ul>li").eq(2).addClass("selected");
+	}
+	else {
+		this.administratorElement.find("ul>li").eq(2).removeClass("selected");
 	}
 }
 

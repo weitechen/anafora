@@ -3,7 +3,6 @@ function AnaforaProject(schema, annotator, task) {
 	this.entityList = {};
 	this.relationList = {};
 	this.typeCount = {};
-	this.annotateFrame = null
 	this.maxEntityIdx = 0;
 	this.maxRelationIdx = 0;
 	this.annotator = annotator;
@@ -11,9 +10,14 @@ function AnaforaProject(schema, annotator, task) {
 	this.selectedAObj = null;
 	this.completed = false;
 	this.annotateFrame = undefined;
+	this.parentProject = undefined;
 
 	this.tEntityList = {};
 	this.tRelationList = {};
+}
+
+AnaforaProject.prototype.setParentProject = function(parentProject) {
+	this.parentProject = parentProject;
 }
 
 AnaforaProject.prototype.setAnnotateFrame = function(annotateFrame) {
@@ -48,24 +52,32 @@ AnaforaProject.prototype.moveOutPreannotation = function(aObj) {
 	}
 }
 
+AnaforaProject.prototype.updateAllFrameFragement = function() {
+	this.annotateFrame.updateAnnotateFragement();
+}
 AnaforaProject.prototype.updateProperty = function(aObj, pIdx, value) {
 	if(aObj.type.propertyTypeList[pIdx].input == InputType.LIST) {
 		aObj.addListProperty(value, pIdx);
 		aObj.propertyList[pIdx].sort(IAnaforaObj.sort);
-		if(this.annotateFrame != undefined ) {
+		var annotFrame = currentAProject.getAnnotateFrame(value);
+		if(annotFrame == undefined)
+			currentAProject.getAnnotateFrameByTaskName(subTaskNameList[0]);
+
+
+		if(annotFrame != undefined ) {
 			if(value instanceof Entity) {
-				this.annotateFrame.addEntityPosit(value, aObj);
+				annotFrame.addEntityPosit(value, aObj);
 				if(aObj !== this.selectedAObj)
-					this.annotateFrame.addEntityPosit(value, this.selectedAObj);
+					annotFrame.addEntityPosit(value, this.selectedAObj);
 			}
 			else {
-				this.annotateFrame.addRelationPosit(value, aObj);
+				annotFrame.addRelationPosit(value, aObj);
 				if(aObj !== this.selectedAObj)
-					this.annotateFrame.addRelationPosit(value, currentAProject.selectedAObj);
+					annotFrame.addRelationPosit(value, currentAProject.selectedAObj);
 			}
 		
 			var updateRange = value.getSpanRange();
-			currentAProject.annotateFrame.updateOverlapRange(updateRange[0], updateRange[1]);
+			annotFrame.updateOverlapRange(updateRange[0], updateRange[1]);
 		}
 	}
 	else {
@@ -77,12 +89,12 @@ AnaforaProject.prototype.setAnnotateFrame = function(annotateFrame) {
 	this.annotateFrame = annotateFrame;
 }
 
-AnaforaProject.prototype.getNewEntityId = function() {
+AnaforaProject.prototype.getNewEntityId = function(taskName) {
 	this.maxEntityIdx++;
 	return this.maxEntityIdx.toString() + '@e@' + this.task + '@' + this.annotator;
 }
 
-AnaforaProject.prototype.getNewRelationId = function() {
+AnaforaProject.prototype.getNewRelationId = function(taskName) {
 	this.maxRelationIdx++;
 	return this.maxRelationIdx.toString() + '@r@' + this.task + '@' + this.annotator;
 }
@@ -175,16 +187,22 @@ AnaforaProject.prototype.temporaryHighlight = function(highlightAObj) {
 		aProjectDiv.scrollTop(aProjectDiv.scrollTop() + lastSpanElement.position().top);
 }
 
-AnaforaProject.prototype.entitySelect = function(entity) {
-	//var spanElement = _self.annotateFrame.updateAnnotateFragement(entity.markElement, checkedType);
+AnaforaProject.prototype.getAnnotateFrameByTaskName = function(taskName) {
+	return this.annotateFrame;
+}
+
+AnaforaProject.prototype.getAnnotateFrame = function(aObj) {
+	return this.annotateFrame;
+}
+
+AnaforaProject.prototype.entitySelect = function(entity, annotFrame) {
 	var spanElement;
 	var _self = this;
-	var spanList = this.annotateFrame.frameDiv.find("span");
+	var annotFrame = this.getAnnotateFrame(entity);
+	var spanList = annotFrame.frameDiv.find("span");
 
 	$.each(entity.markElement, function() {
-			
-		//var idx = _self.overlap.indexOf(this);
-		var idx = _self.annotateFrame.overlap.indexOf(this);
+		var idx = annotFrame.overlap.indexOf(this);
 		spanElement = $(spanList[idx]);
 		spanElement.css("background-color", "#" + entity.type.color);
 		spanElement.removeClass("filterOut").removeClass("entity").addClass("highLight");
@@ -249,21 +267,21 @@ AnaforaProject.prototype.selectAObj = function(selectedAObj) {
 
 AnaforaProject.prototype.drawAObj = function(aObj) {
 	var checkedType = this.schema.checkedType;
-	var spanList = this.annotateFrame.frameDiv.find("span");
 	var _self = this;
 
 	var overlapList = {};
 	var drawEntityFunc = function(entity) {
+		var annotFrame = _self.getAnnotateFrame(entity);
 		$.each(entity.markElement, function(mIdx) {
 			var overlap = entity.markElement[mIdx];
 			//var idx = _self.overlap.indexOf(overlap);
-			var idx = _self.annotateFrame.overlap.indexOf(overlap);
+			var idx = annotFrame.overlap.indexOf(overlap);
 			//overlapList[idx] = _self.overlap[idx];
-			overlapList[idx] = _self.annotateFrame.overlap[idx];
+			overlapList[idx] = annotFrame.overlap[idx];
 
 		});
 
-		_self.annotateFrame.updateOverlapList(overlapList, checkedType); 
+		annotFrame.updateOverlapList(overlapList, checkedType); 
 	}
 
 	if(aObj instanceof Entity)
@@ -291,21 +309,28 @@ AnaforaProject.prototype.readFromXMLDOM = function(xml, isAdjudication) {
 
 	var idx;
 	// parse annotations
-	$(annotationDOM).children().each( function() {
-		if (this.tagName == "entity") {
-			var entity = Entity.genFromDOM(this, _self.schema);
-			idx = parseInt(entity.id.split('@')[0]);
-			_self.entityList[idx] = entity;
 
-			_self.addTypeCount(entity.type);
+		$(annotationDOM).children().each( function() {
+		try {
+			if (this.tagName == "entity") {
+				var entity = Entity.genFromDOM(this, _self.schema);
+				idx = parseInt(entity.id.split('@')[0]);
+				_self.entityList[idx] = entity;
+	
+				_self.addTypeCount(entity.type);
+			}
+			else if (this.tagName == "relation") {
+				var relation = Relation.genFromDOM(this, _self.schema);
+				idx = parseInt(relation.id.split('@')[0]);
+				_self.relationList[idx] = relation;
+				_self.addTypeCount(relation.type);
+			}
 		}
-		else if (this.tagName == "relation") {
-			var relation = Relation.genFromDOM(this, _self.schema);
-			idx = parseInt(relation.id.split('@')[0]);
-			_self.relationList[idx] = relation;
-			_self.addTypeCount(relation.type);
+		catch(err) {
+			err += "\nwith XMLDOM: \n" + this.innerHTML;
+			throw err;
 		}
-	});
+		});
 
 	this.maxEntityIdx = Object.keys(this.entityList).max();
 	this.maxRelationIdx = Object.keys(this.relationList).max();
@@ -343,7 +368,7 @@ AnaforaProject.prototype.readFromXMLDOM = function(xml, isAdjudication) {
 }
 
 AnaforaProject.getXML = function(successFunc, setting, annotator, isAdjudication) {
-	$.ajax({ type: "GET", url: setting.root_url + "/" + setting.app_name + "/xml/" + setting.projectName + "/" + setting.corpusName + "/" + setting.taskName + "/" + setting.schema + (isAdjudication == undefined ? ( setting.isAdjudication ? ".Adjudication" : "" ) : ( isAdjudication ? ".Adjudication" : "")) + "/" + (annotator==undefined ? (setting.annotator == setting.remoteUser ? "" :(setting.annotator + "/") ) : (annotator + "/")), success: successFunc, cache: false, async: false, statusCode: {403: function() {throw "Permission Deny"; }, 404: function() { ;} }});
+	$.ajax({ type: "GET", url: setting.root_url + "/" + setting.app_name + "/xml/" + setting.projectName + "/" + setting.corpusName + "/" + setting.taskName  + "/" + setting.schema + (isAdjudication == undefined ? ( setting.isAdjudication ? ".Adjudication" : "" ) : ( isAdjudication ? ".Adjudication" : "")) + "/" + (annotator==undefined ? (setting.annotator == setting.remoteUser ? "" :(setting.annotator + "/") ) : (annotator + "/")), success: successFunc, cache: false, async: false, statusCode: {403: function() {throw "Permission Deny"; }, 404: function() { ;} }});
 }
 
 AnaforaProject.getAdjudicationAnnotator = function(setting) {
@@ -361,12 +386,18 @@ AnaforaProject.getAdjudicationAnnotator = function(setting) {
 	}
 }
 
-AnaforaProject.prototype.updateAnnotateDisplay = function() {
+AnaforaProject.prototype.updateAnnotateDisplay = function(skipAObjList) {
 	var checkedType = this.schema.checkedType;
 	var diffCheckedType = this.schema.getDiffCheckedType();
 	var _self = this;
 
-	this.annotateFrame.updateOverlapList(undefined, this.schema.checkedType, diffCheckedType);
+	if(this.annotateFrame == undefined) {
+		$.each(this.projectList, function(subTaskName, aProject) {
+			aProject.annotateFrame.updateOverlapList(undefined, this.schema.checkedType, diffCheckedType, skipAObjList);
+		});
+	}
+	else
+		this.annotateFrame.updateOverlapList(undefined, this.schema.checkedType, diffCheckedType, skipAObjList);
 }
 
 AnaforaProject.prototype.findEntityByIdx = function(idx) {
@@ -375,6 +406,25 @@ AnaforaProject.prototype.findEntityByIdx = function(idx) {
 
 AnaforaProject.prototype.findRelationByIdx = function(idx) {
 	return this.relationList[idx];
+}
+
+AnaforaProject.prototype.getAObjFromID = function(id) {
+	var valList = id.split("@");
+	if(valList[2]  == this.task) {
+		var sID =parseInt(valList[0]);
+		if(valList[1] == "e")
+			return this.entityList[sID];
+		else if(valList[1] == "r")
+			return this.relationList[sID];
+		else
+			throw new ErrorException("Invalid id ''" + id + "''");
+	}
+	else {
+		if(this.parentProject == undefined) {
+			throw new ErrorException("Can not find subTaskName ``" + valList[2] + "'' when searching annotation ``" + id + "'' without parent project");
+		}
+		return this.parentProject.projectList[valList[2]].getAObjFromID(id);
+	}
 }
 
 AnaforaProject.prototype.updateLinking = function(aType, aObj) {
@@ -391,7 +441,11 @@ AnaforaProject.prototype.updateLinking = function(aType, aObj) {
 						var valList = val.split('@');
 						var linkedAObj = undefined;
 	
-						if(valList[3] == "gold" || valList[3] == _self.annotator) {
+						if(valList[2] != _self.task) {
+							linkedAObj = _self.getAObjFromID(val);
+
+						}
+						else if(valList[3] == "gold" || valList[3] == _self.annotator) {
 							if(valList[1] == 'e')
 								linkedAObj = AnaforaProject.prototype.findEntityByIdx.call(_self, parseInt(valList[0]));
 							else if(valList[1] == 'r')
