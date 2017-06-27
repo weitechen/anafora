@@ -8,7 +8,7 @@ from subprocess import call, check_output
 import re
 
 class AnaforaProjectManager:
-	rootPath = ""
+	#rootPath = ""
 	projectList = {}
 	hasLoadProject = False
 	annotatorRE = re.compile(r"^.*\/?[^\/]+\.[^\/\.]+\.([^\/\.]+)\.([^\/\.]+)\.xml")

@@ -653,7 +653,6 @@ Entity.genFromDOM = function(entityDOM, schema) {
 						span.push(new SpanType(parseInt(ttSpan[0]), parseInt(ttSpan[1])));
 					}
 					break;
-
 				case "type":
 					//type = schema.getTypeByTypeName($(this).text());
 					break;
@@ -826,6 +825,7 @@ Relation.prototype.getSpanRange = function() {
 		if(_self.type.propertyTypeList[idx].input == InputType.LIST) {
 			if(_self.propertyList[idx] != undefined) {
 				$.each(_self.propertyList[idx], function(listIdx) {
+					var taskName = _self.propertyList[idx][listIdx].getTaskName();
 					var tRange = _self.propertyList[idx][listIdx].getSpanRange();
 					if(!(taskName in taskRangeDict))
 						taskRangeDict[taskName] = [undefined, undefined];
@@ -841,6 +841,7 @@ Relation.prototype.getSpanRange = function() {
 
 	return taskRangeDict;
 }
+
 
 Relation.genFromDOM = function(relationDOM, schema ) {
 	var id = undefined, type = undefined, propertyList=undefined,additionList=undefined, comment=undefined;

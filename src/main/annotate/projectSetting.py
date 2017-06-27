@@ -77,7 +77,7 @@ class ProjectSetting(object):
 
 		if modeName not in self.schemaList[schemaName].modes:
 			return False
-
+		
 		return True
 
 	def getSchemaFileNameFromSchemaAndMode(self, schemaName, schemaFileIdx = 0, modeName=None):

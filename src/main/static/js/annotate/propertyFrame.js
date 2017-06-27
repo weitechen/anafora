@@ -81,7 +81,6 @@ PropertyFrame.updateSpanValue = function(e) {
 	else {
 		annotFrame.removeSpan(updateSpan, _self.displayAObj);
 		//currentAProject.annotateFrame.removeSpan(updateSpan, currentAProject.selectedAObj);
-
 	}
 
 	_self.displayBtns(_self.displayAObj);
@@ -135,6 +134,7 @@ PropertyFrame.prototype.removeAObjFromProperty = function(pIdx, pListIdx) {
 		if(prop.length == 0)
 			prop = undefined;
 
+		
 		if(removeAObj instanceof Entity) {
 			annotFrame.removeEntityPosit(removeAObj, this.displayAObj);
 			if(this.displayAObj !== currentAProject.selectedAObj)

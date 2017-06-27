@@ -56,6 +56,7 @@ function onLoad() {
 		});
 	}
 	projectSelector = undefined;
+
 	// set menu
 	navMenu = $("#headerWrapper > ul");
 
@@ -443,7 +444,6 @@ function loadNewProject() {
 
 function saveFile() {
 	if(getIsChanged() && editable) {
-		
 		$.ajax({type: 'POST', url:  _setting.root_url + "/" + _setting.app_name + "/saveFile/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/" + _setting.schema + (_setting.isAdjudication ? ".Adjudication" : "") + "/", data: {'fileContent':localStorage["anafora"]}, cache: false, async: false, headers:{"X-CSRFToken":$.cookie('csrftoken') }, success: function(data) {setIsChanged(false);localStorage.removeItem("anafora");},error: function (xhr, ajaxOptions, thrownError) { errorHandler.handle(new ErrorException("Save File Error"), currentAProject); console.log(xhr.responseText);  }} );
 	}
 }
@@ -890,7 +890,6 @@ function addNewAObj(aType) {
 	else {
 		taskName = _setting.taskName;
 	}
-
 
 	if($("#taskName").children("a").text() != taskName)
 		$('#taskName').children("a").text(taskName);

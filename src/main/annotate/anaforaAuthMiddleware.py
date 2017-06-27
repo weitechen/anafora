@@ -4,6 +4,7 @@ import time
 from django.conf import settings
 from django.utils.cache import patch_vary_headers
 from django.utils.http import cookie_date
+import grp
 
 class AnaforaAuthMiddleware(object):
 	groupList = None
@@ -35,8 +36,8 @@ class AnaforaAuthMiddleware(object):
 			except:
 				raise
 		
-		if AnaforaAuthMiddleware.groupList != None and request.META["REMOTE_USER"] in AnaforaAuthMiddleware.groupList:
-			request.META["REMOTE_ADMIN"] = True
+			if AnaforaAuthMiddleware.groupList != None and request.META["REMOTE_USER"] in AnaforaAuthMiddleware.groupList:
+				request.META["REMOTE_ADMIN"] = True
 
 	def process_response(self, request, response):
 		return response

@@ -13,6 +13,7 @@ function AnnotateFrame(frameElement, setting, rawText) {
 	        selector: '.multipleAObj', 
 		trigger: 'left',
 		build: function($trigger, e) {
+			
 			var overlapSpan = e.target;
 			var subTaskName = $(overlapSpan).parent().attr('id');
 			var _self = currentAProject.getAnnotateFrameByTaskName(subTaskName);
@@ -267,7 +268,6 @@ AnnotateFrame.prototype.addEntityPosit = function(entity, addedAObj) {
 	else {
 		if(addedAObj instanceof EmptyEntity)
 			return ;
-	
 		if(addedAObj == undefined)
 			addedAObj = entity;
 		
