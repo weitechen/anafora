@@ -17,6 +17,8 @@ var subTaskNameList = undefined;
 var subTaskElemList = undefined;
 
 function onLoad() {
+	// Setting errorHAndler;
+	errorHandler = new ErrorHandler($('#errorMessage'));
 	// read schemaMap in _setting
 	var tDiv = document.createElement('div');
 	tDiv.innerHTML = _setting.schemaMap;

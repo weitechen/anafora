@@ -4,6 +4,7 @@ import glob
 from projectSetting import *
 from taskFile import TaskFile
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from subprocess import call, check_output
 import re
 
@@ -234,7 +235,10 @@ class AnaforaProjectManager:
 			hasGold = False
 			hasAdjudication = False
 			for projectXMLFileName in [pFileName for pFileName in os.listdir(taskPath) if os.path.isfile(os.path.join(taskPath, pFileName)) and pFileName[0] != '.' and pFileName[-4:] == ".xml"]:
-				taskFile = TaskFile(projectXMLFileName)
+				try:
+					taskFile = TaskFile(projectXMLFileName)
+				except ValidationError:
+					continue
 				if taskFile.taskName == taskName and taskFile.schemaName == schemaName and taskFile.modeName == modeName:
 				#if "%s.%s.%s" % (taskName, annotator, mode.getSchemaName()) in projectXMLFileName:
 				#if "." + annotator + "." in projectXMLFileName and taskName + '.' + schemaName + "." in projectXMLFileName:
@@ -296,10 +300,11 @@ class AnaforaProjectManager:
 			hasOtherAdjudicator = False
 			hasGold = False
 			for projectXMLFileName in [pFileName for pFileName in os.listdir(taskPath) if os.path.isfile(os.path.join(taskPath, pFileName)) and pFileName[0] != '.' and pFileName[-4:] == ".xml"]:
-				taskFile = TaskFile(projectXMLFileName)
+				try:
+					taskFile = TaskFile(projectXMLFileName)
+				except ValidationError:
+					continue
 				if taskFile.taskName == taskName and taskFile.schemaName == schemaName and taskFile.modeName == modeName:
-					print (taskFile.annotator, taskFile.taskName, taskFile.schemaName, taskFile.modeName, taskFile.isAdjudication)
-					print adjudicator
 					if taskFile.isAdjudication:
 						if taskFile.annotator == adjudicator:
 							if taskFile.isCompleted:
@@ -312,6 +317,8 @@ class AnaforaProjectManager:
 					else:
 						if taskFile.isGold:
 							hasGold = True
+						elif taskFile.isPreannotation:
+							hasPreannotation = True
 						elif taskFile.isCompleted:
 							numOfAnnotatorFile += 1
 			print (inProgressTask, completedTask)

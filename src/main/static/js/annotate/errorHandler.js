@@ -43,6 +43,7 @@ ErrorHandler.prototype.fixPosition = function() {
 ErrorHandler.prototype.popup = function() {
 	this.messageDiv.fadeIn(200);
 	this.mask.fadeIn(200);
+
 }
 
 ErrorHandler.prototype.handle = function(e, focusProject) {
