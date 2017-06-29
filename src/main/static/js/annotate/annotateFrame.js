@@ -50,7 +50,7 @@ AnnotateFrame.prototype.updatePosIndex = function(aObj) {
 	}
 	else {
 		
-		throw  "aObj: " + aObj.toString() + " is not an IAnaforaObj";
+		throw new ErrorException("aObj: " + aObj.toString() + " is not an IAnaforaObj");
 	}
 }
 
@@ -183,7 +183,7 @@ AnnotateFrame.prototype.addSpanPosit = function(span, addingAObj, addedAObj) {
 	// addingAObj: the anafora obj which changes the span
 	// addedAObj: the anafora obj which need to be updated inside the positList
 	if(addingAObj == undefined)
-		throw "adding AObj is undefined";
+		throw new ErrorException( "adding AObj is undefined");
 
 	if(addedAObj == undefined)
 		addedAObj = addingAObj;
@@ -215,7 +215,7 @@ AnnotateFrame.prototype.removeSpanPosit = function(span, removingAObj, removedAO
 	// removingAObj: the anafora obj which removes span
 	// removedAObj: the anafora obj which need to be updated inside the positList
 	if(removingAObj == undefined)
-		throw "removing AObj is undefined";
+		throw new ErrorException( "removing AObj is undefined");
 
 	if(removedAObj == undefined)
 		removedAObj = removingAObj;
@@ -304,10 +304,7 @@ AnnotateFrame.prototype.addRelationPosit = function(relation, addedAObj) {
 						else if(relation.propertyList[idx][listIdx] instanceof Relation)
 							_self.addRelationPosit(relation.propertyList[idx][listIdx], addedAObj);
 						else {
-							console.log("error ");
-							console.log(relation.propertyList[idx]);
-							console.log(relation.propertyList[idx][listIdx]);
-							throw " object is not aObj";
+							throw new ErrorException("Linked object " + String(relation.propertyList[idx][listIdx]) + " in Relation Object: " + relation.id + " is not a regular object (the " + String(listIdx) + "-th item in property " + relation.type.propertyTypeList[idx].type);
 						}
 					});
 				}
@@ -538,7 +535,7 @@ AnnotateFrame.prototype.getSpanElementIndex = function(spanElement) {
 	// given span element, return the index
 	var overlapIdx = this.spanElementList.index(spanElement);
 	if(overlapIdx == -1)
-		throw "spanElement not found in spanElementList";
+		throw new ErrorException( "spanElement not found in spanElementList");
 	return overlapIdx;
 }
 
@@ -720,7 +717,7 @@ AnnotateFrame.prototype.moveAnnotation = function(step, adj, currentAObj) {
 			var idx = checkedAObj.markElement.indexOf(overlap);
 
 			if(idx == -1)
-				throw "find overlap error in AObj:" + checkedAObj.id;
+				throw new ErrorException( "find overlap error in AObj:" + checkedAObj.id);
 			if( checkedAObj == currentAObj && idx==0)
 				return false;
 

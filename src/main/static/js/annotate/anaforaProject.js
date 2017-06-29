@@ -353,7 +353,6 @@ AnaforaProject.prototype.readFromXMLDOM = function(xml, isAdjudication) {
 
 	$.each(this.relationList, function(idx, relation) {
 		// update relation list link
-		console.log(_self.relationList[idx]);
 		if ($.inArray(relation.type, _self.schema.linkingType) != -1)
 			_self.updateLinking(relation.type, relation);
 
