@@ -482,11 +482,11 @@ AnaforaProject.prototype.updateLinking = function(aType, aObj) {
 								}
 							}
 							else
-								throw aObj.id + " link to empty val: " + val;
+								throw new ErrorException(aObj.id + " link to empty val: " + val);
 						}
 	
 						if(aObj.propertyList[idx][linkIdx]==undefined)
-							throw aObj.id + " links to empty annotation: " + val;
+							throw new ErrorException( aObj.id + " links to empty annotation: " + val);
 						aObj.addListProperty(linkedAObj, idx, linkIdx);
 						//aObj.updateListProperty(linkedAObj, idx, linkIdx);
 
