@@ -353,7 +353,6 @@ AnaforaProject.prototype.readFromXMLDOM = function(xml, isAdjudication) {
 
 	$.each(this.relationList, function(idx, relation) {
 		// update relation list link
-		console.log(_self.relationList[idx]);
 		if ($.inArray(relation.type, _self.schema.linkingType) != -1)
 			_self.updateLinking(relation.type, relation);
 
@@ -483,11 +482,11 @@ AnaforaProject.prototype.updateLinking = function(aType, aObj) {
 								}
 							}
 							else
-								throw aObj.id + " link to empty val: " + val;
+								throw new ErrorException(aObj.id + " link to empty val: " + val);
 						}
 	
 						if(aObj.propertyList[idx][linkIdx]==undefined)
-							throw aObj.id + " links to empty annotation: " + val;
+							throw new ErrorException( aObj.id + " links to empty annotation: " + val);
 						aObj.addListProperty(linkedAObj, idx, linkIdx);
 						//aObj.updateListProperty(linkedAObj, idx, linkIdx);
 

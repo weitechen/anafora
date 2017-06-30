@@ -110,11 +110,12 @@ AnaforaCrossProject.prototype.readFromXMLDOM = function(xml, subTaskNameList, an
 		else {
 			throw new ErrorException("Task name ''" + taskName + "'' not exist");
 		}
+		var sIdx = parseInt(aObj.id.split("@")[0]);
 		if(aObj instanceof Entity) {
-			targetAProject.entityList[aObj.sID] = aObj;
+			targetAProject.entityList[sIdx] = aObj;
 		}
 		else {
-			targetAProject.relationList[aObj.sID] = aObj;
+			targetAProject.relationList[sIdx] = aObj;
 		}
 		}
 		catch(err) {
