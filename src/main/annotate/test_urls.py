@@ -65,6 +65,10 @@ class AnnotateURLTest(unittest2.TestCase):
 		resolver = resolve('/annotate/getDir/THYMEColonFinal/Dev/TimeNorm/view/')
 		self.assertEqual(resolver.view_name, 'annotate.views.getAllTask')
 		self.assertEqual(resolver.kwargs, {'projectName': 'THYMEColonFinal', 'corpusName': 'Dev', 'schemaName': 'TimeNorm', 'schemaMode': None, 'crossDoc': None})
+
+		resolver = resolve('/annotate/saveFile/TempEval-2013-Train/Test/AP_20130322/TimeNorm.Adjudication/')
+		self.assertEqual(resolver.view_name, 'annotate.views.writeFile')
+		self.assertEqual(resolver.kwargs, {'projectName': 'TempEval-2013-Train', 'corpusName': 'Test', 'schemaName': 'TimeNorm', 'isAdj': 'Adjudication','taskName': 'AP_20130322' })
 		
 	def test_getAnnotator(self):
 		resolver = resolve('/annotate/annotator/THYMEColonFinal/Dev/ID004_clinic_010/TimeNorm/')
