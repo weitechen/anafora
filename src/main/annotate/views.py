@@ -590,7 +590,6 @@ def setCompleted(request, projectName, corpusName, taskName, schemaName, schemaM
 			fileNameGold = filePath + "/" + taskName + "." + schemaName + ("" if schemaMode == None else ("-" + schemaMode)) +  ".gold.completed.xml"
 			subprocess.call(["cp", fileName + ".completed.xml", fileNameGold])
 			schema = ps.getSchema(schemaName)
-			print (schemaName, schema)
 			for tModeName in schema.modes:
 				tMode = ps.getMode(schemaName, tModeName)
 				if tMode.needPreannotation and tMode.preannotationFromMode is not None and tMode.preannotationFromMode.name == mode.name:
