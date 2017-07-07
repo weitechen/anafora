@@ -583,14 +583,16 @@ def setCompleted(request, projectName, corpusName, taskName, schemaName, schemaM
 			shell=True)
 		#mode = ps.getMode(*(schemaName.replace("-Adjudication", "").split("-")))
 		mode = ps.getMode(schemaName, schemaMode)
-		if isAdj != None or mode.directSetGold:
+		if isAdj is not None or mode.directSetGold:
 			# set as gold
 			if mode.directSetGold:
 				subprocess.call("sed -u -i 's/@%s/@gold/' %s.completed.xml" % (request.META["REMOTE_USER"], fileName), shell=True)
-			fileNameGold = filePath + "/" + taskName + "." + schemaName.replace("-Adjudication", "") +  ".gold.completed.xml"
+			fileNameGold = filePath + "/" + taskName + "." + schemaName + ("" if schemaMode == None else ("-" + schemaMode)) +  ".gold.completed.xml"
 			subprocess.call(["cp", fileName + ".completed.xml", fileNameGold])
-			schema = ps.getSchema(schemaName.split("-")[0])
-			for tMode in schema.modes:
+			schema = ps.getSchema(schemaName)
+			print (schemaName, schema)
+			for tModeName in schema.modes:
+				tMode = ps.getMode(schemaName, tModeName)
 				if tMode.needPreannotation and tMode.preannotationFromMode is not None and tMode.preannotationFromMode.name == mode.name:
 					fileNamePreannotation = filePath + "/" + taskName + "." + schema.name + "-" + tMode.name +  ".preannotation.completed.xml"
 					subprocess.call(["cp", fileNameGold, fileNamePreannotation])

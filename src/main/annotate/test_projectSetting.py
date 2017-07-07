@@ -178,8 +178,8 @@ class ProjectSettingTests(TestCase):
 
 		ps = ProjectSetting()
 		ps.parseFromFile(os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, settings.ANAFORA_PROJECT_SETTING_FILENAME))
-		self.assertEqual(len(ps.projectList), 8)
-		self.assertListEqual(sorted(["Demo","EventWorkshop", "Temporal", "CrossDocument", "EPIC", "SHARP",  "THYME-subevent", "THYMEColonFinal" ]), sorted([str(projName) for projName in ps.projectList.keys()]))
+		self.assertEqual(len(ps.projectList), 9)
+		self.assertListEqual(sorted(["Demo","EventWorkshop", "Temporal", "CrossDocument", "EPIC", "SHARP", 'TempEval-2013-Train',  "THYME-subevent", "THYMEColonFinal" ]), sorted([str(projName) for projName in ps.projectList.keys()]))
 		self.assertListEqual(sorted(["Temporal", "UMLS", "Coreference", "PropBank", "Medicine", "BLT", "BLT-alt", "THYME_QA", "TimeNorm", "Thyme2v1"]), sorted(ps.schemaList.keys()))
 		project0 = ps.projectList["EventWorkshop"]
 		self.assertEqual(project0.name, "EventWorkshop")
@@ -263,6 +263,13 @@ class ProjectSettingTests(TestCase):
 		self.assertRaisesRegexp(Exception, "Get schema 'Temp' error", ps.getSchema, "Temp")
 		schema = ps.getSchema("Temporal")
 		self.assertEqual(schema.name, "Temporal")
+
+		schema2 = ps.getSchema("Thyme2v1")
+		self.assertEqual(schema2.name, "Thyme2v1")
+		self.assertListEqual(sorted(schema2.modes), sorted(["Anatomy", "Correction", "Coreference"]))
+		for tModeName in schema2.modes:
+			tMode = ps.getMode("Thyme2v1", tModeName)
+			print (tMode, tMode.needPreannotation, tMode.preannotationFromMode) #, None if tMode.preannotationFromMode is None else tMode.preannotationFromMode.name)
 
 	def test_getSchemaMap(self):
 		ps = ProjectSetting()
