@@ -578,9 +578,9 @@ def setCompleted(request, projectName, corpusName, taskName, schemaName, schemaM
 		subprocess.call(
 			"sed -u -i 's/<progress>in-progress<\/progress>/<progress>completed<\/progress>/' %s.completed.xml" % (fileName),
 			shell=True)
-		subprocess.call(
-			"sed -u -i 's/@%s/@gold/' %s.completed.xml" % (request.META["REMOTE_USER"], fileName),
-			shell=True)
+		#subprocess.call(
+		#	"sed -u -i 's/@%s/@gold/' %s.completed.xml" % (request.META["REMOTE_USER"], fileName),
+		#	shell=True)
 		#mode = ps.getMode(*(schemaName.replace("-Adjudication", "").split("-")))
 		mode = ps.getMode(schemaName, schemaMode)
 		if isAdj is not None or mode.directSetGold:
