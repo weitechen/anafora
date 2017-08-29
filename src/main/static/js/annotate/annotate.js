@@ -192,9 +192,7 @@ function loadNewProject() {
 			else if(_setting.isCrossDoc) {
 				xmlAnaforaText = {};
 				if(Object.keys(xmlAnaforaText).length == 0) {
-					var subTaskListStr;
-					$.ajax({ type: "GET", url: _setting.root_url + "/" + _setting.app_name + "/getDir/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/_cross/"  , success: function(data) {subTaskListStr = data;}, cache: false, async: false, statusCode: {403: function() {throw "Permission Deny"; }, 404: function() { ;} }});
-					var subTaskList = $.parseJSON(subTaskListStr);
+					var subTaskListStr = AnaforaCrossProject.getSubTaskList(_setting);
 					$.each(subTaskList, function(idx, subTaskName) {
 						xmlAnaforaText[subTaskName] = "";
 						AnaforaCrossProject.getXML(function(data) {xmlAnaforaText[subTaskName] = data;}, _setting, "preannotation", false, subTaskName);
@@ -244,23 +242,29 @@ function loadNewProject() {
 		if(xmlAnaforaText instanceof Object) 
 			tXMLText = xmlAnaforaText;
 		else
-			if(_setting.isCrossDoc)
+			if(_setting.isCrossDoc && !_setting.isAdjudication)
 				tXMLText[_setting.taskName] = xmlAnaforaText;
 			else
 				tXMLText[_setting.annotator] = xmlAnaforaText;
 			
 		$.each(tXMLText, function(annotatorName) {
 			if(_setting.isAdjudication && annotatorName == _setting.annotator && Object.keys(tXMLText).length == 1) {
+				// read from exist .Adjudication.inprogress/completed.xml file
 				if(_setting.schema == "Coreference")
 					currentAProject = new AnaforaAdjudicationProjectCoreference(schema,  _setting.taskName);	
 				else
 					currentAProject = new AnaforaAdjudicationProject(schema,  _setting.taskName);	
 			}
 			else if(_setting.isCrossDoc) {
+				// read from crossDoc file. tXMLTest will use taskName as key
 				if(annotatorName == _setting.taskName) {
 					currentAProject = new AnaforaCrossProject(schema, _setting.annotator, _setting.taskName);
 				}
+				else if(_setting.isAdjudication) {
+					currentAProject = new AnaforaCrossProject(schema, annotatorName, _setting.taskName);
+				}
 				else {
+					// Read read from all sub task
 					currentAProject = new AnaforaProject(schema, _setting.annotator, annotatorName);
 					annotateFrame = new AnnotateFrame($("#" + annotatorName), _setting, $("#" + annotatorName).text());
 				}
@@ -283,8 +287,9 @@ function loadNewProject() {
 					
 					currentAProject.readFromXMLDOM(xmlDOM, subTaskNameList, subTaskDiv);
 				}
-				else
+				else {
 					currentAProject.readFromXMLDOM(xmlDOM, _setting.isAdjudication);
+				}
 			}
 			catch (e) {
 				if (e instanceof ErrorException) {
@@ -317,7 +322,25 @@ function loadNewProject() {
 
 	if(_setting.isAdjudication) {
 		
-		if(!(currentAProject instanceof AnaforaAdjudicationProject)) {
+		if(currentAProject instanceof AnaforaCrossProject) {
+			// split current crossProject to AnaforaAdjudicationProject
+			var subTaskList = new Set(Object.keys(aProjectList[0].projectList).concat(Object.keys(aProjectList[1].projectList)));
+			var newProjectList = {};
+			for (subTask of subTaskList) {
+				var newAdjProject = new AnaforaAdjudicationProject(schema, subTask);
+				var subProjectList = {};
+				for(tProject of aProjectList) {
+					subProjectList[tProject.annotator] = tProject.projectList[subTask];
+				}
+
+				newAdjProject.addAnaforaProjectList(subProjectList);
+				newAdjProject.setAnnotateFrame(aProjectList[0].projectList[subTask].annotateFrame);
+				newProjectList[subTask] = newAdjProject;
+			}
+			currentAProject = new AnaforaCrossAdjudicationProject(schema, _setting.annotator, _setting.taskName);
+			currentAProject.addAnaforaProjectList(newProjectList);
+		}
+		else if(!(currentAProject instanceof AnaforaAdjudicationProject)) {
 		
 			if(_setting.schema == "Coreference")
 				currentAProject = new AnaforaAdjudicationProjectCoreference(schema, _setting.taskName);

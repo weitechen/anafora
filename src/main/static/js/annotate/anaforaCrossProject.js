@@ -182,6 +182,10 @@ AnaforaCrossProject.prototype.addAObj = function(newAObj) {
 	this.projectList[newAObj.getTaskName()].addAObj(newAObj);
 }
 
+AnaforaCrossProject.getSubTaskList = function(_setting) {
+	$.ajax({ type: "GET", url: _setting.root_url + "/" + _setting.app_name + "/getDir/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/_cross/"  , success: function(data) {subTaskListStr = data;}, cache: false, async: false, statusCode: {403: function() {throw "Permission Deny"; }, 404: function() { ;} }});
+	return $.parseJSON(subTaskListStr);
+}
 /*
 AnaforaCrossProject.prototype.updateProperty = function(aObj, pIdx, value) {
 	if(aObj instanceof Entity)

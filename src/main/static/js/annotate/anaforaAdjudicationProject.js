@@ -24,7 +24,6 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 	var relationList = [];
 	var idx=0, entityLength,followIdx=0, xIdx=0 ;
 	var relationLength;
-	var comparePairEntityList;
 
 	if(projectList == undefined)
 		return;
@@ -34,6 +33,7 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 		entityList[idx] = [];
 		$.each(aProject.entityList, function(eID, entity) {
 			var tAnnotator =  entity.id.substring(entity.id.lastIndexOf('@')+1);
+			entity.additionalData = {};
 			if(tAnnotator == "gold") {
 				if(eID in _self.entityList) {
 					var originEntity = _self.entityList[eID];
@@ -68,6 +68,7 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 		relationList[idx] = [];
 		$.each(aProject.relationList, function(rID, relation) {
 			var relation = aProject.relationList[rID];
+			relation.additionalData = {};
 			var tAnnotator =  relation.id.substring(relation.id.lastIndexOf('@')+1);
 			if(tAnnotator == "gold") {
 				if(rID in _self.relationList) {
@@ -234,12 +235,16 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 		entity0 = comparePair[1][0];
 		entity1 = comparePair[1][1];
 
-		if(entity0.getAdditionalData("comparePair") != undefined || entity1.getAdditionalData("comparePair") != undefined)
+		if(entity0.getAdditionalData("comparePair") != undefined || entity1.getAdditionalData("comparePair") != undefined) {
+			console.log("Conflict: " + entity0.id + " - " + entity1.id);
 			continue;
+		}
+
 		if(spanEqual && diffProp.length == 0 && _self.identicalEntityMarkAsGold) {
 			_self.markGold(entity0);
 			entity1.setAdditionalData("adjudication", "not gold");
 		}
+
 		var newAdjEntity = new AdjudicationEntity(this.getNewEntityId(), entity0.type, [entity0, entity1], diffProp);
 		this.addAdjEntityToAdjudicationInCompareEntityPair(entity0, entity1, newAdjEntity);
 		this.addAdjEntityToAdjudicationInCompareEntityPair(entity1, entity0, newAdjEntity);
@@ -247,6 +252,9 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 		if(_self.annotateFrame != undefined)
 			_self.annotateFrame.updatePosIndex(newAdjEntity);
 		_self.addTypeCount(newAdjEntity.type);
+
+		console.log("Add: " + entity0.id + "(" + entity0.additionalData["adjudication"] + ") - " + entity1.id + "(" + entity1.additionalData["adjudication"] + ")");
+		console.log(_self.completeAdjudication);
 	}
 
 	//// check the AdjuidcationRelation
