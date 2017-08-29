@@ -236,7 +236,6 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 		entity1 = comparePair[1][1];
 
 		if(entity0.getAdditionalData("comparePair") != undefined || entity1.getAdditionalData("comparePair") != undefined) {
-			console.log("Conflict: " + entity0.id + " - " + entity1.id);
 			continue;
 		}
 
@@ -252,9 +251,6 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 		if(_self.annotateFrame != undefined)
 			_self.annotateFrame.updatePosIndex(newAdjEntity);
 		_self.addTypeCount(newAdjEntity.type);
-
-		console.log("Add: " + entity0.id + "(" + entity0.additionalData["adjudication"] + ") - " + entity1.id + "(" + entity1.additionalData["adjudication"] + ")");
-		console.log(_self.completeAdjudication);
 	}
 
 	//// check the AdjuidcationRelation
