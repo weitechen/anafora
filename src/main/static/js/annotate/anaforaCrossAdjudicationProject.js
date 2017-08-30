@@ -8,6 +8,77 @@ function AnaforaCrossAdjudicationProject(schema, annotatorName, task) {
 AnaforaCrossAdjudicationProject.prototype = new AnaforaCrossProject();
 AnaforaCrossAdjudicationProject.prototype.constructor = AnaforaCrossAdjudicationProject;
 
+AnaforaCrossAdjudicationProject.prototype.addAnaforaProjectList = function(projectList, taskList) {
+	/* Input: an Object of AnaforaCrossDocProject with annotator as key
+	 * I
+	 */
+	var annotatorList = Object.keys(projectList);
+	var crossProject0 = projectList[annotatorList[0]], crossProject1 = projectList[annotatorList[1]];
+	var newProjectList = {};
+
+	// change all gold annotation in crossProject1 to the one in crossProject0
+	for (taskName in crossProject1.projectList) {
+		for (var entityIdx in crossProject1.projectList[taskName].entityList) {
+			var id = crossProject1.projectList[taskName].entityList[entityIdx].id;
+			var term = id.split('@');
+			if(term[3] == "gold") {
+				crossProject1.projectList[taskName].entityList[entityIdx] = crossProject0.getAObjFromID(id);
+			}
+			else {
+			  var tEntity = crossProject1.projectList[taskName].entityList[entityIdx];
+			  $.each(tEntity.type.propertyTypeList, function(tIdx, pType) {
+				if(pType.input == InputType.LIST && tEntity.propertyList[tIdx] != undefined) {
+					$.each(tEntity.propertyList[tIdx], function(ttIdx, ttEntity) {
+					  var tID = ttEntity.id;
+					  var ttTerm = tID.split('@');
+					  if(ttTerm[3] == "gold") {
+  						crossProject1.projectList[taskName].entityList[entityIdx].propertyList[tIdx][ttIdx] = crossProject0.getAObjFromID(tID);
+					  }
+					});
+				}
+			  });
+			}
+		}
+
+		for (var relationIdx in crossProject1.projectList[taskName].relationList) {
+			var id = crossProject1.projectList[taskName].relationList[relationIdx].id;
+			var term = id.split('@');
+			if(term[3] == "gold") {
+				crossProject1.projectList[taskName].relationList[relationIdx] = crossProject0.getAObjFromID(id);
+			}
+			else {
+			  var tRelation = crossProject1.projectList[taskName].relationList[relationIdx];
+			  $.each(tRelation.type.propertyTypeList, function(tIdx, pType) {
+				if(pType.input == InputType.LIST && tRelation.propertyList[tIdx] != undefined) {
+					console.log(tRelation.propertyList[tIdx]);
+					$.each(tRelation.propertyList[tIdx], function(ttIdx, ttRelation) {
+					  var tID = ttRelation.id;
+					  var ttTerm = tID.split('@');
+					  if(ttTerm[3] == "gold") {
+  						crossProject1.projectList[taskName].relationList[relationIdx].propertyList[tIdx][ttIdx] = crossProject0.getAObjFromID(tID);
+					  }
+					});
+				}
+			  });
+			}
+		}
+	}
+
+	var crossAdjProjectList = {};
+	for(var subTaskName of taskList) {
+		var subProjectList = {};
+		for(var annotatorName of annotatorList) {
+			var crossProject = projectList[annotatorName];
+			subProjectList[annotatorName] = projectList[annotatorName].projectList[subTaskName];
+		}
+		var newAdjProject = new AnaforaAdjudicationProject(this.schema, subTaskName);
+		newAdjProject.addAnaforaProjectList(subProjectList);
+		newAdjProject.setAnnotateFrame(projectList[annotatorName].projectList[subTaskName].annotateFrame);
+		crossAdjProjectList[subTaskName] = newAdjProject;
+	}
+
+	AnaforaCrossProject.prototype.addAnaforaProjectList.call(this, crossAdjProjectList);
+}
 /*
 AnaforaCrossAdjudicationProject.prototype.addAnaforaProjectList = function(projectList) {
 	for (var subTaskName in projectList) {

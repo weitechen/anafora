@@ -46,11 +46,15 @@ class AnnotateURLTest(unittest2.TestCase):
 
 		resolver = resolve('/annotate/getDir/THYMEColonFinal/Dev/TimeNorm.Adjudication/')
 		self.assertEqual(resolver.view_name, 'annotate.views.getAdjudicationTaskFromProjectCorpusName')
-		self.assertDictEqual(resolver.kwargs, {"projectName": "THYMEColonFinal", "corpusName": "Dev", "schemaName": "TimeNorm", "schemaMode": None})
+		self.assertDictEqual(resolver.kwargs, {"projectName": "THYMEColonFinal", "corpusName": "Dev", "schemaName": "TimeNorm", "schemaMode": None, "crossDoc": None})
 
 		resolver = resolve('/annotate/THYMEColonFinal/Dev/ID021_clinic_063/TimeNorm.Adjudication/')
 		self.assertEqual(resolver.view_name, 'annotate.views.annotateNormal')
 		self.assertDictEqual(resolver.kwargs, {"projectName": "THYMEColonFinal", "corpusName": "Dev", "taskName": "ID021_clinic_063", "schema": "TimeNorm", "schemaMode": None, "annotator": None, "adjudication": "Adjudication", "crossDoc": None, "view": None})
+
+		resolver = resolve('/annotate/getDir/CrossDocument/ColonCancer/Thyme2v1.Correction.Adjudication/_crossDoc/')
+		self.assertEqual(resolver.view_name, 'annotate.views.getAdjudicationTaskFromProjectCorpusName')
+		self.assertDictEqual(resolver.kwargs, {"projectName": "CrossDocument", "corpusName": "ColonCancer", "schemaName": "Thyme2v1", "schemaMode": "Correction", "crossDoc": "_crossDoc"})
 
 	def test_getXML(self):
 		resolver = resolve('/annotate/Temporal/ColonCancer/ID060_clinic_176/Temporal.Entity/krwr4334/')

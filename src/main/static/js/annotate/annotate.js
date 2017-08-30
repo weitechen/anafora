@@ -192,7 +192,7 @@ function loadNewProject() {
 			else if(_setting.isCrossDoc) {
 				xmlAnaforaText = {};
 				if(Object.keys(xmlAnaforaText).length == 0) {
-					var subTaskListStr = AnaforaCrossProject.getSubTaskList(_setting);
+					var subTaskList = AnaforaCrossProject.getSubTaskList(_setting);
 					$.each(subTaskList, function(idx, subTaskName) {
 						xmlAnaforaText[subTaskName] = "";
 						AnaforaCrossProject.getXML(function(data) {xmlAnaforaText[subTaskName] = data;}, _setting, "preannotation", false, subTaskName);
@@ -325,6 +325,7 @@ function loadNewProject() {
 		if(currentAProject instanceof AnaforaCrossProject) {
 			// split current crossProject to AnaforaAdjudicationProject
 			var subTaskList = new Set(Object.keys(aProjectList[0].projectList).concat(Object.keys(aProjectList[1].projectList)));
+			/*
 			var newProjectList = {};
 			for (subTask of subTaskList) {
 				var newAdjProject = new AnaforaAdjudicationProject(schema, subTask);
@@ -337,8 +338,9 @@ function loadNewProject() {
 				newAdjProject.setAnnotateFrame(aProjectList[0].projectList[subTask].annotateFrame);
 				newProjectList[subTask] = newAdjProject;
 			}
+			*/
 			currentAProject = new AnaforaCrossAdjudicationProject(schema, _setting.annotator, _setting.taskName);
-			currentAProject.addAnaforaProjectList(newProjectList);
+			currentAProject.addAnaforaProjectList(aProjectList, subTaskList);
 		}
 		else if(!(currentAProject instanceof AnaforaAdjudicationProject)) {
 		
@@ -440,10 +442,21 @@ function loadNewProject() {
 		displayRelationList = displayRelationList.concat( $.map(currentAProject.adjudicationRelationList, function(value) { return value; }) );
 		if(currentAProject.projectList != undefined) {
 			$.each( currentAProject.projectList, function(annotator, aProject) {
+				displayRelationList = displayRelationList.concat( $.map(aProject.adjudicationRelationList, function(value) { return value; }) );
 				$.each(aProject.relationList, function(key, tRelation) {
 					if(tRelation.getAdditionalData("comparePair") == undefined && !(key in currentAProject.relationList))
 						displayRelationList.push(tRelation);
 				});
+
+				if(aProject.projectList != undefined) {
+					$.each( aProject.projectList, function(annotator, taProject) {
+						displayRelationList = displayRelationList.concat( $.map(taProject.adjudicationRelationList, function(value) { return value; }) );
+						$.each(taProject.relationList, function(key, tRelation) {
+							if(tRelation.getAdditionalData("comparePair") == undefined && !(key in currentAProject.relationList))
+								displayRelationList.push(tRelation);
+						});
+					});
+				}
 			});
 		}
 	}

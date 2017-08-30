@@ -6,7 +6,9 @@ from django.conf.urls.static import static
 urlpatterns = [
 	url(r'^getDir/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?/view(?:/(?P<crossDoc>_crossDoc))?/?$', views.getAllTask),
 	#views.getAllTask),
-	url(r'^getDir/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?\.Adjudication/?$', views.getAdjudicationTaskFromProjectCorpusName),
+	#url(r'^getDir/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?\.Adjudication(?:/(?P<crossDoc>_crossDoc))?/?$', views.getAdjudicationTaskFromProjectCorpusName),
+	url(r'^getDir/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?\.Adjudication(?:/(?P<crossDoc>_crossDoc))?/?$', views.getAdjudicationTaskFromProjectCorpusName),
+	#url(r'^getDir/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?\.Adjudication/?$', views.getAdjudicationTaskFromProjectCorpusName),
 	url(r'^getDir/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<parentTaskName>[^\/]+)/_cross/?$', views.getSubTaskFromProjectCorpusTaskName),
 	url(r'^getDir/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?(?:/(?P<crossDoc>_crossDoc))?/?$', views.getTaskFromProjectCorpusName),
 	url(r'^getDir/(?P<projectName>[^\/]+)/?$', views.getCorpusFromProjectName),

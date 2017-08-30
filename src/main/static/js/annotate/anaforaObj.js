@@ -977,6 +977,10 @@ AdjudicationEntity.prototype.addCompareAObj = function(aObj1, aObj2) {
 		}
 	}
 }
+
+AdjudicationEntity.prototype.isCrossObj = function() {
+	return this.compareAObj.reduce(function(aObj1, aObj2) { return aObj1.isCrossObj() || aObj2.isCrossObj(); });
+}
 /*
 AdjudicationEntity.prototype.setGold = function(goldEntityIdx) {
 	$.each(this.compareAObj, function(idx, element) {
@@ -1082,6 +1086,9 @@ AdjudicationRelation.prototype = new Relation();
 AdjudicationRelation.prototype.constructor = Relation;
 AdjudicationRelation.prototype.parent = IAdjudicationAnaforaObj;
 
+AdjudicationRelation.prototype.isCrossObj = function() {
+	return this.compareAObj.reduce(function(aObj1, aObj2) { return aObj1.isCrossObj() || aObj2.isCrossObj(); });
+}
 AdjudicationRelation.prototype.addCompareAObj = function(aObj1, aObj2) {
 	if(aObj1 == undefined || aObj2 == undefined)
 		throw "added aObj is undefined";
@@ -1266,6 +1273,7 @@ IAdjudicationAnaforaObj.prototype.updateProperty = function(pTypeIdx) {
 
 	return needUpdate;
 }
+
 
 IAdjudicationAnaforaObj.prototype.addCompareAObj = function(aObj1, aObj2) {
 	throw "Not implement addCompareAObj method yet";

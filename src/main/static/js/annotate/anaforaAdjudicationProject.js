@@ -28,7 +28,7 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 	if(projectList == undefined)
 		return;
 
-	// compare 
+	// compare
 	$.each(projectList, function(annotator, aProject) {
 		entityList[idx] = [];
 		$.each(aProject.entityList, function(eID, entity) {
@@ -261,22 +261,6 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 	var comparePairRelationList0;
 	var comparePairRelationList1;
 
-	// Move gold relation to local relation
-	/*
-	$.each(projectList, function(annotator, aProject) {
-		$.each(aProject.relationList, function(rIdx, relation) {
-			var term = relation.id.split('@');
-			var goldAnnotator = term[3];
-			if(goldAnnotator == "gold") {
-				if(!(rIdx in _self.relationList)) {
-					_self.relationList[rIdx] = relation;
-				}
-				delete projectList[annotator].relationList[rIdx];
-			}
-		});
-	});
-	*/
-	
 	$.each(relationList[0], function(key0, relation0) {
 		term0 = relation0.id.split('@');
 		annotator0 = term0[3];
@@ -286,6 +270,8 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 			term1 = relation1.id.split('@');
 			annotator1 = term1[3];
 			comparePairRelationList1 = relation1.getAdditionalData("comparePair");
+			if(relation0.id == "579@r@ID002_clinic_006@haco1069" && relation1.id == "580@r@ID002_clinic_006@reganma")
+				console.log("compare!!");
 			if(relation0.type == relation1.type) {
 
 				var diffProp = IAdjudicationAnaforaObj.compareAObjPropertyList(relation0, relation1, AnaforaAdjudicationProject.adjEntityComparePropertyFunc);
