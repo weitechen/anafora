@@ -262,7 +262,8 @@ AnnotateFrame.prototype.removeSpanPosit = function(span, removingAObj, removedAO
 
 AnnotateFrame.prototype.addEntityPosit = function(entity, addedAObj) {
 	var _self = this;
-	var annotFrame = currentAProject.getAnnotateFrame(entity)
+	var annotFrame = currentAProject.getAnnotateFrame(entity);
+	
 	if(_self != annotFrame && annotFrame != undefined )
 		annotFrame.addEntityPosit(entity, addedAObj);
 	else {
@@ -681,14 +682,11 @@ AnnotateFrame.matchAObjFromOverlap = function(aObjList, checkedType, skipAObjLis
 			return (aObj instanceof AdjudicationEntity || aObj instanceof AdjudicationRelation || aObj.id.split('@')[3] == "gold" || aObj.getAdditionalData("adjudication") === "gold");
 		});
 	}
-
-
 	
 	return matchedAObj;
 }
 
 AnnotateFrame.prototype.moveAnnotation = function(step, adj, currentAObj) {
-
 	// step = 1 => forward, step = -1 => backward
 	var spanIdx = 0;
 	var spanAObjIdx = 0;
@@ -697,14 +695,24 @@ AnnotateFrame.prototype.moveAnnotation = function(step, adj, currentAObj) {
 
 	if(currentAObj == undefined) {
 		if(step == 1) {
+			spanIdx = 0;
+			spanAObjIdx = -1;
+			//spanIdx = this.overlap.length-1;
+			//spanAObjIdx = this.overlap[spanIdx].aObjList.length-1;
+		}
+		else {
 			spanIdx = this.overlap.length-1;
 			spanAObjIdx = this.overlap[spanIdx].aObjList.length-1;
 		}
 		currentAObj = this.overlap[spanIdx].aObjList[spanAObjIdx];
 	}
 	else {
-		overlap = currentAObj.markElement[0];
-		spanIdx = this.overlap.indexOf(overlap);
+		for(var markIdx in currentAObj.markElement) {
+			overlap = currentAObj.markElement[markIdx];
+			spanIdx = this.overlap.indexOf(overlap);
+			if(spanIdx != -1)
+				break
+		}
 		spanAObjIdx = overlap.aObjList.indexOf(currentAObj);
 	}
 
@@ -759,8 +767,20 @@ AnnotateFrame.prototype.moveAnnotation = function(step, adj, currentAObj) {
 					spanAObjIdx = 0;
 					spanIdx++;
 
-					if(spanIdx == this.overlap.length)
-						spanIdx = 0;
+					if(spanIdx == this.overlap.length) {
+						if(_setting.isCrossDoc) {
+							var currentSubTaskName = this.frameDiv[0].id;
+							var currentSubTaskIdx = Object.keys(currentAProject.projectList).indexOf(currentSubTaskName);
+							currentSubTaskIdx++;
+							if(currentSubTaskIdx == Object.keys(currentAProject.projectList).length)
+								currentSubTaskIdx = 0;
+							var nextSubTaskName = Object.keys(currentAProject.projectList)[currentSubTaskIdx];
+							var nextAnnotateFrame = currentAProject.projectList[nextSubTaskName].annotateFrame;
+							return nextAnnotateFrame.moveAnnotation(step, adj);
+						}
+						else
+							spanIdx = 0;
+					}
 				}
 			}
 			else if(step == -1) {
@@ -769,7 +789,19 @@ AnnotateFrame.prototype.moveAnnotation = function(step, adj, currentAObj) {
 					spanIdx--;
 
 					if(spanIdx == -1) {
-						spanIdx = this.overlap.length-1;
+						if(_setting.isCrossDoc) {
+							var currentSubTaskName = this.frameDiv[0].id;
+							rAObj.id.split('@')[2];
+							var currentSubTaskIdx = Object.keys(currentAProject.projectList).indexOf(currentSubTaskName);
+							currentSubTaskIdx--;
+							if(currentSubTaskIdx == -1)
+								currentSubTaskIdx = Object.keys(currentAProject.projectList).length - 1;
+							var nextSubTaskName = Object.keys(currentAProject.projectList)[currentSubTaskIdx];
+							var nextAnnotateFrame = currentAProject.projectList[nextSubTaskName].annotateFrame;
+							return nextAnnotateFrame.moveAnnotation(step, adj);
+						}
+						else
+							spanIdx = this.overlap.length-1;
 					}
 					spanAObjIdx = this.overlap[spanIdx].aObjList.length-1;
 				}
@@ -787,7 +819,8 @@ AnnotateFrame.prototype.moveAnnotation = function(step, adj, currentAObj) {
 	return rAObj;
 }
 
-function Overlap(span, aObjList, spanElement) {
+function Overlap(span, aObjList, annotateFrame) {
 	this.span = span;
 	this.aObjList = aObjList;
+	this.annotateFrame = annotateFrame;
 }

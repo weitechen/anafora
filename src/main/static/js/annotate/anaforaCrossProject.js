@@ -29,16 +29,26 @@ AnaforaCrossProject.prototype.updateAllFrameFragement = function() {
 }
 
 AnaforaCrossProject.prototype.getAnnotateFrameByTaskName = function(taskName) {
+	if(taskName == undefined)
+		taskName = Object.keys(this.projectList)[0];
+
 	if(taskName in this.projectList)
 		return this.projectList[taskName].annotateFrame;
+
 	return undefined;
 }
 
 AnaforaCrossProject.prototype.getAnnotateFrame = function(aObj) {
-	var lastIdx = aObj.id.lastIndexOf('@');
-	var subTaskName = aObj.id.substring(aObj.id.lastIndexOf('@', lastIdx-1) + 1, lastIdx);
+	if(aObj == undefined) {
+		var subTaskName = Object.keys(this.projectList)[0];
+	}
+	else {
+		var lastIdx = aObj.id.lastIndexOf('@');
+		var subTaskName = aObj.id.substring(aObj.id.lastIndexOf('@', lastIdx-1) + 1, lastIdx);
+	}
 	if(subTaskName in this.projectList)
 		return this.projectList[subTaskName].annotateFrame;
+
 	return undefined;
 }
 
@@ -70,7 +80,7 @@ AnaforaCrossProject.prototype.getXMLRelationList = function() {
 	return rStr;
 }
 
-AnaforaCrossProject.prototype.readFromXMLDOM = function(xml, subTaskNameList, annotateFrameDivList) {
+AnaforaCrossProject.prototype.readFromXMLDOM = function(xml, subTaskNameList, annotateFrameList) {
 	var xmlDOM = $(xml);
 	var infoDOM = xmlDOM.find("info");
 	this.completed = (infoDOM.find("progress").text() == "completed");
@@ -81,7 +91,7 @@ AnaforaCrossProject.prototype.readFromXMLDOM = function(xml, subTaskNameList, an
 	$.each(subTaskNameList, function(sTaskIdx, subTaskName) {
 		_self.projectList[subTaskName] = new AnaforaProject(_self.schema, _self.annotator, subTaskName);
 		_self.projectList[subTaskName].setParentProject(_self);
-		
+		_self.projectList[subTaskName].setAnnotateFrame(annotateFrameList[subTaskName]);
 	});
 
 	$(annotationDOM).children().each( function() {
@@ -123,7 +133,6 @@ AnaforaCrossProject.prototype.readFromXMLDOM = function(xml, subTaskNameList, an
 			throw new ErrorException(err + "\nwith XMLDOM: \n" + this.innerHTML); }
 	});
 
-
 	$.each($.map(this.projectList, function(value, key) {return value;}).concat([_self]), function(aIdx, aProject) {
 
 		aProject.maxEntityIdx = Object.keys(aProject.entityList).max();
@@ -136,7 +145,6 @@ AnaforaCrossProject.prototype.readFromXMLDOM = function(xml, subTaskNameList, an
 			aProject.maxRelationIdx = 0;
 
 		if(aProject != _self) {
-			aProject.setAnnotateFrame(new AnnotateFrame($(annotateFrameDivList[aProject.task]), _setting, $(annotateFrameDivList[aProject.task]).text()));
 			// update link
 			$.each(aProject.entityList, function(eIdx, entity) {
 				aProject.updateLinking(entity.type, entity);
@@ -148,15 +156,17 @@ AnaforaCrossProject.prototype.readFromXMLDOM = function(xml, subTaskNameList, an
 				if(aProject == _self) {
 					_self.projectList[subTaskNameList[0]].annotateFrame.updatePosIndex(relation);
 				}
-				else
+				else {
 					aProject.annotateFrame.updatePosIndex(relation);
+				}
 			});
 		}
 	});
 
-	$.each(this.projectList, function(aIdx, aProject) {
-		aProject.annotateFrame.generateAllAnnotateOverlapList();
-	});
+	if(!_setting.isAdjudication)
+		$.each(this.projectList, function(aIdx, aProject) {
+			aProject.annotateFrame.generateAllAnnotateOverlapList();
+		});
 }
 
 AnaforaCrossProject.prototype.getAObjFromID = function(id) {

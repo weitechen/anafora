@@ -171,11 +171,13 @@ IAnaforaObj.prototype.updateProperty = function(value, pIdx) {
 	}
 }
 
-IAnaforaObj.prototype.addMarkElement = function(overlap) {
-	for(var idx=0;idx<this.markElement.length;idx++) {
-		if(overlap.span.end <= this.markElement[idx].span.start) {
-			this.markElement.splice(idx, 0, overlap);
-			return ;
+IAnaforaObj.prototype.addMarkElement = function(overlap, skipOrder) {
+	if(skipOrder == undefined || !skipOrder) {
+		for(var idx=0;idx<this.markElement.length;idx++) {
+			if(overlap.span.end <= this.markElement[idx].span.start) {
+				this.markElement.splice(idx, 0, overlap);
+				return ;
+			}
 		}
 	}
 

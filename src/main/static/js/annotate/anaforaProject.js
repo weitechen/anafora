@@ -277,7 +277,8 @@ AnaforaProject.prototype.drawAObj = function(aObj) {
 			//var idx = _self.overlap.indexOf(overlap);
 			var idx = annotFrame.overlap.indexOf(overlap);
 			//overlapList[idx] = _self.overlap[idx];
-			overlapList[idx] = annotFrame.overlap[idx];
+			if(idx >= 0)
+				overlapList[idx] = annotFrame.overlap[idx];
 
 		});
 

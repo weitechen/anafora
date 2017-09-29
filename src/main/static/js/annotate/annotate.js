@@ -247,11 +247,23 @@ function loadNewProject() {
 			else
 				tXMLText[_setting.annotator] = xmlAnaforaText;
 			
+		var subAnnotateFrameList = {};
+
+		if(_setting.isCrossDoc) {
+			$.each(subTaskElemList, function(stIdx, divElement) {
+				subAnnotateFrameList[divElement.id] = new AnnotateFrame($(divElement), _setting, $(divElement).text());
+				//subTaskDiv[divElement.id] = divElement;
+			});
+		}
+
 		$.each(tXMLText, function(annotatorName) {
 			if(_setting.isAdjudication && annotatorName == _setting.annotator && Object.keys(tXMLText).length == 1) {
 				// read from exist .Adjudication.inprogress/completed.xml file
 				if(_setting.schema == "Coreference")
 					currentAProject = new AnaforaAdjudicationProjectCoreference(schema,  _setting.taskName);	
+				else if(_setting.isCrossDoc) {
+					currentAProject = new AnaforaCrossAdjudicationProject(schema, _setting.annotator,  _setting.taskName);
+				}
 				else
 					currentAProject = new AnaforaAdjudicationProject(schema,  _setting.taskName);	
 			}
@@ -261,6 +273,7 @@ function loadNewProject() {
 					currentAProject = new AnaforaCrossProject(schema, _setting.annotator, _setting.taskName);
 				}
 				else if(_setting.isAdjudication) {
+					// is Anafora Cross Adjudication task. USe AnaforaCrossProject to read first
 					currentAProject = new AnaforaCrossProject(schema, annotatorName, _setting.taskName);
 				}
 				else {
@@ -274,23 +287,28 @@ function loadNewProject() {
 			}
 			else
 				currentAProject = new AnaforaProject(schema, annotatorName, _setting.taskName);	
+
 			currentAProject.setAnnotateFrame(annotateFrame);
 
 			var xmlDOM;
-			try{
+			//try{
+			{
 				xmlDOM = $.parseXML(tXMLText[annotatorName]);
-				if(currentAProject instanceof AnaforaCrossProject) {
-					var subTaskDiv = {};
-					$.each(subTaskElemList, function(stIdx, divElement) {
-						subTaskDiv[divElement.id] = divElement;
-					});
+				if(currentAProject instanceof AnaforaCrossAdjudicationProject) {
+					currentAProject.readFromXMLDOM(xmlDOM, subTaskNameList, subAnnotateFrameList);
+				}
+				else if(currentAProject instanceof AnaforaCrossProject) {
 					
-					currentAProject.readFromXMLDOM(xmlDOM, subTaskNameList, subTaskDiv);
+					currentAProject.readFromXMLDOM(xmlDOM, subTaskNameList, subAnnotateFrameList);
+				}
+				else if(currentAProject instanceof AnaforaAdjudicationProject) {
+					currentAProject.readFromXMLDOM(xmlDOM);
 				}
 				else {
 					currentAProject.readFromXMLDOM(xmlDOM, _setting.isAdjudication);
 				}
 			}
+			/*
 			catch (e) {
 				if (e instanceof ErrorException) {
 					errorHandler.handle(e, currentAProject);
@@ -306,6 +324,7 @@ function loadNewProject() {
 					throw err;
 				}
 			}
+			*/
 			
 			aProjectList.push(currentAProject);
 			if(annotatorName == "preannotation") {
@@ -322,7 +341,10 @@ function loadNewProject() {
 
 	if(_setting.isAdjudication) {
 		
-		if(currentAProject instanceof AnaforaCrossProject) {
+		if(currentAProject instanceof AnaforaCrossAdjudicationProject) {
+			;
+		}
+		else if(currentAProject instanceof AnaforaCrossProject) {
 			// split current crossProject to AnaforaAdjudicationProject
 			var subTaskList = new Set(Object.keys(aProjectList[0].projectList).concat(Object.keys(aProjectList[1].projectList)));
 			/*
@@ -339,8 +361,19 @@ function loadNewProject() {
 				newProjectList[subTask] = newAdjProject;
 			}
 			*/
+
+			/*
+			$.each(subTaskElemList, function(stIdx, divElement) {
+				subAnnotateFrameList[divElement.id] = new AnnotateFrame($(divElement), _setting, $(divElement).text());
+				//subTaskDiv[divElement.id] = divElement;
+			});
+			*/
+		
 			currentAProject = new AnaforaCrossAdjudicationProject(schema, _setting.annotator, _setting.taskName);
-			currentAProject.addAnaforaProjectList(aProjectList, subTaskList);
+			var tProjectList = {};
+			for(tProject of aProjectList)
+				tProjectList[tProject.annotator] = tProject;
+			currentAProject.addAnaforaProjectList(tProjectList, subTaskList, subAnnotateFrameList);
 		}
 		else if(!(currentAProject instanceof AnaforaAdjudicationProject)) {
 		
@@ -373,6 +406,9 @@ function loadNewProject() {
 	else {
 		$("#aProjectWrapper").css("margin-right", "270px");
 	}
+
+	if(!( _setting.isAdjudication && currentAProject.completed ))
+		temporalSave();
 
 	//currentAProject.annotateFrame.generateAnnotateText(currentAProject.overlap);
 	//currentAProject.annotateFrame.updateAnnotateFragement(currentAProject.overlap);
@@ -855,7 +891,10 @@ function assignEntityToRelation(propIdx) {
 
 function moveAnnotation(step, adj) {
 	if(currentAProject != undefined) {
-		var annotFrame = currentAProject.getAnnotateFrame(currentAProject.selectedAObj);
+		if(currentAProject.selectedAObj == null)
+			var annotFrame = currentAProject.getAnnotateFrame();
+		else
+			var annotFrame = currentAProject.getAnnotateFrame(currentAProject.selectedAObj);
 		var tAObj = annotFrame.moveAnnotation(step, adj, currentAProject.selectedAObj);
 		if(tAObj != undefined) {
 			if(tAObj instanceof Relation) {

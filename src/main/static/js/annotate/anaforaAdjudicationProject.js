@@ -44,6 +44,7 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 								var pIdx = linkingAObj.propertyList[tttIdx].indexOf(entity);
 								if(pIdx > -1)
 									linkingAObj.propertyList[tttIdx][pIdx] = originEntity;
+									originEntity.linkingAObjList.push(linkingAObj);
 							}
 						});
 					});
@@ -270,12 +271,10 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 			term1 = relation1.id.split('@');
 			annotator1 = term1[3];
 			comparePairRelationList1 = relation1.getAdditionalData("comparePair");
-			if(relation0.id == "579@r@ID002_clinic_006@haco1069" && relation1.id == "580@r@ID002_clinic_006@reganma")
-				console.log("compare!!");
 			if(relation0.type == relation1.type) {
 
 				var diffProp = IAdjudicationAnaforaObj.compareAObjPropertyList(relation0, relation1, AnaforaAdjudicationProject.adjEntityComparePropertyFunc);
-				if(diffProp.length < 2 && diffProp.length < currentDiffProp && (comparePairRelationList1 == undefined || comparePairRelationList1[1].diffProp.length > currentDiffProp) && _self.relationAdjFilter(diffProp)) {
+				if( relation0.type.propertyTypeList.length - diffProp.length  > 1 && diffProp.length < currentDiffProp && (comparePairRelationList1 == undefined || comparePairRelationList1[1].diffProp.length > currentDiffProp) && _self.relationAdjFilter(diffProp)) {
 					currentDiffProp = diffProp.length;
 					// update diffProp
 
@@ -357,11 +356,38 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 
 	//this.updatePosIndex(entityList[entityLength-1]);
 
-	if(this.annotateFrame != undefined)
+	if(this.annotateFrame != undefined) {
+		// Erase all markElement
+		/*
+		$.each(this.entityList, function(eIdx, entity) {
+			entity.markElement = [];
+		});
+		$.each(this.adjudicationEntityList, function(eIdx, entity) {
+			entity.markElement = [];
+		});
+		$.each(this.relationList, function(rIdx, relation) {
+			relation.markElement = [];
+		});
+		$.each(this.adjudicationRelationList, function(rIdx, relation) {
+			relation.markElement = [];
+		});
+		for (var annotatorName in this.projectList) {
+			var currentProject = this.projectList[annotatorName];
+			$.each(currentProject.entityList, function(eIdx, entity) {
+				entity.markElement = [];
+			});
+
+			$.each(currentProject.relationList, function(rIdx, relation) {
+				relation.markElement = [];
+			});
+		}
+		*/
+
 		this.annotateFrame.generateAllAnnotateOverlapList();
+	}
 
 	this.updateProgressBar();
-	temporalSave();
+	//temporalSave();
 }
 
 AnaforaAdjudicationProject.adjEntityComparePropertyFunc = function(aObj0, aObj1, filterFunc) {
@@ -638,6 +664,10 @@ AnaforaAdjudicationProject.prototype.markGold = function(goldAObj) {
 		if(adjAObj.decideIdx == undefined) {
 			this.completeAdjudication++;
 		}
+
+		if(adjAObj.compareAObj[notGoldIdx].getAdditionalData("adjudication") == "gold")
+			this.completeAdjudication--;
+
 		adjAObj.compareAObj[notGoldIdx].setAdditionalData("adjudication", "not gold");
 		adjAObj.decideIdx = goldIdx;
 	}
@@ -980,7 +1010,15 @@ AnaforaAdjudicationProject.prototype.drawAObj = function(aObj) {
 	}
 }
 
-AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml) {
+AnaforaAdjudicationProject.createNewProjectDOM = function(infoDOM, schemaDOM) {
+	var newXML = $($.parseXML('<?xml version="1.0" encoding="UTF-8"?><data><info></info></data>'));
+	newXML.children(0).children(0).append($(infoDOM).children(0));
+	newXML.children(0).append($(schemaDOM).children(0));
+	newXML.children(0).append($($.parseXML("<annotations></annotations>")).children(0));
+	return newXML;
+}
+
+AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNameList) {
 	var xmlDOM = $(xml);
 	var infoDOM = xmlDOM.find("info");
 	var tInfoDOM = infoDOM.clone();
@@ -998,7 +1036,14 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml) {
 		AnaforaProject.prototype.readFromXMLDOM.call(this,xml);
 		return ;
 	}
-	
+
+	if(annotatorNameList != undefined) {
+		for(var annotatorName of annotatorNameList) {
+			if(annotatorName != "gold" && !(annotatorName in projectXMLList)) {
+				projectXMLList[annotatorName] = AnaforaAdjudicationProject.createNewProjectDOM(tInfoDOM, schemaDOM);
+			}
+		}
+	}
 	
 	// parse annotations from
 	$(annotationDOM).children().each( function() {
@@ -1024,13 +1069,9 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml) {
 				_self.completeAdjudication++;
 		}
 		else {
-			if(!(annotatorName in projectXMLList)) {
-				var newXML = $($.parseXML('<?xml version="1.0" encoding="UTF-8"?><data></data>'));
-				newXML.children(0).append($(tInfoDOM).children(0));
-				newXML.children(0).append($(schemaDOM).children(0));
-				newXML.children(0).append($($.parseXML("<annotations></annotations>")).children(0));
-				projectXMLList[annotatorName] = newXML;
-
+		
+			if(annotatorName != "gold" && !(annotatorName in projectXMLList)) {
+				projectXMLList[annotatorName] = AnaforaAdjudicationProject.createNewProjectDOM(tInfoDOM, schemaDOM);
 			}
 
 			var projectXML = projectXMLList[annotatorName];
@@ -1052,6 +1093,8 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml) {
 			});
 
 			_self.projectList[annotatorName].setAnnotateFrame(_self.annotateFrame);
+			if(_self.parentProject != undefined)
+				_self.projectList[annotatorName].setParentProject(_self.parentProject);
 			_self.projectList[annotatorName].readFromXMLDOM(projectXML, true); 
 
 			_self.totalAdjudication += Object.keys(_self.projectList[annotatorName].entityList).length;
@@ -1291,9 +1334,6 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml) {
 			_self.annotateFrame.updatePosIndex(relation);
 	});
 
-	if(this.relationList[12] != undefined)
-	this.relationList[12].propertyList[1].sort(IAnaforaObj.sort);
-
 	this.totalAdjudication -= Object.keys(this.entityList).length;
 	this.totalAdjudication -= Object.keys(this.relationList).length;
 	this.totalAdjudication -= Object.keys(this.adjudicationEntityList).length;
@@ -1332,4 +1372,20 @@ AnaforaAdjudicationProject.prototype.findRelationByIdx = function(idx, annotator
 	else {
 		return this.projectList[annotator].findRelationByIdx(idx);
 	}
+}
+
+AnaforaAdjudicationProject.prototype.getAObjFromID = function(id) {
+	var term = id.split('@');
+	var annotator = term[3];
+	if(annotator == "gold") {
+		return AnaforaProject.prototype.getAObjFromID.call(this, id);
+	}
+	else {
+		for(var tProject of this.projectList) {
+			if(tProject.annotator == annotator) {
+				return tProject.getAObjFromID(id);
+			}
+		}
+	}
+
 }

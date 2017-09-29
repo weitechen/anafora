@@ -84,8 +84,11 @@ RelationFrame.prototype.relationClick = function(clickedRow) {
 	clickedRow.addClass("selectedRelation");
 	//trElement.addClass("selectedRelation");
 
-	if( clickedRow.position().top < 0 || clickedRow.position().top > this.rootDiv.height())
-		this.rootDiv.scrollTop(this.rootDiv.scrollTop() + clickedRow.position().top);
+		
+	//this.rootDiv.scrollTop(clickedRow.offset().top);
+	if( clickedRow.position().top < 0 || clickedRow.position().top < this.rootDiv.scrollTop() || clickedRow.position().top > (this.rootDiv.scrollTop() + this.rootDiv.height()))
+		clickedRow.get(0).scrollIntoView();
+	//	this.rootDiv.scrollTop(this.rootDiv.scrollTop() + clickedRow.position().top);
 }
 
 RelationFrame.prototype.generateRelationRow = function(relation) {
