@@ -272,15 +272,6 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 			annotator1 = term1[3];
 			comparePairRelationList1 = relation1.getAdditionalData("comparePair");
 			if(relation0.type == relation1.type) {
-				if(relation0 == "29@r@ID184_clinic_537@adwi9965") {
-					if(relation1 == "29@r@ID184_clinic_537@reganma") {
-						console.log(relation1.id);
-					}
-
-
-				}
-
-
 				var diffProp = IAdjudicationAnaforaObj.compareAObjPropertyList(relation0, relation1, AnaforaAdjudicationProject.adjEntityComparePropertyFunc);
 				if( relation0.type.propertyTypeList.length - diffProp.length  > 1 && diffProp.length < currentDiffProp && (comparePairRelationList1 == undefined || comparePairRelationList1[1].diffProp.length > diffProp.length ) && _self.relationAdjFilter(diffProp)) {
 					currentDiffProp = diffProp.length;
@@ -295,9 +286,6 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 					if(comparePairRelationList0 != undefined) {
 						var tAdjIdx = parseInt(comparePairRelationList0[1].id.split('@')[0]);
 						_self.delTypeCount(_self.adjudicationRelationList[tAdjIdx].type);
-						//if(_self.annotateFrame != undefined)
-
-						//	_self.annotateFrame.removeAObj(_self.adjudicationRelationList[tAdjIdx]);
 							_self.removeAObj(_self.adjudicationRelationList[tAdjIdx]);
 						delete _self.adjudicationRelationList[tAdjIdx];
 
@@ -308,8 +296,6 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 					if(comparePairRelationList1 != undefined) {
 						var tAdjIdx = parseInt(comparePairRelationList1[1].id.split('@')[0]);
 						_self.delTypeCount(_self.adjudicationRelationList[tAdjIdx].type);
-						//if(_self.annotateFrame != undefined)
-						//	_self.annotateFrame.removeAObj(_self.adjudicationRelationList[tAdjIdx]);
 						_self.removeAObj(_self.adjudicationRelationList[tAdjIdx]);
 						delete _self.adjudicationRelationList[tAdjIdx];
 						comparePairRelationList1[0].setAdditionalData("comparePair");
