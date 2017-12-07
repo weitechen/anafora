@@ -272,9 +272,17 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 			annotator1 = term1[3];
 			comparePairRelationList1 = relation1.getAdditionalData("comparePair");
 			if(relation0.type == relation1.type) {
+				if(relation0 == "29@r@ID184_clinic_537@adwi9965") {
+					if(relation1 == "29@r@ID184_clinic_537@reganma") {
+						console.log(relation1.id);
+					}
+
+
+				}
+
 
 				var diffProp = IAdjudicationAnaforaObj.compareAObjPropertyList(relation0, relation1, AnaforaAdjudicationProject.adjEntityComparePropertyFunc);
-				if( relation0.type.propertyTypeList.length - diffProp.length  > 1 && diffProp.length < currentDiffProp && (comparePairRelationList1 == undefined || comparePairRelationList1[1].diffProp.length > currentDiffProp) && _self.relationAdjFilter(diffProp)) {
+				if( relation0.type.propertyTypeList.length - diffProp.length  > 1 && diffProp.length < currentDiffProp && (comparePairRelationList1 == undefined || comparePairRelationList1[1].diffProp.length > diffProp.length ) && _self.relationAdjFilter(diffProp)) {
 					currentDiffProp = diffProp.length;
 					// update diffProp
 
