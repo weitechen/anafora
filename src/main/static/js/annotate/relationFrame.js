@@ -107,7 +107,7 @@ RelationFrame.prototype.generateRelationRow = function(relation) {
 		}
 
 
-		row.bind("click", function(evt){propertyFrameList[0].isAssignRelation=false; restore();  _self.relationClick($(this) ); selectAObj(jQuery.data($(evt.currentTarget)[0], "relData").rel);});
+		row.bind("click", function(evt){propertyFrameList[0].isAssignRelation=false; _self.relationClick($(this) ); selectAObj(jQuery.data($(evt.currentTarget)[0], "relData").rel);});
 	}
 	return row;
 }

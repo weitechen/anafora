@@ -119,8 +119,10 @@ PropertyFrame.prototype.restore = function() {
 	}
 	this.currentSelectedPropertyIdx = undefined;
 
+	/*
 	if(currentAProject.selectedAObj != null)
 		currentAProject.selectAObj(currentAProject.selectedAObj);
+	*/
 }
 
 PropertyFrame.prototype.removeAObjFromProperty = function(pIdx, pListIdx) {

@@ -1302,6 +1302,8 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 	$.each(this.relationList, function(idx, relation) {
 		// update relation list link
 		$.each(relation.type.propertyTypeList, function(pIdx, pType) {
+			if(idx==412)
+				console.log(idx);
 			if(pType.input == InputType.LIST && relation.propertyList[pIdx] != undefined) {
 				$.each(relation.propertyList[pIdx], function(plIdx) {
 					if(relation.propertyList[pIdx][plIdx] instanceof EmptyEntity) {

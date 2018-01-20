@@ -269,9 +269,9 @@ AnaforaProject.prototype.drawAObj = function(aObj) {
 	var checkedType = this.schema.checkedType;
 	var _self = this;
 
-	var overlapList = {};
 	var drawEntityFunc = function(entity) {
 		var annotFrame = _self.getAnnotateFrame(entity);
+		var overlapList = {};
 		$.each(entity.markElement, function(mIdx) {
 			var overlap = entity.markElement[mIdx];
 			//var idx = _self.overlap.indexOf(overlap);
@@ -279,7 +279,6 @@ AnaforaProject.prototype.drawAObj = function(aObj) {
 			//overlapList[idx] = _self.overlap[idx];
 			if(idx >= 0)
 				overlapList[idx] = annotFrame.overlap[idx];
-
 		});
 
 		annotFrame.updateOverlapList(overlapList, checkedType); 

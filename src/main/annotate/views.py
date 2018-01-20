@@ -18,7 +18,7 @@ import traceback
 
 css = ["css/style.css", "css/themes/default/style.css"]
 
-js_lib = [("js/lib/%s" % js_file) for js_file in ["jquery.jstree.js", "jquery.jstree.schema.js", "jquery.hotkeys.js", "jquery.ui.position.js", "jquery.contextMenu.js", "jquery.json-2.4.min.js", "jquery.cookie.js"]]
+js_lib = [("js/lib/%s" % js_file) for js_file in ["jquery.jstree.js", "jquery.jstree.schema.js", "jquery.hotkeys.js", "jquery.ui.position.min.js", "jquery.contextMenu.min.js", "jquery.json-2.4.min.js", "jquery.cookie.js"]]
 
 
 js_annotate = [("js/annotate/%s" % js_file) for js_file in ["errorHandler.js", "schema.js", "anaforaProject.js", "anaforaObj.js", "annotate.js", "propertyFrame.js", "annotateFrame.js", "aObjSelectionMenu.js", "projectSelector.js", "anaforaAdjudicationProject.js", "anaforaCrossProject.js", "anaforaCrossAdjudicationProject.js", "relationFrame.js"]]

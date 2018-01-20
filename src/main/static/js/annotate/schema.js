@@ -233,3 +233,5 @@ Schema.prototype.updateCheckedType = function(newCheckedType) {
 	this.checkedType = newCheckedType;
 
 }
+
+//module.exports.Schema = Schema;

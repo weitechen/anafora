@@ -877,6 +877,8 @@ function restore() {
 		propertyFrameList[1].restore();
 	}
 
+	if(currentAProject.selectedAObj != null)
+		currentAProject.selectAObj(currentAProject.selectedAObj);
 	schemaDiv.jstree("restore");
 }
 function assignEntityToRelation(propIdx) {

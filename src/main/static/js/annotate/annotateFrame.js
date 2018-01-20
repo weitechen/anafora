@@ -34,6 +34,9 @@ function AnnotateFrame(frameElement, setting, rawText) {
 			});
 
 			return { items: returnContextItem};
+		},
+		position: function(opt, x, y){
+		        opt.$menu.css({bottom:y, left: x});
 		}
 	});
 }

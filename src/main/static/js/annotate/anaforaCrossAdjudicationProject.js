@@ -132,72 +132,6 @@ AnaforaCrossAdjudicationProject.prototype.addAnaforaProjectList = function(proje
 
 		newProjectList[subTaskName] = newAdjProject;
 	}
-	/*
-	for (taskName in crossProject1.projectList) {
-		for (var entityIdx in crossProject1.projectList[taskName].entityList) {
-			var id = crossProject1.projectList[taskName].entityList[entityIdx].id;
-			var term = id.split('@');
-			if(term[3] == "gold") {
-				var removeGoldEntity = crossProject1.getAObjFromID(id);
-				crossProject1.projectList[taskName].annotateFrame.removeEntityPosit(removeGoldEntity, removeGoldEntity, true);
-
-				var tGoldEntity = crossProject0.getAObjFromID(id);
-				crossProject1.projectList[taskName].entityList[entityIdx] = tGoldEntity;
-
-			}
-			*/
-			/*
-			else {
-			  var tEntity = crossProject1.projectList[taskName].entityList[entityIdx];
-			  $.each(tEntity.type.propertyTypeList, function(tIdx, pType) {
-				if(pType.input == InputType.LIST && tEntity.propertyList[tIdx] != undefined) {
-					$.each(tEntity.propertyList[tIdx], function(ttIdx, ttEntity) {
-					  var tID = ttEntity.id;
-					  var ttTerm = tID.split('@');
-					  if(ttTerm[3] == "gold") {
-  						crossProject1.projectList[taskName].entityList[entityIdx].propertyList[tIdx][ttIdx] = crossProject0.getAObjFromID(tID);
-					  }
-					});
-				}
-			  });
-			}
-			*/
-		/*
-		}
-
-		for (var relationIdx in crossProject1.projectList[taskName].relationList) {
-			var id = crossProject1.projectList[taskName].relationList[relationIdx].id;
-			var term = id.split('@');
-			if(term[3] == "gold") {
-				var removeGoldRelation = crossProject1.getAObjFromID(id);
-				crossProject1.projectList[taskName].annotateFrame.removeRelationPosit(removeGoldRelation, removeGoldRelation, true);
-
-				var tGoldRelation = crossProject0.getAObjFromID(id);
-				crossProject1.projectList[taskName].relationList[relationIdx] = tGoldRelation ;
-
-			}
-			*/
-			/*
-			else {
-			  var tRelation = crossProject1.projectList[taskName].relationList[relationIdx];
-			  $.each(tRelation.type.propertyTypeList, function(tIdx, pType) {
-				if(pType.input == InputType.LIST && tRelation.propertyList[tIdx] != undefined) {
-					$.each(tRelation.propertyList[tIdx], function(ttIdx, ttRelation) {
-					  var tID = ttRelation.id;
-					  var ttTerm = tID.split('@');
-					  if(ttTerm[3] == "gold") {
-  						crossProject1.projectList[taskName].relationList[relationIdx].propertyList[tIdx][ttIdx] = crossProject0.getAObjFromID(tID);
-					  }
-					});
-				}
-			  });
-			}
-			*/
-			/*
-		}
-	}
-	*/
-
 	//var crossAdjProjectList = {};
 	for(var subTaskName of taskList) {
 		var subProjectList = {};
@@ -213,54 +147,6 @@ AnaforaCrossAdjudicationProject.prototype.addAnaforaProjectList = function(proje
 	}
 
 	AnaforaCrossProject.prototype.addAnaforaProjectList.call(this, newProjectList);
-	
-	// Merge annotate frame
-	/*
-	for(var subTaskName in this.projectList) {
-		var currentAdjProject = this.projectList[subTaskName];
-		var firstAnnotateFrame = currentAdjProject.projectList[annotatorList[0]].annotateFrame;
-		var firstProject = currentAdjProject.projectList[annotatorList[0]];
-		var secondProject = currentAdjProject.projectList[annotatorList[1]];
-		//currentAdjProject.setAnnotateFrame(firstAnnotateFrame);
-		//secondProject.setAnnotateFrame(firstAnnotateFrame);
-		// Add posit from second project to firstFrame
-
-		/*
-		$.each(firstProject.entityList, function(eIdx, entity) {
-			entity.markElement = [];
-		});
-
-		$.each(firstProject.relationList, function(rIdx, relation) {
-			relation.markElement = [];
-		});
-		*/
-
-		/*
-		$.each(secondProject.entityList, function(eIdx, entity) {
-			var eTerm = entity.id.split('@');
-			
-			currentAdjProject.updateLinking(entity.type, entity);
-			firstAnnotateFrame.updatePosIndex(entity);
-			
-			});
-	
-		$.each(secondProject.relationList, function(rIdx, relation) {
-			var rTerm = relation.id.split('@');
-			currentAdjProject.updateLinking(relation.type, relation);
-			firstAnnotateFrame.updatePosIndex(relation);
-		});
-
-		$.each(currentAdjProject.adjudicationEntityList, function(eIdx, entity) {
-			currentAdjProject.updateLinking(entity.type, entity);
-			firstAnnotateFrame.updatePosIndex(entity);
-			});
-	
-		$.each(currentAdjProject.adjudicationRelationList, function(rIdx, relation) {
-			currentAdjProject.updateLinking(relation.type, relation);
-			firstAnnotateFrame.updatePosIndex(relation);
-		});
-	}
-	*/
 
 	for(var subTaskName in this.projectList) {
 		this.projectList[subTaskName].annotateFrame.generateAllAnnotateOverlapList();
@@ -479,3 +365,5 @@ AnaforaCrossAdjudicationProject.prototype.adjudicationCompleted = function() {
 	setCompleted();
 	window.location.reload();
 }
+
+AnaforaCrossAdjudicationProject.prototype.drawAObj = AnaforaAdjudicationProject.prototype.drawAObj;
