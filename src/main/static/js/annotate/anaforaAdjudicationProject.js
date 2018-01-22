@@ -1073,6 +1073,9 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 		}
 	});
 
+
+
+	// put gold annotation and adjudication annotation to both project;
 	if(Object.keys(projectXMLList).length > 0) {
 		this.projectList = {};
 		$.each(projectXMLList, function(annotatorName, projectXML) {
@@ -1086,6 +1089,14 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 				_self.projectList[annotatorName].relationList[rIdx] = relation;
 			});
 
+			$.each(_self.adjudicationEntityList, function(eIdx, entity) {
+				_self.projectList[annotatorName].entityList[eIdx] = entity;
+			});
+
+			$.each(_self.adjudicationRelationList, function(rIdx, relation) {
+				_self.projectList[annotatorName].relationList[rIdx] = relation;
+			});
+
 			_self.projectList[annotatorName].setAnnotateFrame(_self.annotateFrame);
 			if(_self.parentProject != undefined)
 				_self.projectList[annotatorName].setParentProject(_self.parentProject);
@@ -1095,7 +1106,6 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 			_self.totalAdjudication += Object.keys(_self.projectList[annotatorName].relationList).length;
 		});
 	}
-
 
 	// reading <adjudication> dom
 	if(this.projectList != undefined) {
@@ -1119,7 +1129,6 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 	
 		});
 	}
-
 	this.maxEntityIdx = Math.max(this.maxEntityIdx, Object.keys(this.entityList).max(), Object.keys(this.adjudicationEntityList).max() );
 	this.maxRelationIdx = Math.max(this.maxRelationIdx, Object.keys(this.relationList).max(), Object.keys(this.adjudicationRelationList).max() );
 
@@ -1191,13 +1200,11 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 			});
 
 			$.each(aProject.relationList, function(idx, relation) {
-				
 				if(relation instanceof EmptyRelation) {
 					var emtptyAnnotator = relation.id.split('@')[3];
 					aProject.relationList[idx] = _self.findRelationByIdx(idx, "gold");
 				
 					relation = aProject.relationList[idx];
-
 				}
 				else if (relation instanceof AdjudicationRelation) {
 					;
@@ -1206,29 +1213,6 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 					;
 				}
 				else {
-					$.each(relation.type.propertyTypeList, function(pIdx, pType) {
-						if(pType.input == InputType.LIST && relation.propertyList[pIdx] != undefined) {
-							$.each(relation.propertyList[pIdx], function(plIdx) {
-								if(relation.propertyList[pIdx][plIdx] instanceof EmptyEntity) {
-									var emptyEntity = relation.propertyList[pIdx][plIdx];
-									var emptyId = parseInt(emptyEntity.id.split('@')[0]);
-									var emptyAnnotator = emptyEntity.id.split('@')[3];
-  									relation.propertyList[pIdx][plIdx] = _self.findEntityByIdx(emptyId, emptyAnnotator);
-								}
-								else if(relation.propertyList[pIdx][plIdx] instanceof EmptyRelation) {
-									var emptyRelation = relation.propertyList[pIdx][plIdx];
-									var emptyId = parseInt(emptyRelation.id.split('@')[0]);
-									var emtptyAnnotator = emptyRelation.id.split('@')[3];
-  									relation.propertyList[pIdx][plIdx] = _self.findRelationByIdx(emptyId, emptyAnnotator);
-								}
-								else
-									return false;
-							});
-							
-							relation.propertyList[pIdx].sort(IAnaforaObj.sort);
-						}
-					});
-
 					var comparePairRelationListStr = relation.getAdditionalData("comparePair");
 					if(comparePairRelationListStr != undefined) {
 						var comparePairRelationList = [];
@@ -1256,8 +1240,42 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 						_self.addTypeCount(relation.type);
 						if(_self.annotateFrame != undefined)
 							_self.annotateFrame.updatePosIndex(relation);
-							
 					}
+
+					$.each(relation.type.propertyTypeList, function(pIdx, pType) {
+						if(pType.input == InputType.LIST && relation.propertyList[pIdx] != undefined) {
+							$.each(relation.propertyList[pIdx], function(plIdx) {
+								if(relation.propertyList[pIdx][plIdx] instanceof EmptyEntity) {
+									var emptyEntity = relation.propertyList[pIdx][plIdx];
+									var emptyId = parseInt(emptyEntity.id.split('@')[0]);
+									var emptyAnnotator = emptyEntity.id.split('@')[3];
+									var linkedEntity = _self.findEntityByIdx(emptyId, emptyAnnotator);
+  									relation.propertyList[pIdx][plIdx] = linkedEntity;
+									//this.addEntityPosit(aObj, aObj);
+									_self.annotateFrame.addEntityPosit(linkedEntity, relation);
+									var comparePairList = relation.getAdditionalData("comparePair");
+									if(comparePairList && comparePairList.length > 1)
+										_self.annotateFrame.addEntityPosit(linkedEntity, comparePairList[1]);
+								}
+								else if(relation.propertyList[pIdx][plIdx] instanceof EmptyRelation) {
+									var emptyRelation = relation.propertyList[pIdx][plIdx];
+									var emptyId = parseInt(emptyRelation.id.split('@')[0]);
+									var emtptyAnnotator = emptyRelation.id.split('@')[3];
+									var linkedRelation = _self.findRelationByIdx(emptyId, emptyAnnotator);
+  									relation.propertyList[pIdx][plIdx] = linkedRelation;
+									
+									_self.annotateFrame.addRelationPosit(linkedRelation, relation);
+									var comparePairList = relation.getAdditionalData("comparePair");
+									if(comparePairList && comparePairList.length > 1)
+										_self.annotateFrame.addEntityPosit(linkedEntity, comparePairList[1]);
+								}
+								else
+									return false;
+							});
+							
+							relation.propertyList[pIdx].sort(IAnaforaObj.sort);
+						}
+					});
 
 					if(relation.getAdditionalData("adjudication") == "gold") {
 						_self.completeAdjudication++;
@@ -1302,8 +1320,6 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 	$.each(this.relationList, function(idx, relation) {
 		// update relation list link
 		$.each(relation.type.propertyTypeList, function(pIdx, pType) {
-			if(idx==412)
-				console.log(idx);
 			if(pType.input == InputType.LIST && relation.propertyList[pIdx] != undefined) {
 				$.each(relation.propertyList[pIdx], function(plIdx) {
 					if(relation.propertyList[pIdx][plIdx] instanceof EmptyEntity) {

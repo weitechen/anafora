@@ -345,6 +345,9 @@ AnaforaCrossAdjudicationProject.prototype.readFromXMLDOM = function(xml, subTask
 		_self.projectList[subTaskName].totalAdjudication += Object.keys(_self.projectList[subTaskName].relationList).length;
 	});
 	
+
+	for(var subTaskName in this.projectList)
+		this.projectList[subTaskName].annotateFrame.generateAllAnnotateOverlapList();
 	this.updateProgressBar();
 }
 
