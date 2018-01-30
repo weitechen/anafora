@@ -30,14 +30,17 @@ function AnnotateFrame(frameElement, setting, rawText) {
 
 			$.each(matchChecked, function(idx) {
 				var _self = this;
-				returnContextItem["item_" + idx.toString()] = {type:"entity", aObj: this, callback: function() {var _this=_self;  selectAObj(_this); if(currentAProject.selectedAObj instanceof Relation) { relationFrame.relationClick(relationFrame.searchRowFromRelation(currentAProject.selectedAObj)); }}};
+				returnContextItem["item_" + idx.toString()] = {type:"annotation", aObj: this, callback: function() {var _this=_self;  selectAObj(_this); if(currentAProject.selectedAObj instanceof Relation) { relationFrame.relationClick(relationFrame.searchRowFromRelation(currentAProject.selectedAObj)); }}};
 			});
 
 			return { items: returnContextItem};
 		},
+		
 		position: function(opt, x, y){
-		        opt.$menu.css({bottom:y, left: x});
+		        opt.$menu.css({bottom:y, left: x, "max-height": "500px" });
+		        //opt.$menu.css({bottom:y, left: x});
 		}
+		
 	});
 }
 

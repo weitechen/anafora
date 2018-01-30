@@ -684,6 +684,9 @@ PropertyFrame.prototype.generatePropertyTableRow = function(pType, pIdx, pValue,
 
 	tRow.find(".propertySubAObj").bind({
 		mouseenter: function(evt) {
+			var aProjectDiv = aProjectWrapper.children("div");
+			previousPosition = aProjectDiv.scrollTop();
+
 			var pListIdx = $(this).index();
 			var hoverAObj; 
 			if(currentAProject.selectedAObj instanceof AdjudicationEntity || currentAProject.selectedAObj instanceof AdjudicationRelation) {
@@ -705,6 +708,12 @@ PropertyFrame.prototype.generatePropertyTableRow = function(pType, pIdx, pValue,
 			}
 			else {
 				currentAProject.selectAObj(currentAProject.selectedAObj);
+			}
+			if(previousPosition != undefined) {
+				var aProjectDiv = aProjectWrapper.children("div");
+				aProjectDiv.scrollTop(previousPosition);
+				previousPosition = undefined;
+
 			}
 		}
 	});

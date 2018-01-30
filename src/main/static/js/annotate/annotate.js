@@ -15,6 +15,7 @@ var errorHandler = undefined;
 var currentScrollTask = 0;
 var subTaskNameList = undefined;
 var subTaskElemList = undefined;
+var previousPosition = undefined;
 
 function onLoad() {
 	// Setting errorHAndler;
@@ -458,10 +459,15 @@ function loadNewProject() {
 	propertyFrameList.push(new PropertyFrame($("#propertyWrapper").children(".propertyHidden").eq(1), _setting, 1));
 	aObjSelectionMenu = new AObjSelectionMenu($("#aObjSelection"));
 
-	$.contextMenu.types.entity = function(item, opt, root) {
-		var entitySpanElementStr = item.aObj.genElementStr();
+	$.contextMenu.types.annotation = function(item, opt, root) {
+		var entitySpanElementStr;
+		if(item.aObj.__proto__.parent == IAdjudicationAnaforaObj && item.aObj.decideIdx != undefined) {
+			entitySpanElementStr = item.aObj.compareAObj[item.aObj.decideIdx].genElementStr();
+		}
+		else
+			entitySpanElementStr = item.aObj.genElementStr();
 		$(entitySpanElementStr).appendTo(this);
-        	};
+       	};
 
 	currentAProject.updateAllFrameFragement();
 	// extend entire word

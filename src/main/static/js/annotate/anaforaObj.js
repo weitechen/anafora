@@ -764,11 +764,11 @@ Relation.prototype.getFirstListProperty = function() {
 }
 
 Relation.prototype.genElementStr = function() {
-	return this.genElementHead() + this.genElementProperty();
+	return '<span>' +  this.genElementHead() + this.genElementProperty() + '</span>';
 }
 
 Relation.prototype.genElementHead = function() {
-	return rStr = '<span><span class="jstreeschema" style="background-color:#' + this.type.color + ';color:#' + invertColor(this.type.color) + '">' + (this.isCrossObj() ? 'C' : '') + '</span>' + this.type.type;
+	return rStr = '<span><span class="jstreeschema" style="background-color:#' + this.type.color + ';color:#' + invertColor(this.type.color) + '">' + (this.isCrossObj() ? 'C' : '') + '</span>' + this.type.type + '</span>';
 }
 
 Relation.prototype.genElementProperty = function() {
@@ -1135,8 +1135,10 @@ AdjudicationRelation.prototype.genElementProperty = function() {
 	var rStr = '';
 	var _self = this;
 
+	/*
 	if(this.decideIdx != undefined)
 		return this.compareAObj[this.decideIdx].genElementProperty();
+	*/
 
 	$.each(this.type.propertyTypeList, function(idx, propertyType) {
 		if(_self.diffProp.indexOf(idx) != -1) {

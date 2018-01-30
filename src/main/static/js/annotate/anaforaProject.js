@@ -259,8 +259,10 @@ AnaforaProject.prototype.selectAObj = function(selectedAObj) {
 	}
 
 	var aProjectDiv = aProjectWrapper.children("div");
+	/*
 	if( lastSpanElement != undefined &&( lastSpanElement.position().top < 0 || lastSpanElement.position().top > aProjectDiv.height()) )
 		aProjectDiv.scrollTop(aProjectDiv.scrollTop() + lastSpanElement.position().top);
+	*/
 
 	this.selectedAObj = selectedAObj;
 }
