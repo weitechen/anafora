@@ -1190,10 +1190,15 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 						_self.addTypeCount(entity.type);
 						if(_self.annotateFrame != undefined)
 							_self.annotateFrame.updatePosIndex(entity);
-					}
 
-					if(entity.getAdditionalData("adjudication") == "gold") {
-						_self.completeAdjudication++;
+						if(entity.getAdditionalData("adjudication") != undefined) {
+							_self.completeAdjudication++;
+						}
+					}
+					else {
+						if(entity.getAdditionalData("adjudication") == "gold") {
+							_self.completeAdjudication++;
+						}
 					}
 				}
 
@@ -1240,6 +1245,14 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 						_self.addTypeCount(relation.type);
 						if(_self.annotateFrame != undefined)
 							_self.annotateFrame.updatePosIndex(relation);
+						if(relation.getAdditionalData("adjudication") != undefined) {
+							_self.completeAdjudication++;
+						}
+					}
+					else {
+						if(relation.getAdditionalData("adjudication") == "gold") {
+							_self.completeAdjudication++;
+						}
 					}
 
 					$.each(relation.type.propertyTypeList, function(pIdx, pType) {
@@ -1277,9 +1290,6 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 						}
 					});
 
-					if(relation.getAdditionalData("adjudication") == "gold") {
-						_self.completeAdjudication++;
-					}
 				}
 
 			});
