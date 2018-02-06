@@ -90,7 +90,7 @@ class AnaforaProjectManager:
 		return True
 
 	@staticmethod
-	def searchAllTask(ps, projectName, corpusName, schemaName, schemaMode = None, isCrossDoc = False):
+	def searchAllTask(ps, projectName, corpusName, schemaName, schemaMode = None, isAdj = False, isCrossDoc = False):
 		""" Search all task names which contain target schemaName
 		@type ps:			ProjectSetting
 		@type projectName:  str
@@ -103,7 +103,7 @@ class AnaforaProjectManager:
 		mode = ps.getMode(schemaName, schemaMode)
 
 		corpusPath = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName)
-		command_str = "find %s -type f -name '*.%s.*.xml' | sed -r 's/^.*\/([^\/]+)\/[^\/]+.xml$/\\1/g' | sort -u" % (corpusPath, mode.getSchemaName())
+		command_str = "find %s -maxdepth 2 -type f -name '*.%s%s.*.xml' | sed -r 's/^.*\/([^\/]+)\/[^\/]+.xml$/\\1/g' | sort -u" % (corpusPath, mode.getSchemaName(), "-Adjudication" if isAdj else "")
 		taskNameList = check_output(command_str, shell=True)
 		taskName = [tName for tName in taskNameList.split('\n') if tName != '']
 		return taskName
@@ -321,7 +321,6 @@ class AnaforaProjectManager:
 							hasPreannotation = True
 						elif taskFile.isCompleted:
 							numOfAnnotatorFile += 1
-			print (inProgressTask, completedTask)
 
 			if numOfAnnotatorFile >= maxNumOfAnnotator and (hasOtherAdjudicator == False or os.path.exists(os.path.join(taskPath, ".nolimit"))) and taskName not in completedTask and taskName not in inProgressTask and (hasGold != True):
 				newTask.append(taskName)

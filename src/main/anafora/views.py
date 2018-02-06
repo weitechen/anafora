@@ -21,9 +21,9 @@ css = ["css/style.css", "css/themes/default/style.css"]
 js_lib = [("js/lib/%s" % js_file) for js_file in ["jquery.jstree.js", "jquery.jstree.schema.js", "jquery.hotkeys.js", "jquery.ui.position.min.js", "jquery.contextMenu.min.js", "jquery.json-2.4.min.js", "jquery.cookie.js"]]
 
 
-js_annotate = [("js/annotate/%s" % js_file) for js_file in ["errorHandler.js", "schema.js", "anaforaProject.js", "anaforaObj.js", "annotate.js", "propertyFrame.js", "annotateFrame.js", "aObjSelectionMenu.js", "projectSelector.js", "anaforaAdjudicationProject.js", "anaforaCrossProject.js", "anaforaCrossAdjudicationProject.js", "relationFrame.js"]]
+js_anafora = [("js/anafora/%s" % js_file) for js_file in ["errorHandler.js", "schema.js", "anaforaProject.js", "anaforaObj.js", "annotate.js", "propertyFrame.js", "annotateFrame.js", "aObjSelectionMenu.js", "projectSelector.js", "anaforaAdjudicationProject.js", "anaforaCrossProject.js", "anaforaCrossAdjudicationProject.js", "relationFrame.js"]]
 
-js_schemaSpecific = {"Coreference": {"adjudication": ["js/annotate/anaforaAdjudicationProjectCoreference.js"]}}
+js_schemaSpecific = {"Coreference": {"adjudication": ["js/anafora/anaforaAdjudicationProjectCoreference.js"]}}
 
 account = ""
 
@@ -33,7 +33,7 @@ AnaforaProjectManager.rootPath = settings.ANAFORA_PROJECT_FILE_ROOT
 projectSetting = None
 
 basicContextContent = {
-	'js': (js_lib + js_annotate) if settings.DEBUG else (js_lib + ["js/out.js"]),
+	'js': (js_lib + js_anafora) if settings.DEBUG else (js_lib + ["js/out.js"]),
 	'js_schemaSpecific': js_schemaSpecific,
 	'css': css,
 	'title': 'Anafora',
@@ -66,7 +66,7 @@ def assignSettingVars(request, projectName = None, corpusName = None, taskName =
 	"""
 	ps = getProjectSetting()
 	
-	rSettings = {'app_name': "annotate", 'annotator': annotator if annotator != None else request.META["REMOTE_USER"] , 'remoteUser': request.META["REMOTE_USER"],'schemaMap': json.dumps(ps.getSchemaMap()), 'isAdjudication': isAdj, 'isCrossDoc': isCrossDoc }
+	rSettings = {'app_name': "anafora", 'annotator': annotator if annotator != None else request.META["REMOTE_USER"] , 'remoteUser': request.META["REMOTE_USER"],'schemaMap': json.dumps(ps.getSchemaMap()), 'isAdjudication': isAdj, 'isCrossDoc': isCrossDoc }
 	
 	if projectName  != None:
 		rSettings['projectName'] = projectName
@@ -144,7 +144,7 @@ def index(request):
 	contextContent['settingVars'] = assignSettingVars(request)
 	# contextContent.update(csrf(request))
 	#context = Context(contextContent)
-	return render(request, 'annotate/index.html', contextContent)
+	return render(request, 'anafora/index.html', contextContent)
 
 @csrf_protect
 def selectProject(request, projectName):
@@ -159,7 +159,7 @@ def selectProject(request, projectName):
 	contextContent['settingVars'] = assignSettingVars(request, projectName = projectName)
 	# contextContent.update(csrf(request))
 	#context = Context(contextContent)
-	return render(request, 'annotate/index.html', contextContent)
+	return render(request, 'anafora/index.html', contextContent)
 
 @csrf_protect
 def selectCorpus(request, projectName, corpusName):
@@ -179,7 +179,7 @@ def selectCorpus(request, projectName, corpusName):
 	contextContent['settingVars'] = assignSettingVars(request, projectName = projectName, corpusName = corpusName)
 	# contextContent.update(csrf(request))
 	#context = Context(contextContent)
-	return render(request, 'annotate/index.html', contextContent)
+	return render(request, 'anafora/index.html', contextContent)
 
 @csrf_protect
 def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMode=None, view="", crossDoc="", adjudication="", annotator=None ):  # annotatorName="", crossDoc=None):
@@ -244,27 +244,27 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
 	schemaMap = ps.getSchemaMap()
 	if annotator == None or annotator == "":
 		annotator = account
-	else:
-		if ";" not in annotatorName:
-			isAdjudication = False
+	#else:
+	#	if ";" not in annotatorName:
+	#		isAdjudication = False
 	
 
-	js_schemaSpecific = {"Coreference": {"adjudication": ["js/annotate/anaforaAdjudicationProjectCoreference.js"]}}
+	js_schemaSpecific = {"Coreference": {"adjudication": ["js/anafora/anaforaAdjudicationProjectCoreference.js"]}}
 	contextContent = {
-		'js': (js_lib + js_annotate) if settings.DEBUG else (js_lib + ["js/out.js"]),
+		'js': (js_lib + js_anafora) if settings.DEBUG else (js_lib + ["js/out.js"]),
 		'js_schemaSpecific': js_schemaSpecific,
 		'css': css,
 		'title': taskName + ' - Anafora',
 		'rawText': sorted(rawTextList.items()),
 		'ROOT_URL': settings.ROOT_URL,
-		'settingVars': {'app_name': "annotate", 'projectName': projectName, 'corpusName': corpusName,
+		'settingVars': {'app_name': "anafora", 'projectName': projectName, 'corpusName': corpusName,
 						'taskName': taskName, 'schema': "%s%s" % (schema, "" if schemaMode== None else (".%s" % schemaMode)), 'isAdjudication': isAdjudication,
 						'annotator': annotator, 'remoteUser': request.META["REMOTE_USER"],
 						'schemaMap': json.dumps(schemaMap), 'isCrossDoc': isCrossDoc},
 	}
 	# contextContent.update(csrf(request))
 	#context = Context(contextContent)
-	return render(request, 'annotate/index.html', contextContent)
+	return render(request, 'anafora/index.html', contextContent)
 
 
 @csrf_protect
@@ -297,7 +297,7 @@ def getInprogressAnnotator(request, projectName, corpusName, taskName, schemaNam
 	return HttpResponseForbidden("access not allowed")
 
 
-def getAnnotator(request, projectName, corpusName, taskName, schemaName, schemaMode = None):
+def getAnnotator(request, projectName, corpusName, taskName, schemaName, schemaMode = None, isAdj = None ):
 	"""
 	Given project, corpus, taskName and schemaName, return the list of annotator names
 	adjudicator permission required
@@ -308,7 +308,7 @@ def getAnnotator(request, projectName, corpusName, taskName, schemaName, schemaM
 	ps = getProjectSetting()
 	if isAdjudicator(request):
 		#annotatorName = AnaforaProjectManager.getAnnotator(schemaName, projectName, corpusName, taskName)
-		annotatorName = AnaforaProjectManager.getAnnotator(ps, projectName, corpusName, taskName, schemaName, schemaMode = schemaMode)
+		annotatorName = AnaforaProjectManager.getAnnotator(ps, projectName, corpusName, taskName, schemaName, schemaMode = schemaMode, isAdjudication = (isAdj == "Adjudication"))
 
 		return HttpResponse(json.dumps(annotatorName))
 
@@ -435,14 +435,15 @@ def getCrossTaskFromProjectCorpusName(request, projectName, corpusName, schemaNa
 
 	return HttpResponse(json.dumps(taskName))
 
-
-def getAllTask(request, projectName, corpusName, schemaName, schemaMode = None, crossDoc=""):
+@csrf_protect
+def getAllTask(request, projectName, corpusName, schemaName, schemaMode = None, isAdj=None, crossDoc=""):
 	"""Given projectName, corpusName, schemaName, return all the available task
 	@type request:		HttpRequest
 	@type projectName:	str
 	@type corpusName:	str
 	@type schemaName:	str
 	@type schemaMode:	str
+	@type adjudication:	str
 	@type crossDoc:		str
 	@rtype:				list of str
 	"""
@@ -454,7 +455,7 @@ def getAllTask(request, projectName, corpusName, schemaName, schemaMode = None, 
 
 	ps = getProjectSetting()
 	if isAdjudicator(request):
-		taskName = AnaforaProjectManager.searchAllTask(ps, projectName, corpusName, schemaName, schemaMode = schemaMode,  isCrossDoc = (crossDoc == "_crossDoc") )
+		taskName = AnaforaProjectManager.searchAllTask(ps, projectName, corpusName, schemaName, schemaMode = schemaMode, isAdj = (isAdj == "Adjudication") , isCrossDoc = (crossDoc == "_crossDoc") )
 		return HttpResponse(json.dumps(taskName))
 	else:
 		return HttpResponseForbidden("access not allowed")

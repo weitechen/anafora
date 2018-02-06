@@ -3,8 +3,9 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
+#https://verbs.colorado.edu/~wech5560/anafora/anafora/annotator/THYMEColonFinal/Train/ID049_clinic_142/Thyme2v1.Coreference.Adjudication/?_=1517693683191
 urlpatterns = [
-	url(r'^getDir/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?/view(?:/(?P<crossDoc>_crossDoc))?/?$', views.getAllTask),
+	url(r'^getDir/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?(?:\.(?P<isAdj>Adjudication))?/view(?:/(?P<crossDoc>_crossDoc))?/?$', views.getAllTask),
 	#views.getAllTask),
 	#url(r'^getDir/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?\.Adjudication(?:/(?P<crossDoc>_crossDoc))?/?$', views.getAdjudicationTaskFromProjectCorpusName),
 	url(r'^getDir/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?\.Adjudication(?:/(?P<crossDoc>_crossDoc))?/?$', views.getAdjudicationTaskFromProjectCorpusName),
@@ -19,7 +20,7 @@ urlpatterns = [
 	url(r'^xml/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?/(?P<annotatorName>[^\/]+)(?:/_sub_(?P<subTaskName>[^\/]+))?/?$', views.getAnaforaXMLFile),
 	url(r'^completeAnnotator/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?(?:\.(?P<isAdj>Adjudication))?/?$', views.getCompleteAnnotator),
 	url(r'^inprogressAnnotator/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?(?:\.(?P<isAdj>Adjudication))?/?$', views.getInprogressAnnotator),
-	url(r'^annotator/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?/?$', views.getAnnotator),
+	url(r'^annotator/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?(?:\.(?P<isAdj>Adjudication))?/?$', views.getAnnotator),
 	url(r'^schema/(?P<schema>[^\/]+)/(?P<schemaIdx>[0-9]+)/?$', views.getSchema),
 	url(r'^schema/(?P<schema>[^\/]+)/?$', views.getSchema),
 	url(r'^saveFile/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<isAdj>Adjudication))?/?$', views.writeFile),

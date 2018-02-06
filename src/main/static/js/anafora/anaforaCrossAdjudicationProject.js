@@ -263,6 +263,9 @@ AnaforaCrossAdjudicationProject.prototype.readFromXMLDOM = function(xml, subTask
 
 	if(this.completed) {
 		AnaforaCrossProject.prototype.readFromXMLDOM.call(this,xml, subTaskNameList, annotateFrameList);
+		$.each(this.projectList, function(aIdx, aProject) {
+			aProject.annotateFrame.generateAllAnnotateOverlapList();
+		});
 		return ;
 	}
 	this.projectList = {};
