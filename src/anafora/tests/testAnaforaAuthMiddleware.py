@@ -1,5 +1,5 @@
 import os, sys
-from anaforaAuthMiddleware import *
+from ..anaforaAuthMiddleware import *
 
 class TestAnaforaAuthMiddleware(AnaforaAuthMiddleware):
 	def __init__(self):
@@ -8,5 +8,5 @@ class TestAnaforaAuthMiddleware(AnaforaAuthMiddleware):
 	def process_request(self, request):
 		super(TestAnaforaAuthMiddleware, self).process_request(request)
 
-		if request.META["REMOTE_USER"] == "wtchen":
+		if request.META["REMOTE_USER"] == "admin":
 			request.META["REMOTE_ADMIN"] = True
