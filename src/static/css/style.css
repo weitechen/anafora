@@ -1,0 +1,1100 @@
+/* @override 
+	http://verbs.colorado.edu/~wech5560/anafora/static/testAnnotate/style.css
+	http://verbs.colorado.edu/~wech5560/anafora/static/style.css
+	http://verbs.colorado.edu/~wech5560/anafora/static/testAnnotate/style.css
+	https://verbs.colorado.edu/~wech5560/anafora/static/style.css
+	https://verbs.colorado.edu/static/themes/default/style.css
+*/
+
+body {
+    display: block;
+    overflow:hidden;
+    font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+}
+
+span.removeBtn {
+	color: #f4f4f4;
+	background-color: #C0C0C0;
+	padding: 1px 4px 1px 4px;
+	float: left;
+}
+
+span.removeBtn:hover {
+	background-color: #f4f4f4;
+	color: #C0C0C0;
+}
+#headerWrapper {
+    position:absolute;
+    width:100%;
+    top:0px ;
+    left:0px ;
+    height:30px;
+    background-color: white;
+    padding: 10px;
+}
+
+#headerWrapper li a.selected:before {
+        content: "\2713  ";
+}
+
+h1 {
+    height:35px;
+    width:100%;
+    margin:0 auto;
+    border-bottom: 1px dotted black;
+    z-index: 5;
+}
+
+#schemaWrapper {
+    position:absolute;
+    width:200px;
+    top: 0px;
+    bottom: 5px;
+    left: 5px;
+    margin-top: 50px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+#schema {
+    z-index:-2;
+    color: #000000;
+    background-color: #ffffff;
+	line-height: 1.2em;
+}
+
+#schema :hover {
+    z-index: 10;
+}
+
+#schema ul{
+	padding-bottom: 0.0em;
+}
+
+#schema li{
+	padding-bottom: .3em;
+	padding-top: 0.1em;
+}
+
+#progressWrapper {
+    position:absolute;
+    width:200px;
+    bottom: 5px;
+    left: 5px;
+}
+
+#progress {
+   z-index: 3;
+   background-color: #D0D0D0;
+   border: 1px solid #B0B0B0;
+   padding:5px;
+   display: none;
+}
+#rawText {
+  /* display: none; */
+}
+
+#rawText > div {
+   border-top: 1px #B0B0B0 dotted;
+   background-color: #FDFDFD;
+   padding: 5px;
+   margin-bottom: 10px;
+}
+
+/*This bit controls the center pane*/
+#aProjectWrapper {
+    overflow-y: hidden;
+    overflow-x: hidden;
+    position:absolute;
+    top: 0px;
+    bottom: 5px;
+    margin-top: 50px;
+    margin-left: 200px;
+    margin-right: 0px;
+    z-index: -1;
+    border-left: 1px dotted #949494;
+    border-right: 1px dotted #949494;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-bottom: 1px dotted #949494;
+}
+
+#aProjectWrapper > div {
+  overflow-y: scroll; 
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  word-wrap:break-word;
+  overflow-wrap: break-word;
+  margin:0 auto;
+  z-index: -1;
+  line-height: 180%;
+  width: 100%;
+  height: 100%;
+}
+
+#aProjectWrapper div.adjudicationText {
+  color: rgba(0,0,0,0.7);
+}
+
+#relationFrameWrapper {
+    position:absolute;
+    height: 200px;
+    bottom: 5px;
+    left: 5px;
+    margin-top: 60px;
+    margin-left: 200px;
+    margin-right: 0px;
+    z-index: -1;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+#aProjectWrapper table {
+  position: absolute;
+  display: none;
+  height: 200px;
+  width: 99%;
+  overflow-y: auto;
+  overflow-x: auto;
+  bottom: 5px;
+  right: 10px;
+  border-top: 1px dotted #949494;
+}
+
+
+#aProjectWrapper table th {
+  background-color: #909090;
+}
+
+#aProjectWrapper table td, #aProjectWrapper table th {
+	padding: 5px;
+	vertical-align: top;
+	border: 0px;
+}
+
+#aProjectWrapper table td {
+	margin-bottom: 2px;
+	cursor: pointer;
+}
+
+
+#aProjectWrapper table th {
+  white-space: nowrap;
+  	background: #eaeaea; /* Background for IE9 and older browsers */
+	background: -webkit-linear-gradient(bottom, #e1e1e1, #f4f4f4); /* Background for Chrome & Safari */
+	background: -moz-linear-gradient(bottom, #e1e1e1, #f4f4f4); /* Background for Firefox */
+	background: -o-linear-gradient(bottom, #e1e1e1, #f4f4f4); /* Background for Opera */
+	background: -ms-linear-gradient(bottom, #e1e1e1, #f4f4f4);
+}
+#aProjectWrapper table td, #aProjectWrapper table th {
+  white-space: nowrap;
+}
+
+/*#aProjectWrapper table td:last-child, */
+#aProjectWrapper table th:last-child {
+  width: 99%;
+}
+
+/* #relationFrame tbody tr:hover { */
+#aProjectWrapper tbody tr:hover {
+   	background-color: #D0D0D0;
+}
+
+/* #relationFrame tbody tr.selectedRelation { */
+#aProjectWrapper tbody tr.selectedRelation {
+	background-color: yellow;
+}
+
+#propertyWrapper {
+    position:absolute;
+    /* width:250px; */
+    top:50px;
+    right: 5px;
+    bottom: 5px;
+
+    overflow-x: hidden;
+    overflow-y: hidden;
+
+}
+
+#propertyWrapper .property {
+  width: 250px;
+  height: 100%;
+  bottom: 5px;
+  right: 0px;
+  margin:0 auto;
+
+  display: inline-block;
+  padding-left: 15px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#propertyWrapper .propertyHidden {
+  display: none;
+}
+
+span.jstreeschema {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 2px;
+  margin-right: 3px;
+  width: 12px;
+  height: 12px;
+  border: 1px solid #000000;
+  text-align: center;
+  line-height: 13px;
+}
+
+#aProjectWrapper div span {
+  display: inline;
+  z-index:10; 
+}
+
+#aProjectWrapper div span.entity {
+  cursor: pointer;
+  color: black;
+  font-weight: normal;
+}
+
+#aProjectWrapper div span.overlap {
+  cursor: pointer;
+  background-color: #cecece; 
+  color: black;
+  border-style: double;
+}
+
+#aProjectWrapper div span.adjDone, #aProjectWrapper tbody tr.adjDone {
+  opacity: 0.7;
+}
+
+#aProjectWrapper div span.adjConflict, #aProjectWrapper tbody tr.adjConflict {
+  text-decoration: underline;
+}
+
+#aProjectWrapper div span.adjRemove {
+  text-decoration: line-through;
+}
+
+#aProjectWrapper div span.filterOut {
+  cursor: text;
+  background-color: white;
+  /* color: black; */
+  font-weight: normal;
+}
+
+#aProjectWrapper div span.highLight {
+  cursor: pointer;
+    
+/*HERE, WE NEED TO BE ABLE TO INHERIT THE NATURAL BACKGROUND COLOR.  CAN WE PASS THE COLOR TO ENTITIES USING THE "STYLE" ATTRIBUTE, SO THAT WAY, WHEN UNSPECIFIED,IT SHOULD BE ALLOWED THROUGH?*/
+  color: rgba(0,0,0,1.0);
+  border: 3px dashed rgb(0, 0, 0);
+}
+
+span.jstreeschemacount {
+  font-size: 0.8em;
+  margin-left: 5px;
+}
+
+
+span.selectAObj {
+  background-color: black;
+  color: white;
+  font-weight: bold;
+}
+
+#propertyWrapper .property .propertyBlock {
+	margin: 2px;
+	margin-bottom: 5px;
+	position: relative;
+}
+
+#propertyWrapper h4 {
+	border-bottom: 1px solid #808080;
+	margin-bottom: 0.2em;
+}
+
+#propertyWrapper .property span.typeName {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+#propertyWrapper .property span.typeColorBlock.jstreeschema {
+	position: relative;
+	margin-top: -0.3em;
+	padding: 3px;
+}
+
+#propertyWrapper .property span.spanText {
+	font-family: "Courier New", Courier, mono;
+}
+
+#propertyWrapper .property span.objID {
+	font: 0.75em "Courier New", Courier, mono;
+	text-wrap: suppress;
+	word-wrap: break-word;
+}
+
+
+#propertyWrapper .property .spantext {
+	border-bottom: 1px solid #808080;
+}
+
+#propertyWrapper .property .objDeleteBtn, #propertyWrapper .property .goldBtn, #propertyWrapper .property .cancelGoldBtn, #propertyWrapper .property .cancelNotGoldBtn {
+	display: none;
+	right: 2px;
+	float: right;
+}
+
+
+#propertyWrapper .property table {
+
+	border-collapse:collapse;
+	border: 1px solid #999999;
+	margin-top: 0.5em;
+}
+
+#propertyWrapper .property table.tableDiff {
+	border: 3px solid red;
+}
+
+#propertyWrapper .property th,tr {
+
+	border: 1px solid #999999;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
+#propertyWrapper .property tr.trDiff {
+	border: 3px solid red;
+}
+#propertyWrapper .property td {
+	border: 1px solid #999999;
+	
+	text-align: right;
+	font-size: 0.8em;
+	width: 300px;
+	padding: 6px 4px;
+}
+
+#propertyWrapper .property .propertyTable {
+  margin:0 auto;
+  table-layout: fixed;
+  width: 225px;
+}
+
+#propertyWrapper .property .propertyTable td {
+	word-wrap: break-word;
+}
+
+#propertyWrapper .property .propertyTable .propertyValue {
+	cursor: pointer;
+}
+#propertyWrapper .property .propertyTable .propertyAObj {
+	cursor: pointer;
+}
+#propertyWrapper .property .propertyTable .propertyNormal {
+	cursor: pointer;
+}
+#propertyWrapper .property .propertyTable .propertyClicked {
+	background-color: #C0C0C0;
+}
+
+#propertyWrapper .property .propertyTable .propertySubAObj {
+	padding: 2px 4px 2px 4px;
+	margin: 2px 2px 2px 2px;
+}
+
+#propertyWrapper .property .propertyTable .propertySubAObj:hover {
+	background-color: #C0C0C0;
+}
+#propertyWrapper .property .spanTable input {
+	width: 50px;
+}
+#propertyWrapper .property .spanTable td {
+	vertical-align:top;
+}
+#propertyWrapper .property .spanTable .delSpanBtn,#propertyWrapper .property .spanTable .addSpanBtn {
+	width: 20px;
+}
+#propertyWrapper .property .spanTable th.delBtnCol,#propertyWrapper .property .spanTable td.delBtnCol {
+	width: auto;
+}
+#propertyWrapper .property .spanTable td.spinCol,#propertyWrapper .property .spanTable th.spinCol {
+	width: auto;
+}
+
+
+/*BEGIN NAVBAR CODE*/
+
+/* Some stylesheet reset */
+.nav, .nav ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	line-height: 1;
+}
+
+/* The main container */
+.nav {
+	/* Layout and positioning */
+	display: block;
+	position: relative;
+	height: 30px;
+	width: 98%; /* CHANGE this if you want another width or remove it if you want the width of the container */
+	border-radius: 3px;
+	border: 1px solid #c1c1c1;
+
+	/* Background and effects */
+	background: #eaeaea; /* Background for IE9 and older browsers */
+	background: -webkit-linear-gradient(bottom, #e1e1e1, #f4f4f4); /* Background for Chrome & Safari */
+	background: -moz-linear-gradient(bottom, #e1e1e1, #f4f4f4); /* Background for Firefox */
+	background: -o-linear-gradient(bottom, #e1e1e1, #f4f4f4); /* Background for Opera */
+	background: -ms-linear-gradient(bottom, #e1e1e1, #f4f4f4); /* Background for Internet Explorer 10 */
+	box-shadow: inset 0 1px 0 #fff;
+	color: #000000;
+}
+
+.nav>li {
+	display: block;
+	position: relative;
+	float: left;
+	margin: 0;
+	padding: 0 1px 0 0;
+}
+
+.nav a {
+	color: #535353;
+}
+
+
+/* The main navigation links */
+.nav>li>a {
+	/* Layout */
+	display: block;
+
+	/* Typography */
+	font-size: 1em;
+	font-weight: normal;
+	text-decoration: none;
+	text-shadow: 0 1px 0 #fff;
+
+	/* Effects */
+	-webkit-transition: all .3s;
+	-moz-transition: all .3s;
+	-ms-transition: all .3s;
+	-o-transition: all .3s;
+	transition: all .3s;
+	padding: 6px 20px 8px;
+}
+
+/* The hover state of the navigation links */
+.nav>li>a:hover, .nav>li:hover>a {
+	background: #fff;
+	background: rgba(255, 255, 255, .6);
+	color: #999;
+}
+
+
+.nav>li:first-child>a {
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+
+.nav>.dropdown>a {
+	padding-right: 26px;
+}
+
+
+/* The arrow indicating a dropdown menu */
+.nav>.dropdown>a::after {
+	 content: "";
+	 position: absolute;
+	 top: 12px;
+	 right: 11px;
+	 width: 4px;
+	 height: 4px;
+	 border-bottom: 1px solid #9a9a9a;
+	 border-right: 1px solid #9a9a9a;
+	 -webkit-transform: rotate(45deg);
+	 -ms-transform: rotate(45deg);
+	 -moz-transform: rotate(45deg);
+	 -o-transform: rotate(45deg);
+	}
+
+/* Changing the color of the arrow on hover */
+.nav>.dropdown>a:hover::after, .nav>.dropdown:hover>a::after {
+	border-color: #999;
+}
+
+.nav ul {
+ 	position: relative;
+	position: absolute;
+	left: -9999px;
+	display: block;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
+}
+
+/* Level 1 submenus */
+.nav>li>ul {
+	padding-top: 0px;
+	z-index: 99;
+	top: 30px;
+	background-color: #f4f4f4;
+	width: 15em;
+	padding-bottom: 0.8em;
+	border: 1px solid #cbcbcb;
+}
+
+/* Making the level 1 submenu to appear on hover */
+.nav>li:hover>ul {
+	left: -1px;
+}
+
+/* Level 2+ submenus */
+.nav ul ul {
+	top: 0px;
+	background-color: #fe1c1c;
+}
+
+/* Making the level 2+ submenu to appear on hover */
+.nav ul>li:hover>ul {
+	left:  15em;
+	padding-top: 0px;
+	z-index: 99;
+	background-color: #f4f4f4;
+	width: 15em;
+	padding-bottom: 0.8em;
+	border: 1px solid #cbcbcb;
+}
+
+/* The submenu link containers */
+.nav ul li {
+	position: relative;
+	display: block;
+
+
+	/* Creating the slide effect. The list elements which contain the links have 0 height. On hover, they will expand */
+	height: 0px;
+	-webkit-transition: height .1s;
+	-moz-transition: height .1s;
+	-o-transition: height .1s;
+	-ms-transition: height .1s;
+	padding: 0.5em;
+}
+
+/* Expanding the list elements which contain the links */
+.nav li:hover>ul>li {
+	height: 25px;
+}
+
+.nav ul li:hover>ul>li:first-child {
+	height: 26px;
+}
+
+.nav li:hover>ul>li.separator {
+	height: 1px;
+	padding-top: 0;
+	padding-bottom: 0;
+	padding: 0;
+	border-top: 1px dotted #d5d5d5;
+	margin-right: 15px;
+	margin-top: 15px;
+	margin-left: 15px;
+}
+
+.nav li:hover>ul>li.disable>a {
+	color: #a9a9a9;
+	border-style: dotted;
+	border-color: #d5d5d5;
+	background-color: #f4f4f4;
+	cursor: default;
+}
+
+/* The links of the submenus */
+.nav ul li a {
+	/* Layout */
+	display: block;
+	/* width: 90px; */
+	
+	border: 1px solid #e1e1e1;
+
+	/* Typography */
+	font-size: 1em;
+
+	text-decoration: none;
+	
+	/* Background & effects */
+	background: #fff;
+	-webkit-transition: background .1s;
+	-moz-transition: background .1s;
+	-ms-transition: background .1s;
+	-o-transition: background .1s;
+	transition: background .1s;
+	padding: 10px 10px 10px 20px;
+}
+
+/* The hover state of the links */
+.nav ul li>a:hover, .nav ul li:hover>a {
+	color: #000000;
+	background-color: #dddddd;
+}
+
+.nav ul ul>li:first-child>a {
+	border-top: 1px solid #c1c1c1;
+}
+
+.nav ul>li:last-child>a {
+	border-bottom: 1px solid #c1c1c1;
+}
+
+
+/* The arrow indicating a level 2+ submenu */
+.nav ul>.dropdown>a::after {
+	content: "";
+	 position: absolute;
+
+	 width: 6px;
+	 height: 6px;
+	 border-bottom: 1px solid #a6a6a6;
+	 border-right: 1px solid #a6a6a6;
+	 -webkit-transform: rotate(-45deg);
+	 -ms-transform: rotate(-45deg);
+	 -moz-transform: rotate(-45deg);
+	 -o-transform: rotate(-45deg);
+	 top: 1.6em;
+	 right: 2em;
+ }
+
+.nav ul>.dropdown:hover>a::after, .nav ul>.dropdown>a:hover::after {
+	border-color: #a1a1a1;
+}
+
+/* IE10 */
+progress {
+	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	/* gets rid of default border in Firefox and Opera. */
+	border: solid 1px black;
+	color: black;
+}
+
+/* Firefox */
+progress::-moz-progress-bar { 
+    background-color: blue;
+}
+
+/* Chrome */
+progress::-webkit-progress-value {
+    background-color: blue;
+}
+
+/* Polyfill */
+progress[aria-valuenow]:before  {
+    color: black;
+}
+/* Context Menu CSS */
+
+/*!
+ * jQuery contextMenu - Plugin for simple contextMenu handling
+ *
+ * Version: 1.5.25
+ *
+ * Authors: Rodney Rehm, Addy Osmani (patches for FF)
+ * Web: http://medialize.github.com/jQuery-contextMenu/
+ *
+ * Licensed under
+ *   MIT License http://www.opensource.org/licenses/mit-license
+ *   GPL v3 http://opensource.org/licenses/GPL-3.0
+ *
+ */
+
+
+/*This is for the overlap menu*/
+
+.context-menu-list {
+	min-width: 120px;
+	max-width: 550px;
+	
+	display: inline-block;
+	list-style-type: none;
+	
+	background: #EEE;
+	
+	-webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+	-ms-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+	-o-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+	overflow: auto;
+	position: relative;
+	top: 100px;
+	padding: 0px;
+	border-radius:3px 3px 3px 3px;
+    -moz-border-radius: 3px; /* Firefox */
+    -webkit-border-radius: 3px;
+	margin-top: -40px;
+	margin-bottom: 0;
+	margin-left: -77px;
+}
+
+.context-menu-list span.jstreeschema {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 7px;
+  width: 1em;
+  height: 1em;
+  border: 1px solid #000000;
+}
+
+.context-menu-item {
+	background-color: #EEE;
+	-webkit-user-select: none;
+	-moz-user-select: -moz-none;
+	-ms-user-select: none;
+	user-select: none;
+	font-size: 0.9em;
+	padding: 10px;
+	margin: 2px;
+	border: 1px solid #d5d5d5;
+	border-radius:3px 3px 3px 3px;
+    -moz-border-radius: 3px; /* Firefox */
+    -webkit-border-radius: 3px;
+}
+		
+.context-menu-item:hover {
+	background-color: #dcdcdc;
+	-webkit-user-select: none;
+	-moz-user-select: -moz-none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.context-menu-separator {
+    padding-bottom:0;
+    border-bottom: 1px solid #DDD;
+}
+
+.context-menu-item > label > input,
+.context-menu-item > label > textarea {
+    -webkit-user-select: text;
+       -moz-user-select: text;
+        -ms-user-select: text;
+            user-select: text;
+}
+
+
+.context-menu-item.disabled {
+    color: #666;
+}
+
+#propertyContextMenu .context-menu-list {
+	min-width: 120px;
+	max-width: 350px;
+	
+	display: block;
+	list-style-type: none;
+	
+	border: 1px solid #DDD;
+	background: #EEE;
+	
+	-webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+	-ms-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+	-o-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+	font: 11px;
+	padding: 0 0 0 20px;
+	overflow: auto;
+	position: relative;
+	top: 100px;
+	margin-left: 20px;
+	margin-top: -35px;
+
+
+}
+
+#propertyContextMenu .context-menu-item {
+	background-color: #EEE;
+	-webkit-user-select: none;
+	-moz-user-select: -moz-none;
+	-ms-user-select: none;
+	user-select: none;
+	padding: 2px;
+	font-weight: bold;
+	border: none;
+}
+		
+#propertyContextMenu .context-menu-item:hover {
+	background-color: #EEE;
+	-webkit-user-select: none;
+	-moz-user-select: -moz-none;
+	-ms-user-select: none;
+	user-select: none;
+	padding: 2px;
+		}
+
+#propertyContextMenu .context-menu-separator {
+    padding-bottom:0;
+    border-bottom: 1px solid #DDD;
+}
+
+.context-menu-input.hover,
+.context-menu-item.disabled.hover {
+    cursor: default;
+    background-color: #EEE;
+}
+
+.context-menu-submenu:after {
+    content: ">";
+    color: #666;
+    position: absolute;
+    top: 0;
+    right: 3px;
+    z-index: 1;
+	background-color: #fefffe;
+}
+
+/* icons
+    #protip:
+    In case you want to use sprites for icons (which I would suggest you do) have a look at
+    http://css-tricks.com/13224-pseudo-spriting/ to get an idea of how to implement 
+    .context-menu-item.icon:before {}
+ */
+.context-menu-item.icon { min-height: 18px; background-repeat: no-repeat; background-position: 4px 2px; }
+.context-menu-item.icon-edit { background-image: url(images/page_white_edit.png); }
+.context-menu-item.icon-cut { background-image: url(images/cut.png); }
+.context-menu-item.icon-copy { background-image: url(images/page_white_copy.png); }
+.context-menu-item.icon-paste { background-image: url(images/page_white_paste.png); }
+.context-menu-item.icon-delete { background-image: url(images/page_white_delete.png); }
+.context-menu-item.icon-add { background-image: url(images/page_white_add.png); }
+.context-menu-item.icon-quit { background-image: url(images/door.png); }
+
+/* vertically align inside labels */
+.context-menu-input > label > * { vertical-align: top; }
+
+/* position checkboxes and radios as icons */
+.context-menu-input > label > input[type="checkbox"],
+.context-menu-input > label > input[type="radio"] {
+    margin-left: -17px;
+}
+.context-menu-input > label > span {
+    margin-left: 5px;
+}
+
+.context-menu-input > label,
+.context-menu-input > label > input[type="text"],
+.context-menu-input > label > textarea,
+.context-menu-input > label > select {
+    display: block;
+    width: 100%;
+    
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+        -ms-box-sizing: border-box;
+         -o-box-sizing: border-box;
+            box-sizing: border-box;
+			padding: 2px;
+		}
+		
+		ul.context-menu-list..context-menu-root {
+			padding: 10px;
+		}
+		
+		label:hover {
+	background-color: #c1c1c1;
+}
+
+.context-menu-input > label > textarea {
+    height: 100px;
+}
+.context-menu-item > .context-menu-list {
+    display: none;
+    /* re-positioned by js */
+    right: -5px;
+    top: 5px;
+}
+
+.context-menu-item.hover > .context-menu-list {
+    display: block;
+}
+
+.context-menu-accesskey {
+    text-decoration: underline;
+}
+
+
+#projectSelectorWindow {
+	display:none;
+	background: white;
+	padding: 20px; 	
+	border: 2px solid #ddd;
+	float: left;
+	font-size: 1.2em;
+	position: fixed;
+	top: 50%; left: 50%;
+	z-index: 99999;
+	box-shadow: 0px 0px 20px #999; /* CSS3 */
+        -moz-box-shadow: 0px 0px 20px #999; /* Firefox */
+        -webkit-box-shadow: 0px 0px 20px #999; /* Safari, Chrome */
+	border-radius:3px 3px 3px 3px;
+        -moz-border-radius: 3px; /* Firefox */
+        -webkit-border-radius: 3px; /* Safari, Chrome */
+}
+
+#projectSelectorWindow h4 {
+	border-bottom: 2px solid #9a9a9a;
+		display: block;
+	position: relative; /* CHANGE this if you want another width or remove it if you want the width of the container */
+	border-radius: 3px;
+	border: 1px solid #c1c1c1;
+
+	/* Background and effects */
+	background: #eaeaea; /* Background for IE9 and older browsers */
+	background: -webkit-linear-gradient(bottom, #e1e1e1, #f4f4f4); /* Background for Chrome & Safari */
+	background: -moz-linear-gradient(bottom, #e1e1e1, #f4f4f4); /* Background for Firefox */
+	background: -o-linear-gradient(bottom, #e1e1e1, #f4f4f4); /* Background for Opera */
+	background: -ms-linear-gradient(bottom, #e1e1e1, #f4f4f4); /* Background for Internet Explorer 10 */
+	box-shadow: inset 0 1px 0 #fff;
+	color: #000000;
+	margin-right: 0px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	padding-left: 10px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+
+#projectSelector div, #schemaSelector div {
+	display: inline-block;
+	min-width: 260px;
+	vertical-align: top;
+	padding: 10px;
+}
+
+#projectSelectorWindow h5 {
+	display: none;
+	border-bottom: 1px solid #9a9a9a;
+	margin: 0px;
+}
+
+#projectSelectorWindow ul {
+	max-height: 220px;
+	max-width: 260px;
+
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding-left: 10px;
+	padding-top: 0;
+	margin-top: 5px;
+	margin-bottom: 0;
+	font-size: 0.9em;
+}
+
+#projectSelectorWindow li {
+	cursor: pointer;
+	display: block;
+	border: 1px solid #9a9a9a;
+	vertical-align:middle;
+	border-radius:3px 3px 3px 3px;
+    -moz-border-radius: 3px; /* Firefox */
+    -webkit-border-radius: 3px;
+	padding: 8px;
+	margin: 5px;
+}
+
+#projectSelectorWindow li:hover {
+	background-color: #dddddd;
+}
+
+#projectSelectorWindow li.selected {
+	background-color: #d5d5d5;
+	border-style: dashed;
+	border-color: #424242;
+}
+#projectSelectorWindow li.selected:before {
+        content: "\2713  ";
+}
+
+#projectSelectorWindow .btnArea {
+	border-top: 2px solid #9a9a9a;
+}
+
+#projectSelectorWindow .btnArea div {
+	display: inline;
+	float: right;
+	border: 1px solid #9a9a9a;
+	margin-left: 10px;
+	margin-top: 5px;
+	padding: 6px;
+}
+
+#projectSelectorWindow .btnArea .btnDisable {
+	cursor: default;
+	color: #9a9a9a;
+	border: 1px solid #d5d5d5;
+	padding-right: 10px;
+	padding-left: 10px;
+		border-radius:3px 3px 3px 3px;
+    -moz-border-radius: 3px; /* Firefox */
+    -webkit-border-radius: 3px;
+}
+
+#projectSelectorWindow .btnArea .btnEnable {
+	cursor: pointer;
+	color: black;
+	background-color: #feffff;
+	border: 1px solid #797979;
+	padding-right: 10px;
+	padding-left: 10px;
+	border-radius:3px 3px 3px 3px;
+    -moz-border-radius: 3px; /* Firefox */
+    -webkit-border-radius: 3px;
+}
+
+#projectSelectorWindow .btnArea .btnEnable:hover {
+	background-color: #9a9a9a;
+}
+
+#mask {
+	display: none;
+	background: #000; 
+	position: fixed; left: 0; top: 0; 
+	z-index: 10;
+	width: 100%; height: 100%;
+	opacity: 0.6;
+	z-index: 999;
+}
+
+#errorMessage {
+	display:none;
+	background: white;
+	padding: 20px; 	
+	border: 2px solid #ddd;
+	float: left;
+	font-size: 1.2em;
+	position: fixed;
+	top: 50%; left: 50%;
+	z-index: 99999;
+	box-shadow: 0px 0px 20px #999; /* CSS3 */
+        -moz-box-shadow: 0px 0px 20px #999; /* Firefox */
+        -webkit-box-shadow: 0px 0px 20px #999; /* Safari, Chrome */
+	border-radius:3px 3px 3px 3px;
+        -moz-border-radius: 3px; /* Firefox */
+        -webkit-border-radius: 3px; /* Safari, Chrome */
+}
+
+#errorMessage > div {
+	padding-bottom: 10px;
+	border-top: 1px solid #B9B9B9;
+}
+
+#errorMessage > div > div {
+	font-weight: bold;
+}
+
+#errorMessage > div > ul, #errorMessage > div > pre {
+	max-height: 150px;
+  	overflow-y: scroll; 
+}
