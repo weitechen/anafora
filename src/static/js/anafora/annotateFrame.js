@@ -291,7 +291,6 @@ AnnotateFrame.prototype.addRelationPosit = function(relation, addedAObj) {
 	if(_self != annotFrame && annotFrame != undefined)
 		annotFrame.addRelationPosit(relation, addedAObj);
 	else {
-
 		if(relation instanceof AdjudicationRelation) {
 			this.addRelationPosit(relation.compareAObj[0], relation);
 			this.addRelationPosit(relation.compareAObj[1], relation);

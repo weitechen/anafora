@@ -408,6 +408,8 @@ function loadNewProject() {
 		$("#aProjectWrapper").css("margin-right", "270px");
 	}
 
+	currentAProject.renderAnnotateFrame();
+
 	if(!( _setting.isAdjudication && currentAProject.completed ))
 		temporalSave();
 

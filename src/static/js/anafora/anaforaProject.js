@@ -580,3 +580,9 @@ catch(err) {
 	else
 		console.log(err);
 }
+
+AnaforaProject.prototype.renderAnnotateFrame = function() {
+	/* update all entity and relation annotation to whole new annotateFrame
+	 */
+
+}
