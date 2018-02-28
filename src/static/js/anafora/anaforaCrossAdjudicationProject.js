@@ -373,3 +373,14 @@ AnaforaCrossAdjudicationProject.prototype.adjudicationCompleted = function() {
 }
 
 AnaforaCrossAdjudicationProject.prototype.drawAObj = AnaforaAdjudicationProject.prototype.drawAObj;
+
+AnaforaCrossAdjudicationProject.prototype.addAllAnnotationToAnnotateFrame = function(annotateFrameList) {
+	if(this.annotateFrame == undefined)
+		return ;
+
+	var _self = this;
+
+	Object.keys(_self.projectList).forEach(function(tasnName) {
+		_self.projectList[tasnName].renderAnnotateFrame();
+	});
+}

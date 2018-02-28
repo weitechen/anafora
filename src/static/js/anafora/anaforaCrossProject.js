@@ -148,25 +148,29 @@ AnaforaCrossProject.prototype.readFromXMLDOM = function(xml, subTaskNameList, an
 			// update link
 			$.each(aProject.entityList, function(eIdx, entity) {
 				aProject.updateLinking(entity.type, entity);
-				aProject.annotateFrame.updatePosIndex(entity);
+				//aProject.annotateFrame.updatePosIndex(entity);
 			});
 	
 			$.each(aProject.relationList, function(rIdx, relation) {
 				aProject.updateLinking(relation.type, relation);
+				/*
 				if(aProject == _self) {
 					_self.projectList[subTaskNameList[0]].annotateFrame.updatePosIndex(relation);
 				}
 				else {
 					aProject.annotateFrame.updatePosIndex(relation);
 				}
+				*/
 			});
 		}
 	});
 
+	/*
 	if(!_setting.isAdjudication)
 		$.each(this.projectList, function(aIdx, aProject) {
 			aProject.annotateFrame.generateAllAnnotateOverlapList();
 		});
+	*/
 }
 
 AnaforaCrossProject.prototype.getAObjFromID = function(id) {
@@ -196,11 +200,20 @@ AnaforaCrossProject.getSubTaskList = function(_setting) {
 	$.ajax({ type: "GET", url: _setting.root_url + "/" + _setting.app_name + "/getDir/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/_cross/"  , success: function(data) {subTaskListStr = data;}, cache: false, async: false, statusCode: {403: function() {throw "Permission Deny"; }, 404: function() { ;} }});
 	return $.parseJSON(subTaskListStr);
 }
-/*
-AnaforaCrossProject.prototype.updateProperty = function(aObj, pIdx, value) {
-	if(aObj instanceof Entity)
-		this.projectList
-	var annotFrame = this.getAnnotateFrame(aObj);
 
+AnaforaCrossProject.prototype.addAllAnnotationToAnnotateFrame = function(annotateFrameList) {
+	var _self = this;
+
+	for(var taskName in _self.projectList) {
+		_self.projectList[taskName].addAllAnnotationToAnnotateFrame(annotateFrameList);
+	};
 }
-*/
+
+AnaforaCrossProject.prototype.renderAnnotateFrame = function(annotateFrameList) {
+	/* update all entity and relation annotation to whole new annotateFrame
+	 */
+	this.addAllAnnotationToAnnotateFrame(annotateFrameList);
+	for(var taskName in annotateFrameList) {
+		annotateFrameList[taskName].generateAllAnnotateOverlapList();
+	}
+}

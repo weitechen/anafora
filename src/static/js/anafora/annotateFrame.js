@@ -44,15 +44,15 @@ function AnnotateFrame(frameElement, setting, rawText) {
 	});
 }
 
-AnnotateFrame.prototype.updatePosIndex = function(aObj) {
+AnnotateFrame.prototype.updatePosIndex = function(aObj, annotateFrameList) {
 	// given anaforaObj, update the posit (add new aObj to the posit index, add span)
 
 	var _self = this;
 
 	if(aObj instanceof Entity)
-		this.addEntityPosit(aObj, aObj);
+		this.addEntityPosit(aObj, aObj, annotateFrameList);
 	else if(aObj instanceof Relation){
-		this.addRelationPosit(aObj, aObj);
+		this.addRelationPosit(aObj, aObj, annotateFrameList);
 	}
 	else {
 		
@@ -124,9 +124,9 @@ AnnotateFrame.prototype.addEntity = function(newEntity) {
 	}
 }
 
-AnnotateFrame.prototype.addRelation = function(newRelation) {
+AnnotateFrame.prototype.addRelation = function(newRelation, annotateFrameList) {
 	if(newRelation instanceof Relation) {
-		this.updatePosIndex(newRelation);
+		this.updatePosIndex(newRelation, annotateFrameList);
 	}
 }
 
@@ -266,9 +266,15 @@ AnnotateFrame.prototype.removeSpanPosit = function(span, removingAObj, removedAO
 	}
 }
 
-AnnotateFrame.prototype.addEntityPosit = function(entity, addedAObj) {
+AnnotateFrame.prototype.addEntityPosit = function(entity, addedAObj, annotateFrameList) {
 	var _self = this;
-	var annotFrame = currentAProject.getAnnotateFrame(entity);
+
+	if(annotateFrameList != undefined) {
+		var taskName = entity.getTaskName();
+		var annotFrame = annotateFrameList[taskName];
+	}
+	else
+		var annotFrame = _self;
 	
 	if(_self != annotFrame && annotFrame != undefined )
 		annotFrame.addEntityPosit(entity, addedAObj);
@@ -285,9 +291,16 @@ AnnotateFrame.prototype.addEntityPosit = function(entity, addedAObj) {
 	
 }
 
-AnnotateFrame.prototype.addRelationPosit = function(relation, addedAObj) {
+AnnotateFrame.prototype.addRelationPosit = function(relation, addedAObj, annotateFrameList) {
 	var _self = this;
-	var annotFrame = currentAProject.getAnnotateFrame(relation);
+
+	if(annotateFrameList != undefined) {
+		var taskName = relation.getTaskName();
+		var annotFrame = annotateFrameList[taskName];
+	}
+	else
+		var annotFrame = _self;
+
 	if(_self != annotFrame && annotFrame != undefined)
 		annotFrame.addRelationPosit(relation, addedAObj);
 	else {
@@ -302,9 +315,9 @@ AnnotateFrame.prototype.addRelationPosit = function(relation, addedAObj) {
 						if(relation.propertyList[idx][listIdx] instanceof EmptyEntity || relation.propertyList[idx][listIdx] instanceof EmptyRelation)
 							return true;
 						else if(relation.propertyList[idx][listIdx] instanceof Entity)
-							_self.addEntityPosit(relation.propertyList[idx][listIdx], addedAObj);
+							_self.addEntityPosit(relation.propertyList[idx][listIdx], addedAObj, annotateFrameList);
 						else if(relation.propertyList[idx][listIdx] instanceof Relation)
-							_self.addRelationPosit(relation.propertyList[idx][listIdx], addedAObj);
+							_self.addRelationPosit(relation.propertyList[idx][listIdx], addedAObj, annotateFrameList);
 						else {
 							throw new ErrorException("Linked object " + String(relation.propertyList[idx][listIdx]) + " in Relation Object: " + relation.id + " is not a regular object (the " + String(listIdx) + "-th item in property " + relation.type.propertyTypeList[idx].type);
 						}

@@ -347,26 +347,13 @@ AnaforaProject.prototype.readFromXMLDOM = function(xml, isAdjudication) {
 		// update link
 		if ($.inArray(entity.type, _self.schema.linkingType) != -1) 
 			_self.updateLinking(entity.type, entity);
-
-		// update posindex
-		if(_self.annotateFrame != undefined)
-			_self.annotateFrame.updatePosIndex(entity);
 	});
 
 	$.each(this.relationList, function(idx, relation) {
 		// update relation list link
 		if ($.inArray(relation.type, _self.schema.linkingType) != -1)
 			_self.updateLinking(relation.type, relation);
-
-		// update posindex
-		if(_self.annotateFrame != undefined) {
-			_self.annotateFrame.updatePosIndex(relation);
-		}
 	});
-
-	// update overlap
-	if(!isAdjudication && this.annotateFrame != undefined)
-		this.annotateFrame.generateAllAnnotateOverlapList();
 }
 
 AnaforaProject.getXML = function(successFunc, setting, annotator, isAdjudication) {
@@ -581,8 +568,25 @@ catch(err) {
 		console.log(err);
 }
 
+AnaforaProject.prototype.addAllAnnotationToAnnotateFrame = function(annotateFrameList) {
+	var _self = this;
+	if(_self.annotateFrame == undefined)
+		return ;
+
+	for(var eIdx in this.entityList) {
+		var entity = this.entityList[eIdx];
+		_self.annotateFrame.updatePosIndex(entity, annotateFrameList);
+	}
+
+	for(var rIdx in this.relationList) {
+		var relation = this.relationList[rIdx];
+		_self.annotateFrame.updatePosIndex(relation, annotateFrameList);
+	}
+}
+
 AnaforaProject.prototype.renderAnnotateFrame = function() {
 	/* update all entity and relation annotation to whole new annotateFrame
 	 */
-
+	this.addAllAnnotationToAnnotateFrame();
+	this.annotateFrame.generateAllAnnotateOverlapList();
 }

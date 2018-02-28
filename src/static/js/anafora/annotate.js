@@ -238,6 +238,7 @@ function loadNewProject() {
 	if (!_setting.isCrossDoc)
 		annotateFrame = new AnnotateFrame(annotatorDiv, _setting, rawText);
 
+	var subAnnotateFrameList = {};
 	if(xmlAnaforaText != "") {
 		var tXMLText = {};
 		if(xmlAnaforaText instanceof Object) 
@@ -248,7 +249,6 @@ function loadNewProject() {
 			else
 				tXMLText[_setting.annotator] = xmlAnaforaText;
 			
-		var subAnnotateFrameList = {};
 
 		if(_setting.isCrossDoc) {
 			$.each(subTaskElemList, function(stIdx, divElement) {
@@ -408,7 +408,7 @@ function loadNewProject() {
 		$("#aProjectWrapper").css("margin-right", "270px");
 	}
 
-	currentAProject.renderAnnotateFrame();
+	currentAProject.renderAnnotateFrame(_setting.isCrossDoc ?subAnnotateFrameList :undefined);
 
 	if(!( _setting.isAdjudication && currentAProject.completed ))
 		temporalSave();

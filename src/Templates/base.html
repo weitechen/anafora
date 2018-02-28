@@ -30,9 +30,12 @@
 	{% for varKey, value in settingVars.items %}
 		{{ varKey }}:{% if value|type == 'str' %} "{{ value }}",{% elif value|type == 'int' %}{{ value }},{% elif value|type == 'bool' %} {{ value|yesno:"true,false,undefined" }},{% endif %}{% endfor %}
 		root_url: "{{ ROOT_URL }}"}
+   window.addEventListener("load", function(event) {
+    onLoad();
+  });
 </script>
 </head>
-<body onload="onLoad()">
+<body>
         {% block container %}{% endblock %}
 </body>
 </html>

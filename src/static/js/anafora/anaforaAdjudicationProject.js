@@ -17,7 +17,7 @@ AnaforaAdjudicationProject.prototype.constructor = AnaforaAdjudicationProject;
 
 AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectList) {
 	/* Add new Anafora project from projectList, then compare the giving projects, creating AdjudicationAnnotation object for the first time
- 	 * @param {{annotatorName: AnaforaProject} projectList - the dictionary type to store the giving AnaforaProject as annotator name as key.
+ 	 * @param {annotatorName: AnaforaProject} projectList - the dictionary type to store the giving AnaforaProject as annotator name as key.
 	 */
 	this.projectList = projectList;
 
@@ -70,7 +70,7 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 	});
 
 	// go through all the linkingAObj from gold entity from goldEneityList, replace with originEntity
-	[[goldEntityList, anaforaProject0.entityList, anaforaProject1.entityList, _self.entityList, _self.annotateFrame != undefined?_self.annotateFrame.removeEntityPosit :undefined ], [goldRelationList, anaforaProject0.relationList, anaforaProject1.relationList, _self.relationList, _self.annotateFrame != undefined?_self.annotateFrame.removeRelationPosit :undefined]].forEach(function(goldPair) {
+	[[goldEntityList, anaforaProject0.entityList, anaforaProject1.entityList, _self.entityList, undefined], [goldRelationList, anaforaProject0.relationList, anaforaProject1.relationList, _self.relationList, undefined]].forEach(function(goldPair) {
 		var goldList = goldPair[0];
 		var projectAObjList0 = goldPair[1];
 		var projectAObjList1 = goldPair[2];
@@ -97,8 +97,10 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 					});
 					// move linkedAObj from entity1 to entity0
 					goldAObj.linkingAObjList = goldAObj.linkingAObjList.concat(projectAObjList1[idx].linkingAObjList);
+					/*
 					if(positUpdateFunc != undefined)
 						positUpdateFunc.call(_self.annotateFrame, goldAObj, projectAObjList1[idx], true);
+					*/
 	
 					delete projectAObjList1[idx];
 				}
@@ -125,8 +127,10 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 		_self.addAdjEntityToAdjudicationInCompareEntityPair(entity0, entity1, newAdjEntity);
 		_self.addAdjEntityToAdjudicationInCompareEntityPair(entity1, entity0, newAdjEntity);
 		_self.addAdjAObj(newAdjEntity);
+		/*
 		if(_self.annotateFrame != undefined)
 			_self.annotateFrame.updatePosIndex(newAdjEntity);
+		*/
 		_self.addTypeCount(newAdjEntity.type);
 	};
 
@@ -152,8 +156,6 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 
 		relation0.setAdditionalData("comparePair", [relation1, newAdjRelation]);
 		relation1.setAdditionalData("comparePair", [relation0, newAdjRelation]);
-		if(_self.annotateFrame != undefined)
-			_self.annotateFrame.updatePosIndex(newAdjRelation);
 		_self.addTypeCount(newAdjRelation.type);
 	};
 
@@ -195,14 +197,15 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 
 	//this.updatePosIndex(entityList[entityLength-1]);
 
-	if(this.annotateFrame != undefined) {
-		this.annotateFrame.generateAllAnnotateOverlapList();
-	}
+	//if(this.annotateFrame != undefined) {
+	//	this.annotateFrame.generateAllAnnotateOverlapList();
+	//}
 
 	this.updateProgressBar();
 	//temporalSave();
 }
 
+/*
 AnaforaAdjudicationProject.prototype._addAnaforaProjectList = function(projectList) {
 	this.projectList = projectList;
 
@@ -373,41 +376,6 @@ AnaforaAdjudicationProject.prototype._addAnaforaProjectList = function(projectLi
 						needAdjEntityPairList.push([compareRObj, [entity0, entity1]]);
 				}
 
-				/*
-				if(needAddAdjudicationEntity) {
-					var newAdjEntity = undefined;
-					
-					if(entity0.getAdditionalData("comparePair") != undefined || entity1.getAdditionalData("comparePair") != undefined) {
-						var hasAlignedEntity = undefined;
-						[entity1, entity0].forEach(function(tEntity) {
-
-							var comparePairList;
-							if((comparePairList = tEntity.getAdditionalData("comparePair")) != undefined) {
-								;
-								
-							}
-						});
-
-						if(entity0.getAdditionalData("comparePair") != undefined)
-							hasAlignedEntity = entity0;
-						else
-							hasAlignedEntity = entity1;
-					}
-					else {
-						if(spanEqual && diffProp.length == 0 && _self.identicalEntityMarkAsGold) {
-							_self.markGold(entity0);
-							entity1.setAdditionalData("adjudication", "not gold");
-						}
-						var newAdjEntity = new AdjudicationEntity(this.getNewEntityId(), entity0.type, [entity0, entity1], diffProp);
-						this.addAdjEntityToAdjudicationInCompareEntityPair(entity0, entity1, newAdjEntity);
-						this.addAdjEntityToAdjudicationInCompareEntityPair(entity1, entity0, newAdjEntity);
-						this.addAdjAObj(newAdjEntity);
-						if(_self.annotateFrame != undefined)
-							_self.annotateFrame.updatePosIndex(newAdjEntity);
-						_self.addTypeCount(newAdjEntity.type);
-					}
-				}
-				*/
 			}
 			followIdx++;
 		}
@@ -415,7 +383,6 @@ AnaforaAdjudicationProject.prototype._addAnaforaProjectList = function(projectLi
 	}
 
 	needAdjEntityPairList.sort(function(compareList0, compareList1) { return compareList1[0].matchScore - compareList0[0].matchScore; });
-	//for(var comparePair of needAdjEntityPairList) {
 	for(var comparePairIdx = 0;comparePairIdx < needAdjEntityPairList.length; comparePairIdx++) {
 		var comparePair = needAdjEntityPairList[comparePairIdx];
 		var newAdjEntity = undefined;
@@ -540,38 +507,13 @@ AnaforaAdjudicationProject.prototype._addAnaforaProjectList = function(projectLi
 	//this.updatePosIndex(entityList[entityLength-1]);
 
 	if(this.annotateFrame != undefined) {
-		// Erase all markElement
-		/*
-		$.each(this.entityList, function(eIdx, entity) {
-			entity.markElement = [];
-		});
-		$.each(this.adjudicationEntityList, function(eIdx, entity) {
-			entity.markElement = [];
-		});
-		$.each(this.relationList, function(rIdx, relation) {
-			relation.markElement = [];
-		});
-		$.each(this.adjudicationRelationList, function(rIdx, relation) {
-			relation.markElement = [];
-		});
-		for (var annotatorName in this.projectList) {
-			var currentProject = this.projectList[annotatorName];
-			$.each(currentProject.entityList, function(eIdx, entity) {
-				entity.markElement = [];
-			});
-
-			$.each(currentProject.relationList, function(rIdx, relation) {
-				relation.markElement = [];
-			});
-		}
-		*/
 
 		this.annotateFrame.generateAllAnnotateOverlapList();
 	}
 
 	this.updateProgressBar();
-	//temporalSave();
 }
+*/
 
 AnaforaAdjudicationProject.adjEntityComparePropertyFunc = function(aObj0, aObj1, filterFunc) {
 
@@ -1264,8 +1206,6 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 		}
 	});
 
-
-
 	// put gold annotation and adjudication annotation to both project;
 	if(Object.keys(projectXMLList).length > 0) {
 		this.projectList = {};
@@ -1311,10 +1251,6 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 				_self.adjudicationEntityList[idx] = aObj;
 			else
 				_self.adjudicationRelationList[idx] = aObj;
-
-			if(_self.annotateFrame != undefined) {
-				_self.annotateFrame.updatePosIndex(aObj);
-			}
 
 			_self.addTypeCount(aObj.type);
 	
@@ -1379,8 +1315,6 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 					var comparePairEntityList = entity.getAdditionalData("comparePair");
 					if(comparePairEntityList == undefined || !(comparePairEntityList[comparePairEntityList.length - 1] instanceof AdjudicationEntity)) {
 						_self.addTypeCount(entity.type);
-						if(_self.annotateFrame != undefined)
-							_self.annotateFrame.updatePosIndex(entity);
 
 						if(entity.getAdditionalData("adjudication") != undefined) {
 							_self.completeAdjudication++;
@@ -1434,8 +1368,6 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 					var comparePairRelationList = relation.getAdditionalData("comparePair");
 					if(comparePairRelationList == undefined || !(comparePairRelationList[comparePairRelationList.length - 1] instanceof AdjudicationRelation)) {
 						_self.addTypeCount(relation.type);
-						if(_self.annotateFrame != undefined)
-							_self.annotateFrame.updatePosIndex(relation);
 						if(relation.getAdditionalData("adjudication") != undefined) {
 							_self.completeAdjudication++;
 						}
@@ -1456,10 +1388,7 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 									var linkedEntity = _self.findEntityByIdx(emptyId, emptyAnnotator);
   									relation.propertyList[pIdx][plIdx] = linkedEntity;
 									//this.addEntityPosit(aObj, aObj);
-									_self.annotateFrame.addEntityPosit(linkedEntity, relation);
 									var comparePairList = relation.getAdditionalData("comparePair");
-									if(comparePairList && comparePairList.length > 1)
-										_self.annotateFrame.addEntityPosit(linkedEntity, comparePairList[1]);
 								}
 								else if(relation.propertyList[pIdx][plIdx] instanceof EmptyRelation) {
 									var emptyRelation = relation.propertyList[pIdx][plIdx];
@@ -1468,10 +1397,7 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 									var linkedRelation = _self.findRelationByIdx(emptyId, emptyAnnotator);
   									relation.propertyList[pIdx][plIdx] = linkedRelation;
 									
-									_self.annotateFrame.addRelationPosit(linkedRelation, relation);
 									var comparePairList = relation.getAdditionalData("comparePair");
-									if(comparePairList && comparePairList.length > 1)
-										_self.annotateFrame.addEntityPosit(linkedEntity, comparePairList[1]);
 								}
 								else
 									return false;
@@ -1513,9 +1439,6 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 				entity.propertyList[pIdx].sort(IAnaforaObj.sort);
 			}
 		});
-		// update posindex
-		if(_self.annotateFrame != undefined)
-			_self.annotateFrame.updatePosIndex(entity);
 	});
 
 	$.each(this.relationList, function(idx, relation) {
@@ -1542,9 +1465,6 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 				relation.propertyList[pIdx].sort(IAnaforaObj.sort);
 			}
 		});
-		// update posindex
-		if(_self.annotateFrame != undefined)
-			_self.annotateFrame.updatePosIndex(relation);
 	});
 
 	this.totalAdjudication -= Object.keys(this.entityList).length;
@@ -1552,8 +1472,6 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 	this.totalAdjudication -= Object.keys(this.adjudicationEntityList).length;
 	this.totalAdjudication -= Object.keys(this.adjudicationRelationList).length;
 
-	if(this.annotateFrame != undefined)
-		this.annotateFrame.generateAllAnnotateOverlapList();
 	this.updateProgressBar();
 }
 
@@ -1604,4 +1522,33 @@ AnaforaAdjudicationProject.prototype.getAObjFromID = function(id) {
 		}
 	}
 
+}
+
+
+AnaforaAdjudicationProject.prototype.addAllAnnotationToAnnotateFrame = function(annotateFrameList) {
+	var _self = this;
+
+	// Add Gold Entity and Relation
+	AnaforaProject.prototype.addAllAnnotationToAnnotateFrame.call(annotateFrameList);
+
+	// Add Entity and Relation from each Project
+	Object.keys(_self.projectList).forEach(function(annotator) {
+		_self.projectList[annotator].addAllAnnotationToAnnotateFrame(annotateFrameList);
+	});
+
+	if(_self.annotateFrame != undefined) {
+	// Add Adjudication Entity
+		Object.keys(_self.adjudicationEntityList).forEach(function(tIdx) {
+			var adjEntity = _self.adjudicationEntityList[tIdx];
+			_self.annotateFrame.updatePosIndex(adjEntity, annotateFrameList);
+		});
+	
+		// Add Adjudication Relation
+		Object.keys(_self.adjudicationEntityList).forEach(function(tIdx) {
+			var adjRelation = _self.adjudicationEntityList[tIdx];
+			_self.annotateFrame.updatePosIndex(adjRelation, annotateFrameList);
+		});
+	
+		this.annotateFrame.generateAllAnnotateOverlapList();
+	}
 }
