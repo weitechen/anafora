@@ -49,12 +49,12 @@ AnaforaAdjudicationProject.prototype.addAnaforaProjectList = function(projectLis
 	identicalEntityList.forEach(function(identicalPair) {
 		var entity0 = identicalPair[0];
 		var entity1 = identicalPair[1];
-		preDefineDict[entity0.id + "-" + entity1.id] = 1.0;
+		preDefineDict[entity0.id + "|" + entity1.id] = 1.0;
 	});
 
 	Object.keys(matchEntityPairList).forEach(function(aID0) {
 		var aID1 = matchEntityPairList[aID0];
-		preDefineDict[aID0 + "-" + aID1] = compareEntityDict[0][aID0][aID1].matchScore;
+		preDefineDict[aID0 + "|" + aID1] = compareEntityDict[0][aID0][aID1].matchScore;
 	});
 
 	var compareAllRelationResultList = compareAllAnnotation(anaforaProject0.relationList, anaforaProject1.relationList, undefined, function() { return true;}, function() { return false;}, function(relation0, relation1) { return Relation.comparePairCheck(relation0, relation1, preDefineDict);});
@@ -1233,6 +1233,15 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 				_self.projectList[annotatorName].setParentProject(_self.parentProject);
 			_self.projectList[annotatorName].readFromXMLDOM(projectXML, true); 
 
+			// Remove gold annotation from both project;
+			$.each(_self.entityList, function(eIdx, entity) {
+				delete _self.projectList[annotatorName].entityList[eIdx];
+			});
+
+			$.each(_self.relationList, function(rIdx, relation) {
+				delete _self.projectList[annotatorName].relationList[rIdx];
+			});
+
 			_self.totalAdjudication += Object.keys(_self.projectList[annotatorName].entityList).length;
 			_self.totalAdjudication += Object.keys(_self.projectList[annotatorName].relationList).length;
 		});
@@ -1467,8 +1476,8 @@ AnaforaAdjudicationProject.prototype.readFromXMLDOM = function(xml, annotatorNam
 		});
 	});
 
-	this.totalAdjudication -= Object.keys(this.entityList).length;
-	this.totalAdjudication -= Object.keys(this.relationList).length;
+	this.totalAdjudication += Object.keys(this.entityList).length;
+	this.totalAdjudication += Object.keys(this.relationList).length;
 	this.totalAdjudication -= Object.keys(this.adjudicationEntityList).length;
 	this.totalAdjudication -= Object.keys(this.adjudicationRelationList).length;
 
@@ -1521,7 +1530,6 @@ AnaforaAdjudicationProject.prototype.getAObjFromID = function(id) {
 			}
 		}
 	}
-
 }
 
 
@@ -1529,23 +1537,27 @@ AnaforaAdjudicationProject.prototype.addAllAnnotationToAnnotateFrame = function(
 	var _self = this;
 
 	// Add Gold Entity and Relation
-	AnaforaProject.prototype.addAllAnnotationToAnnotateFrame.call(annotateFrameList);
+	console.log("===== add gold entity and relation =====");
+	AnaforaProject.prototype.addAllAnnotationToAnnotateFrame.call(_self, annotateFrameList);
 
 	// Add Entity and Relation from each Project
+	console.log("===== add project entity and relation =====");
 	Object.keys(_self.projectList).forEach(function(annotator) {
 		_self.projectList[annotator].addAllAnnotationToAnnotateFrame(annotateFrameList);
 	});
 
 	if(_self.annotateFrame != undefined) {
-	// Add Adjudication Entity
+		// Add Adjudication Entity
+		console.log("===== add adjudication entity =====");
 		Object.keys(_self.adjudicationEntityList).forEach(function(tIdx) {
 			var adjEntity = _self.adjudicationEntityList[tIdx];
 			_self.annotateFrame.updatePosIndex(adjEntity, annotateFrameList);
 		});
 	
 		// Add Adjudication Relation
-		Object.keys(_self.adjudicationEntityList).forEach(function(tIdx) {
-			var adjRelation = _self.adjudicationEntityList[tIdx];
+		console.log("===== add adjudication relation =====");
+		Object.keys(_self.adjudicationRelationList).forEach(function(tIdx) {
+			var adjRelation = _self.adjudicationRelationList[tIdx];
 			_self.annotateFrame.updatePosIndex(adjRelation, annotateFrameList);
 		});
 	

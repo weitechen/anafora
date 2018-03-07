@@ -3,6 +3,7 @@ function AnnotateFrame(frameElement, setting, rawText) {
 	this.spanElementList = this.frameDiv.find('span');
 	this.positIndex = {};
 	this.overlap = [];
+	this.overlapIdx = [];
 	this.setting = setting;
 	this.rawText = rawText;
 	//this.rawText = $('<div>' + rawText + '</div>').text();
@@ -57,6 +58,73 @@ AnnotateFrame.prototype.updatePosIndex = function(aObj, annotateFrameList) {
 	else {
 		
 		throw new ErrorException("aObj: " + aObj.toString() + " is not an IAnaforaObj");
+	}
+}
+
+AnnotateFrame.prototype.addSpanToOverlapList = function(span, addedAObj) {
+	// Update overlap list based on one span. Add addedAObj to aObjList
+	var _self = this;
+	var spanIdx = this.searchMatchOverlap(span.start);
+	var currentStart = span.start;
+	
+	var pivotOverlap = spanIdx == null ? undefined : this.overlap[spanIdx];
+
+	while(spanIdx != null && (pivotOverlap != undefined && pivotOverlap.span.end <= span.end)) {
+		if(pivotOverlap.end <= currentStart) {
+			spanIdx++;
+			if(spanIdx < this.overlap.length)
+				pivotOverlap = this.overlap[spanIdx];
+			else
+				pivotOverlap = undefined;
+		}
+		else {
+			if(currentStart == pivotOverlap.span.start) {
+				if(span.end >= pivotOverlap.span.end) {
+					// just append
+					pivotOverlap.aObjList.push(addedAObj);
+					spanIdx++;
+				}
+				else {
+					// Split current overlap, add addedAObj to the first part
+					var newOverlap = new Overlap(new SpanType(pivotOverlap.span.start, span.end), pivotOverlap.aObjList.slice(0), _self);
+					newOverlap.aObjList.push(addedAObj);
+					pivotOverlap.span.start = span.end;
+					this.overlap.splice(spanIdx, 0, newOverlap);
+					this.overlapIdx.splice(spanIdx, 0, newOverlap.start);
+					this.overlapIdx[spanIdx+1].start = span.end;
+					spanIdx++;
+				}
+				currentStart = pivotOverlap.span.end;
+			}
+			else if(currentStart < pivotOverlap.span.start) {
+				// add new Overlap
+				var newOverlap = new Overlap(new SpanType(currentStart, pivotOverlap.span.end), [addedAObj], _self);
+				this.overlap.splice(spanIdx, 0, newOverlap);
+				this.overlapIdx.splice(spanIdx, 0, currentStart);
+				
+				currentStart = pivotOverlap.span.start;
+				spanIdx++;
+			}
+			else if(currentStart < pivotOverlap.span.end) {
+				// split current overlap, add addedAObj to the second part
+				var newOverlap = new Overlap(new SpanType(currentStart, pivotOverlap.span.end), pivotOverlap.aObjList.slice(0), _self);
+				newOverlap.aObjList.push(addedAObj);
+				pivotOverlap.span.end = currentStart;
+				this.overlap.splice(spanIdx+1, 0, newOverlap);
+				this.overlapIdx.splice(spanIdx+1, 0, newOverlap.start);
+				this.overlapIdx[spanIdx].end = currentStart;
+				spanIdx++;
+				currentStart = pivotOverlap.span.end;
+			}
+
+			pivotOverlap = this.overlap[spanIdx];
+		}
+	}
+
+	if(spanIdx == null || this.overlap[this.overlap.length-1].end < span.end) {
+		var newOverlap = new Overlap(new SpanType(this.overlap[this.overlap.length-1].end, span.end), [addedAObj], _self);
+		this.overlap.push(newOverlap);
+		this.overlapIdx.push(newOverlap.span.start);
 	}
 }
 
@@ -121,6 +189,15 @@ AnnotateFrame.prototype.addEntity = function(newEntity) {
 	if(newEntity instanceof Entity) {
 		this.updatePosIndex(newEntity);
 		this.updateOverlap(newEntity);
+	}
+}
+
+AnnotateFrame.prototype.addAObjOnEntity = function(entity, addedAObj) {
+	var _self = this;
+	if(entity instanceof Entity) {
+		entity.span.forEach(function(subSpan) {
+			_self.addSpanToOverlapList(subSpan, addedAObj);
+		});
 	}
 }
 
@@ -207,6 +284,10 @@ AnnotateFrame.prototype.addSpanPosit = function(span, addingAObj, addedAObj) {
 				this.positIndex[spanIdx].push(addedAObj);
 			}
 		}
+	}
+
+	if(span.start == 201 && span.end == 208 && addedAObj.id == "195@r@ID185_clinic_543@gold") {
+		console.log("195@r@ID185_clinic_543@gold is added by " + addingAObj.toString());
 	}
 
 	if(addedAObj == addingAObj) {
@@ -305,8 +386,20 @@ AnnotateFrame.prototype.addRelationPosit = function(relation, addedAObj, annotat
 		annotFrame.addRelationPosit(relation, addedAObj);
 	else {
 		if(relation instanceof AdjudicationRelation) {
-			this.addRelationPosit(relation.compareAObj[0], relation);
-			this.addRelationPosit(relation.compareAObj[1], relation);
+			relation.type.propertyTypeList.forEach(function (propertyType, pIdx) {
+				if(propertyType.input == InputType.LIST) {
+					if(relation.diffProp.indexOf(pIdx) >= 0) {
+						var unionSpanList = SpanType.merge(relation.compareAObj[0].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);}), relation.compareAObj[1].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);}));
+
+						unionSpanList.forEach(function(tSpan) {
+							_self.addSpanPosit(tSpan, relation.compareAObj[0], relation);
+						});
+					}
+					else {
+						_self.addRelationPosit(relation.compareAObj[0], relation);
+					}
+				}
+			});
 		}
 		else {
 			$.each(relation.propertyList, function(idx) {

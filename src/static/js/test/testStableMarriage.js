@@ -192,14 +192,14 @@ QUnit.module( "Test Module for stable marriage algorithm", function(hooks) {
 			var compareObj1 = Entity.comparePairCheck(entity1_0, entity1_1);
 			assert.deepEqual(compareObj1["diffProp"], []);
 			assert.notOk(compareObj1["spanEqual"]);
-			assert.equal(compareObj1["matchScore"].toFixed(5), subhooks.ansCSVDict.ansDict["482@e@ID185_clinic_543@adwi9965-477@e@ID185_clinic_543@reganma"].toFixed(5));
+			assert.equal(compareObj1["matchScore"].toFixed(5), subhooks.ansCSVDict.ansDict["482@e@ID185_clinic_543@adwi9965|477@e@ID185_clinic_543@reganma"].toFixed(5));
 
 			var entity2_0 = subhooks.anaforaProject0.entityList[533];
 			var entity2_1 = subhooks.anaforaProject1.entityList[527];
 			var compareObj2 = Entity.comparePairCheck(entity2_0, entity2_1);
 			assert.deepEqual(compareObj2["diffProp"], []);
 			assert.notOk(compareObj2["spanEqual"]);
-			assert.equal(compareObj2["matchScore"].toFixed(5), subhooks.ansCSVDict.ansDict["533@e@ID185_clinic_543@adwi9965-527@e@ID185_clinic_543@reganma"].toFixed(5));
+			assert.equal(compareObj2["matchScore"].toFixed(5), subhooks.ansCSVDict.ansDict["533@e@ID185_clinic_543@adwi9965|527@e@ID185_clinic_543@reganma"].toFixed(5));
 		});
 
 		QUnit.test("Test Relation comparePairCheck", function(assert) {
@@ -214,39 +214,25 @@ QUnit.module( "Test Module for stable marriage algorithm", function(hooks) {
 			var relation1_1 = subhooks.anaforaProject1.relationList[245];
 			var compareObj1 = Relation.comparePairCheck(relation1_0, relation1_1, subhooks.ansCSVDict.preDefineScore);
 			assert.deepEqual(compareObj1["diffProp"], [1]);
-			assert.equal(compareObj1["matchScore"].toFixed(5), subhooks.ansCSVDict.ansDict["260@r@ID185_clinic_543@adwi9965-245@r@ID185_clinic_543@reganma"].toFixed(5));
+			assert.equal(compareObj1["matchScore"].toFixed(5), subhooks.ansCSVDict.ansDict["260@r@ID185_clinic_543@adwi9965|245@r@ID185_clinic_543@reganma"].toFixed(5));
 
 			var relation2_0 = subhooks.anaforaProject0.relationList[244];
 			var relation2_1 = subhooks.anaforaProject1.relationList[254];
 			var compareObj2 = Relation.comparePairCheck(relation2_0, relation2_1, subhooks.ansCSVDict.preDefineScore);
 			assert.deepEqual(compareObj2["diffProp"], [0]);
-			assert.equal(compareObj2["matchScore"].toFixed(5), subhooks.ansCSVDict.ansDict["244@r@ID185_clinic_543@adwi9965-254@r@ID185_clinic_543@reganma"].toFixed(5));
+			assert.equal(compareObj2["matchScore"].toFixed(5), subhooks.ansCSVDict.ansDict["244@r@ID185_clinic_543@adwi9965|254@r@ID185_clinic_543@reganma"].toFixed(5));
 
 			var relation3_0 = subhooks.anaforaProject0.relationList[259];
 			var relation3_1 = subhooks.anaforaProject1.relationList[242];
 			var compareObj2 = Relation.comparePairCheck(relation3_0, relation3_1, subhooks.ansCSVDict.preDefineScore);
 			assert.deepEqual(compareObj2["diffProp"], [1]);
-			assert.equal(compareObj2["matchScore"].toFixed(5), subhooks.ansCSVDict.ansDict["259@r@ID185_clinic_543@adwi9965-242@r@ID185_clinic_543@reganma"].toFixed(5));
+			assert.equal(compareObj2["matchScore"].toFixed(5), subhooks.ansCSVDict.ansDict["259@r@ID185_clinic_543@adwi9965|242@r@ID185_clinic_543@reganma"].toFixed(5));
 
 			var relation4_0 = subhooks.anaforaProject0.relationList[280];
 			var relation4_1 = subhooks.anaforaProject1.relationList[261];
 			var compareObj2 = Relation.comparePairCheck(relation4_0, relation4_1, subhooks.ansCSVDict.preDefineScore);
 			assert.deepEqual(compareObj2["diffProp"], [2]);
-			assert.equal(compareObj2["matchScore"].toFixed(5), subhooks.ansCSVDict.ansDict["280@r@ID185_clinic_543@adwi9965-261@r@ID185_clinic_543@reganma"].toFixed(5));
-		});
-
-		QUnit.skip("Test Entity Pair Comparasion", function(assert) {
-			
-			var comparePairList = stableMarraige(subhooks.anaforaProject0.entityList, subhooks.anaforaProject1.entityList, Entity.comparePairCheck, hooks.schema);
-			comparePairList.forEach(function( adjPair ) {
-				var entity0 = adjPair[0][0];
-				var entity1 = adjPair[0][1];
-				var matchObj = adjPair[1];
-
-				var answerKey = entity0.id + "-" + entity1.id;
-				assert.ok(answerKey in subhooks.ansCSVDict.ansDict);
-				assert.equal(matchObj["matchScore"].toFixed(5), subhooks.ansCSVDict.ansDict[answerKey].toFixed(5));
-			});
+			assert.equal(compareObj2["matchScore"].toFixed(5), subhooks.ansCSVDict.ansDict["280@r@ID185_clinic_543@adwi9965|261@r@ID185_clinic_543@reganma"].toFixed(5));
 		});
 
 		QUnit.test("Test compareAllAnnotation for both Entity and Relation List", function(assert) {
@@ -260,12 +246,12 @@ QUnit.module( "Test Module for stable marriage algorithm", function(hooks) {
 			identicalEntityList.forEach(function(identicalPair) {
 				var entity0 = identicalPair[0];
 				var entity1 = identicalPair[1];
-				preDefineDict[entity0.id + "-" + entity1.id] = 1.0;
+				preDefineDict[entity0.id + "|" + entity1.id] = 1.0;
 			});
 
 			for(var aID0 in matchEntityPairList) {
 				var aID1 = matchEntityPairList[aID0];
-				preDefineDict[aID0 + "-" + aID1] = compareEntityDict[0][aID0][aID1].matchScore;
+				preDefineDict[aID0 + "|" + aID1] = compareEntityDict[0][aID0][aID1].matchScore;
 			}
 
 			var compareAllRelationResultList = compareAllAnnotation(subhooks.anaforaProject0.relationList, subhooks.anaforaProject1.relationList, undefined, function() { return true;}, function() { return false;}, function(relation0, relation1) { return Relation.comparePairCheck(relation0, relation1, preDefineDict);});
@@ -279,8 +265,8 @@ QUnit.module( "Test Module for stable marriage algorithm", function(hooks) {
 			identicalEntityList.forEach(function(identicalEntityPair) {
 				var entity0 = identicalEntityPair[0];
 				var entity1 = identicalEntityPair[1];
-				assert.equal(subhooks.ansCSVDict.ansDict[entity0.id + "-" + entity1.id], 1.0);
-				identicalEntityID[entity0.id + "-" + entity1.id] = true;
+				assert.equal(subhooks.ansCSVDict.ansDict[entity0.id + "|" + entity1.id], 1.0);
+				identicalEntityID[entity0.id + "|" + entity1.id] = true;
 			});
 			
 			assert.equal(Object.keys(identicalEntityID).length, Object.keys(identicalEntityList).length);
@@ -291,8 +277,8 @@ QUnit.module( "Test Module for stable marriage algorithm", function(hooks) {
 			identicalRelationList.forEach(function(identicalRelationPair) {
 				var relation0 = identicalRelationPair[0];
 				var relation1 = identicalRelationPair[1];
-				assert.equal(subhooks.ansCSVDict.ansDict[relation0.id + "-" + relation1.id], 1.0);
-				identicalRelationID[relation0.id + "-" + relation1.id] = true;
+				assert.equal(subhooks.ansCSVDict.ansDict[relation0.id + "|" + relation1.id], 1.0);
+				identicalRelationID[relation0.id + "|" + relation1.id] = true;
 			});
 			
 			assert.equal(Object.keys(identicalRelationID).length, Object.keys(identicalRelationList).length);
@@ -320,17 +306,17 @@ QUnit.module( "Test Module for stable marriage algorithm", function(hooks) {
 
 			for(var aID0 in matchEntityPairList) {
 				var aID1 = matchEntityPairList[aID0];
-				assert.ok(aID0 + "-" + aID1, subhooks.ansCSVDict.ansDict, "Checking " + aID0 + "-" + aID1 + " in ansDict");
+				assert.ok(aID0 + "|" + aID1, subhooks.ansCSVDict.ansDict, "Checking " + aID0 + "|" + aID1 + " in ansDict");
 			}
 
 			for(var aID0 in matchRelationPairList) {
 				var aID1 = matchRelationPairList[aID0];
-				assert.ok(aID0 + "-" + aID1 in subhooks.ansCSVDict.ansDict, "Checking " + aID0 + "-" + aID1 + " in ansDict");
+				assert.ok(aID0 + "|" + aID1 in subhooks.ansCSVDict.ansDict, "Checking " + aID0 + "|" + aID1 + " in ansDict");
 			}
 
 			for(var ansKey in subhooks.ansCSVDict.ansDict) {
-				if(ansKey.indexOf("-") > 0) {
-					var aIDTerms = ansKey.split("-");
+				if(ansKey.indexOf("|") > 0) {
+					var aIDTerms = ansKey.split("|");
 					var aID0 = aIDTerms[0];
 					var aID1 = aIDTerms[1];
 					var entityTerms = aID0.split("@");
@@ -340,7 +326,7 @@ QUnit.module( "Test Module for stable marriage algorithm", function(hooks) {
 						}
 						else {
 							assert.ok(aID0 in matchEntityPairList, "Checking " + aID0 + " in matchEntityPairList");
-							assert.equal(matchEntityPairList[aID0], aID1, "Check the match pair of " + aID0 + "-" + aID1 + " is correct");
+							assert.equal(matchEntityPairList[aID0], aID1, "Check the match pair of " + aID0 + "|" + aID1 + " is correct");
 						}
 					}
 					else {
@@ -349,7 +335,7 @@ QUnit.module( "Test Module for stable marriage algorithm", function(hooks) {
 						}
 						else {
 							assert.ok(aID0 in matchRelationPairList, "Checking " + aID0 + " in matchRelationPairList");
-							assert.equal(matchRelationPairList[aID0], aID1, "Check the match pair of " + aID0 + "-" + aID1 + " is correct");
+							assert.equal(matchRelationPairList[aID0], aID1, "Check the match pair of " + aID0 + "|" + aID1 + " is correct");
 						}
 					}
 				}

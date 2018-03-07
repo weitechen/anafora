@@ -28,23 +28,23 @@ function parseAnsCSV(ansCSVStr) {
 			}
 			else if(ansTerm[1] != "" && ansTerm[2] != "") {
 				if(ansTerm[3] == "") {
-					ansCSVDict.ansDict[ansTerm[1] + "-" + ansTerm[2]] = undefined;
+					ansCSVDict.ansDict[ansTerm[1] + "|" + ansTerm[2]] = undefined;
 					if(ansTerm[1].indexOf("@e@") >=0)
 						ansCSVDict.numOfComparePairEntity++;
 					else
 						ansCSVDict.numOfComparePairRelation++;
 				}
 				else {
-					ansCSVDict.ansDict[ansTerm[1] + "-" + ansTerm[2]] = parseFloat(ansTerm[3]);
+					ansCSVDict.ansDict[ansTerm[1] + "|" + ansTerm[2]] = parseFloat(ansTerm[3]);
 					if(ansTerm[1].indexOf("@e@") >=0) {
-						if(ansCSVDict.ansDict[ansTerm[1] + "-" + ansTerm[2]] == 1.0)
+						if(ansCSVDict.ansDict[ansTerm[1] + "|" + ansTerm[2]] == 1.0)
 							ansCSVDict.numOfIdenticalEntity++;
 						else
 							ansCSVDict.numOfComparePairEntity++;
-						ansCSVDict.preDefineScore[ansTerm[1] + "-" + ansTerm[2]] = ansCSVDict.ansDict[ansTerm[1] + "-" + ansTerm[2]];
+						ansCSVDict.preDefineScore[ansTerm[1] + "|" + ansTerm[2]] = ansCSVDict.ansDict[ansTerm[1] + "|" + ansTerm[2]];
 					}
 					else {
-						if(ansCSVDict.ansDict[ansTerm[1] + "-" + ansTerm[2]] == 1.0)
+						if(ansCSVDict.ansDict[ansTerm[1] + "|" + ansTerm[2]] == 1.0)
 							ansCSVDict.numOfIdenticalRelation++;
 						else
 							ansCSVDict.numOfComparePairRelation++;

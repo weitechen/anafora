@@ -266,7 +266,7 @@ function loadNewProject() {
 					currentAProject = new AnaforaCrossAdjudicationProject(schema, _setting.annotator,  _setting.taskName);
 				}
 				else
-					currentAProject = new AnaforaAdjudicationProject(schema,  _setting.taskName);	
+					currentAProject = new AnaforaAdjudicationProject(schema,  _setting.taskName);
 			}
 			else if(_setting.isCrossDoc) {
 				// read from crossDoc file. tXMLTest will use taskName as key

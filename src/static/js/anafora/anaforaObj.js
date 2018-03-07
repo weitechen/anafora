@@ -512,7 +512,7 @@ Relation.comparePairCheck = function(relation0, relation1, preDefineScore) {
 			if(annotator0 == "gold" && annotator1 == "gold" && idTerm0[0] == idTerm1[0])
 				return 1.0;
 			else if(annotator0 != "gold" && annotator1 != "gold") {
-				preDefineKey = entity0.id + "-" + entity1.id;
+				preDefineKey = entity0.id + "|" + entity1.id;
 				if(preDefineKey in preDefineScore) {
 					return preDefineScore[preDefineKey];
 				}
@@ -1345,7 +1345,6 @@ AdjudicationRelation.genFromDOM = function(adjudicationRelationDOM, schema, proj
 }
 
 function IAdjudicationAnaforaObj(aObj1, aObj2) {
-	this.insideAdjObj = undefined;
 	this.decideIdx = undefined; /* undefined: not decided yet, -1: all other should be delete */
 	this.compareAObj = undefined;
 	this.diffProp = undefined;

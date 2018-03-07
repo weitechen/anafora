@@ -89,6 +89,7 @@ function compareAllAnnotation(annotationList0, annotationList1, sortingFunc, sto
 
 		var listIdxShift1 = 0;
 		var undecideAObj1 = [];
+		
 
 		if(annotator0 == "gold") {
 			;
@@ -131,6 +132,7 @@ function compareAllAnnotation(annotationList0, annotationList1, sortingFunc, sto
 					*/
 					//if(annotator1 != "gold") {
 					var compareRObj = comparePairCheck(aObj0, aObj1);
+
 					//if(compareRObj.spanEqual && compareRObj.diffProp.length == 0)
 					if(compareRObj.matchScore == 1.0) {
 						identicalList.push([aObj0, aObj1]);
@@ -159,6 +161,7 @@ function compareAllAnnotation(annotationList0, annotationList1, sortingFunc, sto
 	
 			// check undecideAObj1 is empty or not
 			if(undecideAObj1.length > 0) {
+
 				comparasionDict[aObj0.id] = {};
 				undecideAObj1.forEach(function(aObj1ComparasionPair) {
 					var tAObj1 = aObj1ComparasionPair[0];
@@ -166,6 +169,7 @@ function compareAllAnnotation(annotationList0, annotationList1, sortingFunc, sto
 					comparasionDict[aObj0.id][tAObj1.id] = tCompareRObj;
 				});
 			}
+
 		}
 		listIdx0++;
 	}
