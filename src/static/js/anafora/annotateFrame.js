@@ -290,11 +290,13 @@ AnnotateFrame.prototype.addSpanPosit = function(span, addingAObj, addedAObj) {
 		console.log("195@r@ID185_clinic_543@gold is added by " + addingAObj.toString());
 	}
 
+	/*
 	if(addedAObj == addingAObj) {
 		$.each(addingAObj.linkingAObjList, function(idx, linkingAObj) {
 			_self.addSpanPosit(span, addingAObj, linkingAObj );
 		});
 	}
+	*/
 }
 
 AnnotateFrame.prototype.removeSpanPosit = function(span, removingAObj, removedAObj, directRemove) {
