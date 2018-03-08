@@ -12,6 +12,7 @@ var propertyFrameList = [];
 var relationFrame = undefined;
 var isChanged = false;
 var errorHandler = undefined;
+var eventLogging = undefined;
 var currentScrollTask = 0;
 var subTaskNameList = undefined;
 var subTaskElemList = undefined;
@@ -20,6 +21,10 @@ var previousPosition = undefined;
 function onLoad() {
 	// Setting errorHAndler;
 	errorHandler = new ErrorHandler($('#errorMessage'));
+	if(_setting.isLogging) {
+		eventLogging = new EventLogging();
+
+	}
 	// read schemaMap in _setting
 	var tDiv = document.createElement('div');
 	tDiv.innerHTML = _setting.schemaMap;
