@@ -29,6 +29,15 @@ def index(request, testFuncName = None):
 			if jsTestFile not in contextContent['js_test']:
 				contextContent['js_test'].append(jsTestFile)
 
+	if testFuncName == "testAdjudication" or testFuncName == None:
+		for jsFile in ["schema.js", "anaforaProject.js", "anaforaObj.js", "anaforaAdjudicationProject.js", "stablePair.js"]:
+			if jsFile not in contextContent['js']:
+				contextContent['js'].append(jsFile)
+
+		for jsTestFile in ['ansCSVReader.js', 'testAdjudication.js']:
+			if jsTestFile not in contextContent['js_test']:
+				contextContent['js_test'].append(jsTestFile)
+
 	if testFuncName == "testAnnotateFrame": # or testFuncName == None:
 		for jsFile in ["schema.js", "anaforaProject.js", "anaforaObj.js", "anaforaAdjudicationProject.js", "stablePair.js", "annotateFrame.js"]:
 			if jsFile not in contextContent['js']:
