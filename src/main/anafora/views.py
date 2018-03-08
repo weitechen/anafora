@@ -21,7 +21,7 @@ css = ["css/style.css", "css/themes/default/style.css"]
 js_lib = [("js/lib/%s" % js_file) for js_file in ["jquery.jstree.js", "jquery.jstree.schema.js", "jquery.hotkeys.js", "jquery.ui.position.min.js", "jquery.contextMenu.min.js", "jquery.json-2.4.min.js", "jquery.cookie.js"]]
 
 
-js_annotate = [("js/annotate/%s" % js_file) for js_file in ["errorHandler.js", "schema.js", "anaforaProject.js", "anaforaObj.js", "annotate.js", "propertyFrame.js", "annotateFrame.js", "aObjSelectionMenu.js", "projectSelector.js", "anaforaAdjudicationProject.js", "anaforaCrossProject.js", "anaforaCrossAdjudicationProject.js", "relationFrame.js"]]
+js_annotate = [("js/annotate/%s" % js_file) for js_file in ["errorHandler.js", "schema.js", "anaforaProject.js", "anaforaObj.js", "annotate.js", "propertyFrame.js", "annotateFrame.js", "aObjSelectionMenu.js", "projectSelector.js", "anaforaAdjudicationProject.js", "anaforaCrossProject.js", "anaforaCrossAdjudicationProject.js", "relationFrame.js", "eventLogging.js"]]
 
 js_schemaSpecific = {"Coreference": {"adjudication": ["js/annotate/anaforaAdjudicationProjectCoreference.js"]}}
 
@@ -144,7 +144,7 @@ def index(request):
 	contextContent['settingVars'] = assignSettingVars(request)
 	# contextContent.update(csrf(request))
 	#context = Context(contextContent)
-	return render(request, 'annotate/index.html', contextContent)
+	return render(request, 'anafora/index.html', contextContent)
 
 @csrf_protect
 def selectProject(request, projectName):
@@ -159,7 +159,7 @@ def selectProject(request, projectName):
 	contextContent['settingVars'] = assignSettingVars(request, projectName = projectName)
 	# contextContent.update(csrf(request))
 	#context = Context(contextContent)
-	return render(request, 'annotate/index.html', contextContent)
+	return render(request, 'anafora/index.html', contextContent)
 
 @csrf_protect
 def selectCorpus(request, projectName, corpusName):
@@ -179,10 +179,10 @@ def selectCorpus(request, projectName, corpusName):
 	contextContent['settingVars'] = assignSettingVars(request, projectName = projectName, corpusName = corpusName)
 	# contextContent.update(csrf(request))
 	#context = Context(contextContent)
-	return render(request, 'annotate/index.html', contextContent)
+	return render(request, 'anafora/index.html', contextContent)
 
 @csrf_protect
-def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMode=None, view="", crossDoc="", adjudication="", annotator=None ):  # annotatorName="", crossDoc=None):
+def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMode=None, view="", crossDoc="", adjudication="", annotator=None, logging=None ):  # annotatorName="", crossDoc=None):
 	if request.method != "GET":
 		return HttpResponseForbidden()
 
@@ -192,6 +192,7 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
 	isAdjudication = False
 	isCrossDoc = False
 	annotatorName = account
+	isLogging = False
 
 	if view == "view":
 		isView = True
@@ -199,6 +200,8 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
 		isCrossDoc = True
 	if adjudication == "Adjudication":
 		isAdjudication = True
+	if logging == "_logging_":
+		isLogging = True
 	
 	#schemaName = schema if schemaMode != " else ("%s-%s" % (schema, schemaMode))
 
@@ -260,11 +263,11 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
 		'settingVars': {'app_name': "annotate", 'projectName': projectName, 'corpusName': corpusName,
 						'taskName': taskName, 'schema': "%s%s" % (schema, "" if schemaMode== None else (".%s" % schemaMode)), 'isAdjudication': isAdjudication,
 						'annotator': annotator, 'remoteUser': request.META["REMOTE_USER"],
-						'schemaMap': json.dumps(schemaMap), 'isCrossDoc': isCrossDoc},
+						'schemaMap': json.dumps(schemaMap), 'isCrossDoc': isCrossDoc, 'isLogging': isLogging},
 	}
 	# contextContent.update(csrf(request))
 	#context = Context(contextContent)
-	return render(request, 'annotate/index.html', contextContent)
+	return render(request, 'anafora/index.html', contextContent)
 
 
 @csrf_protect
@@ -556,6 +559,25 @@ def writeFile(request, projectName, corpusName, taskName, schemaName, schemaMode
 
 	return HttpResponse()
 
+def saveLogging(request,projectName, corpusName, taskName, schemaName, schemaMode = None, isAdj = None): 
+	if request.method != "POST":
+		return HttpResponseForbidden()
+
+	if isSchemaExist(schemaName, schemaMode) != True:
+		return HttpResponseNotFound("schema file not found")
+
+	filePath = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName)
+
+	if os.path.exists(filePath) != True:
+		return HttpResponseNotFound("project, corpus or task not found")
+
+	logContent = request.POST.get("logContent")
+	fileName = os.path.join(filePath, "%s.%s%s%s.%s.log" %  (taskName,  schemaName, "" if schemaMode == None else "-%s" % schemaMode, "" if isAdj == None else "-Adjudication",  (request.META["REMOTE_USER"])))
+
+	with open(fileName, "a+") as fhd:
+		fhd.write(logContent)
+	
+	return HttpResponse()
 
 def setCompleted(request, projectName, corpusName, taskName, schemaName, schemaMode = None, isAdj = None):
 	if request.method != "POST":
