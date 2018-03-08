@@ -17,14 +17,13 @@ var currentScrollTask = 0;
 var subTaskNameList = undefined;
 var subTaskElemList = undefined;
 var previousPosition = undefined;
+var eventLogging = undefined;
 
 function onLoad() {
 	// Setting errorHAndler;
-	errorHandler = new ErrorHandler($('#errorMessage'));
-	if(_setting.isLogging) {
-		eventLogging = new EventLogging();
 
-	}
+	if(_setting.isLogging)
+		eventLogging = new EventLogging();
 	// read schemaMap in _setting
 	var tDiv = document.createElement('div');
 	tDiv.innerHTML = _setting.schemaMap;
@@ -78,6 +77,17 @@ function onLoad() {
 		projectSelector = new ProjectSelector(_setting);
 	else
 		loadNewProject();
+
+	if(_setting.isLogging)
+		setInterval( function() { }, 1000 * 3 );
+}
+
+function saveLogging() {
+	if(_setting.isLogging) {
+		if(eventLogging.logList.length > 0) {
+			$.ajax({type: 'POST', url:  _setting.root_url + "/" + _setting.app_name + "/logging/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/" + _setting.schema + (_setting.isAdjudication ? ".Adjudication" : "") + "/", data: {'logContent': eventLogging.reduce(function(a,b) {return a + '\n' + b.toString();}), }, cache: false, async: false, headers:{"X-CSRFToken":$.cookie('csrftoken') }, success: function(data) {eventLogging.clear();}, error: function (xhr, ajaxOptions, thrownError) { errorHandler.handle(new ErrorException("Logging Error"), currentAProject); console.log("Save Logging Error");  }});
+		}
+	}
 }
 
 function confirmLeave(evt) {
