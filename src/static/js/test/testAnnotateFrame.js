@@ -215,7 +215,7 @@ QUnit.module( "Test AnnotateFrame", function(hooks) {
 			}
 		});
 
-		QUnit.test("Test Basic AdjudicationProject AnnotateFrame", function(assert) {
+		QUnit.skip("Test Basic AdjudicationProject AnnotateFrame", function(assert) {
 			subhooks.anaforaProject0.setAnnotateFrame(subhooks.annotateFrame);
 			subhooks.anaforaProject0.readFromXMLDOM(subhooks.annotator0XMLDOM, true);
 			subhooks.anaforaProject1.setAnnotateFrame(subhooks.annotateFrame);
@@ -224,6 +224,41 @@ QUnit.module( "Test AnnotateFrame", function(hooks) {
 			adjudicationAnaforaProject.setAnnotateFrame(subhooks.annotateFrame);
 			adjudicationAnaforaProject.addAnaforaProjectList({'adwi9965': subhooks.anaforaProject0, 'reganma': subhooks.anaforaProject1});
 			adjudicationAnaforaProject.renderAnnotateFrame(undefined);
+
+			var overlapList = calculateAnnotateFrame(adjudicationAnaforaProject);
+			assert.equal(subhooks.annotateFrame.overlap.length, overlapList.length, "Compare Overlap Length");
+
+			for(var oIdx = 0; oIdx < subhooks.annotateFrame.overlap.length; oIdx++) {
+				var targetOverlap = subhooks.annotateFrame.overlap[oIdx];
+				var goldOverlap = overlapList[oIdx];
+
+				assert.equal(targetOverlap.span.start, goldOverlap.start, "Compare overlap span start");
+				assert.equal(targetOverlap.span.end, goldOverlap.end, "Compare overlap span end");
+
+				var goldAObjId = goldOverlap.aList.split("-");
+				targetOverlap.aObjList.sort();
+
+				assert.equal(targetOverlap.aObjList.length, goldAObjId.length, "span range from " + goldOverlap.start.toString() + " to " + goldOverlap.end.toString() + ", \n" + targetOverlap.aObjList.reduce(function (a,b) { return a.toString() + "-" + b.toString(); }) + " vs. \n" + goldOverlap.aList.toString());
+
+			}
+		});
+
+		QUnit.test("Test Re-read AdjudicationProject AnnotateFrame", function(assert) {
+			//subhooks.anaforaProject0.setAnnotateFrame(subhooks.annotateFrame);
+			subhooks.anaforaProject0.readFromXMLDOM(subhooks.annotator0XMLDOM, true);
+			//subhooks.anaforaProject1.setAnnotateFrame(subhooks.annotateFrame);
+			subhooks.anaforaProject1.readFromXMLDOM(subhooks.annotator1XMLDOM, true);
+			var adjudicationAnaforaProject = new AnaforaAdjudicationProject(hooks.schema, "ID185_clinic_543");
+			//adjudicationAnaforaProject.setAnnotateFrame(subhooks.annotateFrame);
+			adjudicationAnaforaProject.addAnaforaProjectList({'adwi9965': subhooks.anaforaProject0, 'reganma': subhooks.anaforaProject1});
+
+			var adjXMLStr = adjudicationAnaforaProject.writeXML();
+			var adjXMLDom = $.parseXML( adjXMLStr ) ;
+			var newAdjudicationAnaforaProject = new AnaforaAdjudicationProject(hooks.schema, "ID185_clinic_543");
+			newAdjudicationAnaforaProject.setAnnotateFrame(subhooks.annotateFrame);
+			newAdjudicationAnaforaProject.readFromXMLDOM(adjXMLDom, ["adwi9965", "reganma"]);
+
+			newAdjudicationAnaforaProject.renderAnnotateFrame(undefined);
 
 			var overlapList = calculateAnnotateFrame(adjudicationAnaforaProject);
 			assert.equal(subhooks.annotateFrame.overlap.length, overlapList.length, "Compare Overlap Length");

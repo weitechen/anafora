@@ -1537,25 +1537,21 @@ AnaforaAdjudicationProject.prototype.addAllAnnotationToAnnotateFrame = function(
 	var _self = this;
 
 	// Add Gold Entity and Relation
-	console.log("===== add gold entity and relation =====");
 	AnaforaProject.prototype.addAllAnnotationToAnnotateFrame.call(_self, annotateFrameList);
 
 	// Add Entity and Relation from each Project
-	console.log("===== add project entity and relation =====");
 	Object.keys(_self.projectList).forEach(function(annotator) {
 		_self.projectList[annotator].addAllAnnotationToAnnotateFrame(annotateFrameList);
 	});
 
 	if(_self.annotateFrame != undefined) {
 		// Add Adjudication Entity
-		console.log("===== add adjudication entity =====");
 		Object.keys(_self.adjudicationEntityList).forEach(function(tIdx) {
 			var adjEntity = _self.adjudicationEntityList[tIdx];
 			_self.annotateFrame.updatePosIndex(adjEntity, annotateFrameList);
 		});
 	
 		// Add Adjudication Relation
-		console.log("===== add adjudication relation =====");
 		Object.keys(_self.adjudicationRelationList).forEach(function(tIdx) {
 			var adjRelation = _self.adjudicationRelationList[tIdx];
 			_self.annotateFrame.updatePosIndex(adjRelation, annotateFrameList);

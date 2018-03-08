@@ -286,10 +286,6 @@ AnnotateFrame.prototype.addSpanPosit = function(span, addingAObj, addedAObj) {
 		}
 	}
 
-	if(span.start == 201 && span.end == 208 && addedAObj.id == "195@r@ID185_clinic_543@gold") {
-		console.log("195@r@ID185_clinic_543@gold is added by " + addingAObj.toString());
-	}
-
 	/*
 	if(addedAObj == addingAObj) {
 		$.each(addingAObj.linkingAObjList, function(idx, linkingAObj) {
