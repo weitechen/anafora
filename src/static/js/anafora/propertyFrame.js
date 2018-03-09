@@ -245,6 +245,10 @@ PropertyFrame.prototype.deleteBtnClick = function(evt) {
 		selectAObj(currentAProject.selectedAObj);
 		this.isAssignRelation = false;
 	}
+
+	if(_setting.isLogging) {
+		eventLogging.addNewEvent(new EventLog(EventType.DELETE_BTN_CLICK, "DELETE - " + _self.comparedIdx.toString()));
+	}
 }
 
 PropertyFrame.prototype.markGoldBtnClick = function(evt) {
@@ -283,6 +287,10 @@ PropertyFrame.prototype.markGoldBtnClick = function(evt) {
 		if(relationFrame != undefined && aObj instanceof Relation)
 			relationFrame.updateCurrentRelationValue();
 	}
+
+	if(_setting.isLogging) {
+		eventLogging.addNewEvent(new EventLog(EventType.ADJ_BTN_CLICK, "MARK AS GOLD - " + _self.comparedIdx.toString()));
+	}
 }
 
 PropertyFrame.prototype.cancelGold = function(evt) {
@@ -306,6 +314,10 @@ PropertyFrame.prototype.cancelGold = function(evt) {
 		temporalSave();
 		if(relationFrame != undefined && aObj instanceof Relation)
 			relationFrame.updateCurrentRelationValue();
+	}
+
+	if(_setting.isLogging) {
+		eventLogging.addNewEvent(new EventLog(EventType.ADJ_BTN_CLICK, "CANCEL GOLD - " + _self.comparedIdx.toString()));
 	}
 }
 
@@ -591,6 +603,9 @@ PropertyFrame.prototype.generatePropertyTableRow = function(pType, pIdx, pValue,
 			}
 			//_self.restore();
 			$(evt.currentTarget).addClass("propertyClicked");
+			if(_setting.isLogging) {
+				eventLogging.addNewEvent(new EventLog(EventType.VAL_CLICK, "PROPERTY CLICK - " + pIdx.toString()));
+			}
 		});
 
 		// property text click
@@ -643,6 +658,10 @@ PropertyFrame.prototype.generatePropertyTableRow = function(pType, pIdx, pValue,
 
 				}
 			});
+
+			if(_setting.isLogging) {
+				eventLogging.addNewEvent(new EventLog(EventType.VAL_CLICK, "TEXT - " + pIdx.toString()));
+			}
 		});
 
 		// property AObj click
@@ -667,6 +686,9 @@ PropertyFrame.prototype.generatePropertyTableRow = function(pType, pIdx, pValue,
 			// change schema
 			$(evt.currentTarget).addClass("propertyClicked");
 
+			if(_setting.isLogging) {
+				eventLogging.addNewEvent(new EventLog(EventType.LIST_CLICK, pIdx.toString()));
+			}
 		});
 
 		// remove aObj click

@@ -15,10 +15,11 @@ import json
 
 @csrf_protect
 def index(request, testFuncName = None):
-	contextContent = {'jsPath': 'js/anafora/', 'jsTestPath': 'js/test/', 'jsLibPath': 'js/lib/', 'root_url': settings.ROOT_URL}
+	contextContent = {'jsPath': 'js/anafora/', 'jsTestPath': 'js/test/', 'jsLibPath': 'js/lib/', 'cssPath': 'css/', 'root_url': settings.ROOT_URL}
 	contextContent['js'] = []
 	contextContent['js_test'] = []
-	contextContent['js_lib'] = []
+	contextContent['js_lib'] = ['jquery.min.js', 'qunit/qunit-2.5.0.js']
+	contextContent['css'] = ['qunit/qunit-2.5.0.css']
 
 	if testFuncName == "testStableMarriage" or testFuncName == None:
 		for jsFile in ["schema.js", "anaforaProject.js", "anaforaObj.js", "anaforaAdjudicationProject.js", "stablePair.js"]:
@@ -50,5 +51,9 @@ def index(request, testFuncName = None):
 		for jsLibFile in ['jquery.contextMenu.min.js']:
 			if jsLibFile not in contextContent['js_lib']:
 				contextContent['js_lib'].append(jsLibFile)
+
+		for cssLibFile in ['jquery.contextMenu/jquery.contextMenu.css']:
+			if cssLibFile not in contextContent['css']:
+				contextContent['css'].append(cssLibFile)
 
 	return render(request, 'testAnnotate/index.html', contextContent)

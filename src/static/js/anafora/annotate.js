@@ -17,7 +17,6 @@ var currentScrollTask = 0;
 var subTaskNameList = undefined;
 var subTaskElemList = undefined;
 var previousPosition = undefined;
-var eventLogging = undefined;
 
 function onLoad() {
 	// Setting errorHAndler;
@@ -72,21 +71,25 @@ function onLoad() {
 	fileMenu.eq(0).bind("click", function() { if(getIsChanged() && window.confirm("Save Task?")) { saveFile(); } if(projectSelector == undefined) {projectSelector = new ProjectSelector(_setting);} projectSelector.selectProject(); projectSelector.popup(); });
 	fileMenu.eq(1).bind("click", function() { saveFile(); });
 	fileMenu.eq(3).bind("click", function() { if(_setting.isAdjudication){ currentAProject.adjudicationCompleted();} else{ temporalSave();saveFile();setCompleted();} });
-
+	
+	if(_setting.isLogging) {
+		fileMenu.bind("click", function() { var liItem = this; eventLogging.addNewEvent(new EventLog(EventType.MENU_CLICK, liItem.innerHTML)); } );
+	}
+	
 	if(_setting.projectName == "" || _setting.corpusName == "" || _setting.taskName == "" || _setting.schema === undefined)
 		projectSelector = new ProjectSelector(_setting);
 	else
 		loadNewProject();
 
-	if(_setting.isLogging)
-		setInterval( function() { }, 1000 * 3 );
+	if(_setting.isLogging) {
+		setInterval(saveLogging, 1000 * 60 * 2);
+	}
+
 }
 
 function saveLogging() {
-	if(_setting.isLogging) {
-		if(eventLogging.logList.length > 0) {
-			$.ajax({type: 'POST', url:  _setting.root_url + "/" + _setting.app_name + "/logging/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/" + _setting.schema + (_setting.isAdjudication ? ".Adjudication" : "") + "/", data: {'logContent': eventLogging.reduce(function(a,b) {return a + '\n' + b.toString();}), }, cache: false, async: false, headers:{"X-CSRFToken":$.cookie('csrftoken') }, success: function(data) {eventLogging.clear();}, error: function (xhr, ajaxOptions, thrownError) { errorHandler.handle(new ErrorException("Logging Error"), currentAProject); console.log("Save Logging Error");  }});
-		}
+	if(_setting.isLogging && eventLogging.logList.length > 0) {
+		$.ajax({type: 'POST', url:  _setting.root_url + "/" + _setting.app_name + "/logging/" + _setting.projectName + "/" + _setting.corpusName + "/" + _setting.taskName + "/" + _setting.schema + (_setting.isAdjudication ? ".Adjudication" : "") + "/", data: {'logContent': eventLogging.logList.reduce(function(a,b) {return a + '\n' + b.toString();}) + '\n' , }, cache: false, async: false, headers:{"X-CSRFToken":$.cookie('csrftoken') }, success: function(data) {console.log("success"); eventLogging.clear();}, error: function (xhr, ajaxOptions, thrownError) { errorHandler.handle(new ErrorException("Logging Error"), currentAProject); console.log("Save Logging Error");  }});
 	}
 }
 
@@ -461,9 +464,8 @@ function loadNewProject() {
 	}
 
 	schemaMenuElement.append( $("<li></li>").addClass("separator") );
-	schemaMenuElement.append( $("<li><a href='#'>Display All</a></li>").bind( "click", function() { schemaDiv.jstree("check_all"); schemaCheckedChange(); } ) );
+	schemaMenuElement.append( $("<li><a href='#'>Display All</a></li>").bind( "click", function() { schemaDiv.jstree("check_all"); schemaCheckedChange(); } ) ) ;
 	schemaMenuElement.append( $("<li><a href='#'>Hide All</a></li>").bind( "click", function() { schemaDiv.jstree("uncheck_all"); schemaCheckedChange(); } ) );
-
 	$('#schemaMenu').append(schemaMenuElement);
 
 	$('#account').children("a").text(_setting.remoteUser);
@@ -592,6 +594,9 @@ function processSchemaMenu(aType) {
 
 	if(aType.parentType != undefined) {
 		rElement.bind('click', function(evt) { var _aType=aType; addNewAObj(_aType); });
+		if(_setting.isLogging) {
+			rElement.bind("click", function() { var liItem = this; eventLogging.addNewEvent(new EventLog(EventType.MENU_CLICK, liItem.innerHTML)); } );
+		}
 	}
 	return rElement;
 	
@@ -694,7 +699,13 @@ function annotateClick(evt) {
 			relationFrame.relationClick(relationFrame.searchRowFromRelation(aObj));
 		}
 		selectAObj(aObj);
+
+		if(_setting.isLogging) {
+			eventLogging.addNewEvent(new EventLog(EventType.SPAN_CLICK, aObj.id));
+		}
 	}
+
+
 }
 
 function getTextFromEntity(entity) {
@@ -792,6 +803,10 @@ function registerHotkey(schema) {
 		// add new annotation
 		for(key in schema.hotkeyDict ) {
 			body.bind("keydown", key, function(evt) {if(!checkEmptyProperty()) return false; addNewAObj(schema.hotkeyDict[evt.data]);});
+
+			if(_setting.isLogging) {
+				body.bind("keydown", key, function(evt) { eventLogging.addNewEvent(new EventLog(EventType.HOTKEY_PRESS, evt.data)); } );
+			}
 		}
 
 		// space
@@ -820,12 +835,19 @@ function registerHotkey(schema) {
 			assignEntityToRelation(idx);
   }
   });
+
+			if(_setting.isLogging) {
+				body.bind("keydown", i.toString(), function(evt) { eventLogging.addNewEvent(new EventLog(EventType.PROP_PRESS, evt.data)); } );
+			}
 		}
 	}
 
 	// esc
 	body.bind("keydown", "esc", function(evt) {
 		restore();
+		if(_setting.isLogging) {
+			body.bind("keydown", "esc", function(evt) { eventLogging.addNewEvent(new EventLog(EventType.ESC_PRESS, evt.data)); });
+		}
 	});
 
 	// next, prev annotation (219, 221)
@@ -836,12 +858,18 @@ function registerHotkey(schema) {
 					moveAnnotation(-1);
 				else
 					moveAnnotation(-1, true);
+				if(_setting.isLogging) {
+					eventLogging.addNewEvent(new EventLog(EventType.MOVE_PRESS, ","));
+				}
 				break;
 			case 190:	// period
 				if(_setting.isAdjudication && evt.ctrlKey)
 					moveAnnotation(1);
 				else
 					moveAnnotation(1, true);
+				if(_setting.isLogging) {
+					eventLogging.addNewEvent(new EventLog(EventType.MOVE_PRESS, "."));
+				}
 				break;
 
 			default:
@@ -876,16 +904,22 @@ function registerHotkey(schema) {
 
 		body.bind("keydown", "left", function(evt) {
 			selectMarkable(0);
+			if(_setting.isLogging)
+				eventLogging.addNewEvent(new EventLog(EventType.ADJ_PRESS, "left"));
 		});
 
 		body.bind("keydown", "right", function(evt) {
 			selectMarkable(1);
+			if(_setting.isLogging)
+				eventLogging.addNewEvent(new EventLog(EventType.ADJ_PRESS, "right"));
 		});
 
 		body.bind("keydown", function(evt) {
 			switch(evt.which) {
 				case 220:
 					splitAdjAObj();
+					if(_setting.isLogging)
+						eventLogging.addNewEvent(new EventLog(EventType.ADJ_PRESS, "split"));
 					break;
 				default:
 					break;

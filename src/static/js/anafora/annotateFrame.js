@@ -31,7 +31,7 @@ function AnnotateFrame(frameElement, setting, rawText) {
 
 			$.each(matchChecked, function(idx) {
 				var _self = this;
-				returnContextItem["item_" + idx.toString()] = {type:"annotation", aObj: this, callback: function() {var _this=_self;  selectAObj(_this); if(currentAProject.selectedAObj instanceof Relation) { relationFrame.relationClick(relationFrame.searchRowFromRelation(currentAProject.selectedAObj)); }}};
+				returnContextItem["item_" + idx.toString()] = {type:"annotation", aObj: this, callback: function() {var _this=_self;  selectAObj(_this); if(currentAProject.selectedAObj instanceof Relation) { relationFrame.relationClick(relationFrame.searchRowFromRelation(currentAProject.selectedAObj)); } if(_setting.isLogging) {eventLogging.addNewEvent(new EventLog(EventType.SPAN_MENU_CLICK, _this.id));} }};
 			});
 
 			return { items: returnContextItem};

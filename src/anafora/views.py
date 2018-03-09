@@ -18,7 +18,7 @@ import traceback
 
 css = ["css/style.css", "css/themes/default/style.css"]
 
-js_lib = [("js/lib/%s" % js_file) for js_file in ["jquery.jstree.js", "jquery.jstree.schema.js", "jquery.hotkeys.js", "jquery.ui.position.min.js", "jquery.contextMenu.min.js", "jquery.json-2.4.min.js", "jquery.cookie.js"]]
+js_lib = [("js/lib/%s" % js_file) for js_file in ["jquery.min.js", "jquery.jstree.js", "jquery.jstree.schema.js", "jquery.hotkeys.js", "jquery.ui.position.min.js", "jquery.contextMenu.min.js", "jquery.json-2.4.min.js", "jquery.cookie.js"]]
 
 js_anafora = [("js/anafora/%s" % js_file) for js_file in ["errorHandler.js", "schema.js", "anaforaProject.js", "anaforaObj.js", "annotate.js", "propertyFrame.js", "annotateFrame.js", "aObjSelectionMenu.js", "projectSelector.js", "anaforaAdjudicationProject.js", "anaforaCrossProject.js", "anaforaCrossAdjudicationProject.js", "relationFrame.js", "stablePair.js", "eventLogging.js" ]]
 
@@ -40,7 +40,7 @@ basicContextContent = {
 	'ROOT_URL': settings.ROOT_URL,
 	'settingVars': None}
 
-def assignSettingVars(request, projectName = None, corpusName = None, taskName = None, schemaName = None, annotator = None, isAdj = False, isCrossDoc = False):
+def assignSettingVars(request, projectName = None, corpusName = None, taskName = None, schemaName = None, annotator = None, isAdj = False, isCrossDoc = False, isLogging = False):
 	""" Assign Setting variables to contextContent
 	@type request:		HttpRequest
 	@param request:
@@ -60,12 +60,13 @@ def assignSettingVars(request, projectName = None, corpusName = None, taskName =
 	@param isAdj:
 	@type isCrossDoc:	bool
 	@param isCrossDoc:
+	@param isLogging
+	@type isLogging:	bool
 	@rtype:				dict
-	@return:
 	"""
 	ps = getProjectSetting()
 	
-	rSettings = {'app_name': "anafora", 'annotator': annotator if annotator != None else request.META["REMOTE_USER"] , 'remoteUser': request.META["REMOTE_USER"],'schemaMap': json.dumps(ps.getSchemaMap()), 'isAdjudication': isAdj, 'isCrossDoc': isCrossDoc }
+	rSettings = {'app_name': "anafora", 'annotator': annotator if annotator != None else request.META["REMOTE_USER"] , 'remoteUser': request.META["REMOTE_USER"],'schemaMap': json.dumps(ps.getSchemaMap()), 'isAdjudication': isAdj, 'isCrossDoc': isCrossDoc, 'isLogging': isLogging }
 	
 	if projectName  != None:
 		rSettings['projectName'] = projectName
@@ -262,7 +263,9 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
 		'settingVars': {'app_name': "anafora", 'projectName': projectName, 'corpusName': corpusName,
 						'taskName': taskName, 'schema': "%s%s" % (schema, "" if schemaMode== None else (".%s" % schemaMode)), 'isAdjudication': isAdjudication,
 						'annotator': annotator, 'remoteUser': request.META["REMOTE_USER"],
-						'schemaMap': json.dumps(schemaMap), 'isCrossDoc': isCrossDoc, 'isLogging': isLogging},
+						'schemaMap': json.dumps(schemaMap),
+						'isCrossDoc': isCrossDoc,
+						'isLogging': isLogging},
 	}
 	# contextContent.update(csrf(request))
 	#context = Context(contextContent)
