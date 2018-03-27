@@ -360,7 +360,7 @@ def getSchema(request, schema, schemaIdx=-1):
 	"""
 	given schema name, return the first shcema file content
 
-	if schemaIdx is specificed, return the idx-th schema file content
+	if schemaIdx is specified, return the idx-th schema file content
 	"""
 
 	if request.method != "GET":
