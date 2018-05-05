@@ -1540,9 +1540,11 @@ AnaforaAdjudicationProject.prototype.addAllAnnotationToAnnotateFrame = function(
 	AnaforaProject.prototype.addAllAnnotationToAnnotateFrame.call(_self, annotateFrameList);
 
 	// Add Entity and Relation from each Project
-	Object.keys(_self.projectList).forEach(function(annotator) {
-		_self.projectList[annotator].addAllAnnotationToAnnotateFrame(annotateFrameList);
-	});
+	if(_self.projectList != undefined) {
+		Object.keys(_self.projectList).forEach(function(annotator) {
+			_self.projectList[annotator].addAllAnnotationToAnnotateFrame(annotateFrameList);
+		});
+	}
 
 	if(_self.annotateFrame != undefined) {
 		// Add Adjudication Entity
