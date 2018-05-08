@@ -174,6 +174,10 @@ IAnaforaObj.prototype.updateProperty = function(value, pIdx) {
 IAnaforaObj.prototype.addMarkElement = function(overlap, skipOrder) {
 	if(skipOrder == undefined || !skipOrder) {
 		for(var idx=0;idx<this.markElement.length;idx++) {
+			if(overlap.span.start == this.markElement[idx].span.start && overlap.span.end == this.markElement[idx].span.end) {
+				this.markElement[idx] = overlap;
+				return ;
+			}
 			if(overlap.span.end <= this.markElement[idx].span.start) {
 				this.markElement.splice(idx, 0, overlap);
 				return ;
