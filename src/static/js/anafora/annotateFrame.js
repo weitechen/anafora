@@ -387,11 +387,20 @@ AnnotateFrame.prototype.addRelationPosit = function(relation, addedAObj, annotat
 			relation.type.propertyTypeList.forEach(function (propertyType, pIdx) {
 				if(propertyType.input == InputType.LIST) {
 					if(relation.diffProp.indexOf(pIdx) >= 0) {
-						var unionSpanList = SpanType.merge(relation.compareAObj[0].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);}), relation.compareAObj[1].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);}));
+						var unionSpanList = undefined;
+						if(relation.compareAObj[0].propertyList[pIdx] != undefined && relation.compareAObj[1].propertyList[pIdx] != undefined) 
+							unionSpanList = SpanType.merge(relation.compareAObj[0].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);}), relation.compareAObj[1].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);}));
+						else
+							if(relation.compareAObj[0].propertyList[pIdx] != undefined)
+								unionSpanList = relation.compareAObj[0].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);})
+							else if (relation.compareAObj[1].propertyList[pIdx] != undefined)
+								unionSpanList = relation.compareAObj[1].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);})
 
-						unionSpanList.forEach(function(tSpan) {
-							_self.addSpanPosit(tSpan, relation.compareAObj[0], relation);
-						});
+						if(unionSpanList != undefined) {
+							unionSpanList.forEach(function(tSpan) {
+								_self.addSpanPosit(tSpan, relation.compareAObj[0], relation);
+							});
+						}
 					}
 					else {
 						_self.addRelationPosit(relation.compareAObj[0], relation);
