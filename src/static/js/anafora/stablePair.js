@@ -321,7 +321,7 @@ function stableMarraige(list0, list1, matchDictList) {
 			if(!(aID0 in yetDecide)) {
 				var aObj1IDList = Object.keys(comparasionDict[aID0]);
 				if(aObj1IDList.length > 0) {
-					var matchScoreList = aObj1IDList.map(function(aID1) { return comparasionDict[aID0][aID1].matchScore;}); //.matchScore; };
+					var matchScoreList = aObj1IDList.map(function(aID1) { return comparasionDict[aID0][aID1].matchScore;});
 					var maxScore = matchScoreList.reduce(function(a,b) {return Math.max(a,b);});
 					var maxScoreIdx = matchScoreList.indexOf(maxScore);
 					var maxAID1 = aObj1IDList[maxScoreIdx];
@@ -329,14 +329,13 @@ function stableMarraige(list0, list1, matchDictList) {
 					if(maxAID1 in rYetDecide) {
 						if(maxScore > rYetDecide[maxAID1][1]) {
 							// update
-							var previousAID0 = rYetDecide[maxAID1];
+							var previousAID0 = rYetDecide[maxAID1][0];
 	
 							rYetDecide[maxAID1][0] = aID0;
 							rYetDecide[maxAID1][1] = maxScore;
 	
 							// remove previousAID0 from yetDecide and comparasionDict
 							delete yetDecide[previousAID0];
-							delete comparasionDict[previousAID0][maxAID1];
 
 							yetDecide[aID0] = maxAID1;
 							hasUpdated = true;
