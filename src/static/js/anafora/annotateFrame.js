@@ -384,29 +384,49 @@ AnnotateFrame.prototype.addRelationPosit = function(relation, addedAObj, annotat
 		annotFrame.addRelationPosit(relation, addedAObj);
 	else {
 		if(relation instanceof AdjudicationRelation) {
-			relation.type.propertyTypeList.forEach(function (propertyType, pIdx) {
-				if(propertyType.input == InputType.LIST) {
-					if(relation.diffProp.indexOf(pIdx) >= 0) {
-						var unionSpanList = undefined;
-						if(relation.compareAObj[0].propertyList[pIdx] != undefined && relation.compareAObj[1].propertyList[pIdx] != undefined) 
-							unionSpanList = SpanType.merge(relation.compareAObj[0].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);}), relation.compareAObj[1].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);}));
-						else
-							if(relation.compareAObj[0].propertyList[pIdx] != undefined)
-								unionSpanList = relation.compareAObj[0].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);})
-							else if (relation.compareAObj[1].propertyList[pIdx] != undefined)
-								unionSpanList = relation.compareAObj[1].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);})
-
-						if(unionSpanList != undefined) {
-							unionSpanList.forEach(function(tSpan) {
-								_self.addSpanPosit(tSpan, relation.compareAObj[0], relation);
-							});
+			if(relation.diffProp.length == 0)
+				_self.addRelationPosit(relation.compareAObj[0], relation, annotateFrameList);
+			else {
+				relation.type.propertyTypeList.forEach(function (propertyType, pIdx) {
+					if(propertyType.input == InputType.LIST) {
+						// Might be crossDoc AdjudicationRelation
+						if(relation.diffProp.indexOf(pIdx) >= 0) {
+							for(var aObjIdx = 0; aObjIdx < 2; aObjIdx++) {
+								if(relation.compareAObj[aObjIdx].propertyList[pIdx] != undefined) {
+									relation.compareAObj[aObjIdx].propertyList[pIdx].forEach(function(aObj) {
+										if(aObj instanceof Entity)
+											_self.addEntityPosit(aObj, relation, annotateFrameList);
+										else
+											_self.addRelationPosit(aObj, relation, annotateFrameList);
+									});
+								}
+							}
+							//_self.addRelationPosit(relation.compareAObj[0], relation);
+	
+							/*
+	
+							var unionSpanList = undefined;
+							if(relation.compareAObj[0].propertyList[pIdx] != undefined && relation.compareAObj[1].propertyList[pIdx] != undefined) 
+								unionSpanList = SpanType.merge(relation.compareAObj[0].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);}), relation.compareAObj[1].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);}));
+							else
+								if(relation.compareAObj[0].propertyList[pIdx] != undefined)
+									unionSpanList = relation.compareAObj[0].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);})
+								else if (relation.compareAObj[1].propertyList[pIdx] != undefined)
+									unionSpanList = relation.compareAObj[1].propertyList[pIdx].map(function(tEntity) {return tEntity.span;}).reduce(function(a,b) {return a.concat(b);})
+	
+							if(unionSpanList != undefined) {
+								unionSpanList.forEach(function(tSpan) {
+									_self.addSpanPosit(tSpan, relation.compareAObj[0], relation);
+								});
+							}
+							*/
+						}
+						else {
+							_self.addRelationPosit(relation.compareAObj[0], relation, annotateFrameList);
 						}
 					}
-					else {
-						_self.addRelationPosit(relation.compareAObj[0], relation);
-					}
-				}
-			});
+				});
+			}
 		}
 		else {
 			$.each(relation.propertyList, function(idx) {

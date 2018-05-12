@@ -382,7 +382,8 @@ AnaforaCrossAdjudicationProject.prototype.addAllAnnotationToAnnotateFrame = func
 
 	var _self = this;
 
-	Object.keys(_self.projectList).forEach(function(tasnName) {
-		_self.projectList[tasnName].renderAnnotateFrame();
+	Object.keys(_self.projectList).forEach(function(taskName) {
+		//_self.projectList[tasnName].renderAnnotateFrame();
+		_self.projectList[taskName].addAllAnnotationToAnnotateFrame(annotateFrameList);
 	});
 }
