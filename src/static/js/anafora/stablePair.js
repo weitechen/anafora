@@ -64,6 +64,8 @@ function compareAllAnnotation(annotationList0, annotationList1, sortingFunc, sto
 	allGoldIDList.sort();
 
 	for(var tIdx = 0; tIdx < allGoldIDList.length; tIdx++) {
+		if(goldAnnotationList.length == 69)
+			console.log(69);
 		if(tIdx == allGoldIDList.length - 1 || (allGoldIDList[tIdx] != allGoldIDList[(tIdx + 1)])) {
 			if(tIdx in annotationList0)
 				goldAnnotationList.push(annotationList0[allGoldIDList[tIdx]]);
@@ -112,31 +114,21 @@ function compareAllAnnotation(annotationList0, annotationList1, sortingFunc, sto
 					var annotator1 = termList1[3];
 					var aObjIdx1 = parseInt(termList1[0]);
 	
-					/*
-					if(annotator0 == "gold" && annotator1 == "gold" && aObjIdx0 == aObjIdx1) {
-						goldAnnotationList.push(aObj0);
-						listDecideIdx1[currentList1Idx] = true;
-	
-						if(currentList1Idx in usedAObj1) {
-							usedAObj1[currentList1Idx].forEach(function(tList0Idx) {
-								if(aObj1.id in comparasionDict[list0[tList0Idx].id]) {
-									delete comparasionDict[list0[tList0Idx].id][aObj1.id];
-								}
-							});
-						}
-	
-						undecideAObj1 = [];
-						break;
-						;
-					}
-					*/
-					//if(annotator1 != "gold") {
 					var compareRObj = comparePairCheck(aObj0, aObj1);
 
-					//if(compareRObj.spanEqual && compareRObj.diffProp.length == 0)
 					if(compareRObj.matchScore == 1.0) {
 						identicalList.push([aObj0, aObj1]);
 						listDecideIdx1[currentList1Idx] = true;
+						// clear usedAObj1
+						for(var tList1Idx in usedAObj1) {
+							var tIdxIdx = usedAObj1[tList1Idx].indexOf(listIdx0);
+							if(tIdxIdx >=0) {
+								usedAObj1[tList1Idx].splice(tIdxIdx, 1);
+								if(usedAObj1[tList1Idx].length == 0)
+									delete usedAObj1[tList1Idx];
+							}
+						}
+
 						if(currentList1Idx in usedAObj1) {
 							usedAObj1[currentList1Idx].forEach(function(tList0Idx) {
 								if(aObj1.id in comparasionDict[list0[tList0Idx].id]) 
@@ -154,7 +146,6 @@ function compareAllAnnotation(annotationList0, annotationList1, sortingFunc, sto
 							usedAObj1[currentList1Idx] = [];
 						usedAObj1[currentList1Idx].push(listIdx0);
 					}
-					//}
 				}
 				listIdxShift1++;
 			}
