@@ -73,6 +73,22 @@ To help you get a feel for how Anafora data and schemas look, we've created a fe
 
 For information about iterations of Anafora, view our [version history and changelog](https://github.com/weitechen/anafora/blob/master/versionhistory.md), 
 
+#### Reference
+Wei-Te Chen, Will Styler. 2013. [Anafora: A Web-based General Purpose Annotation Tool](http://www.aclweb.org/anthology/N13-3004), In Proceedings of the NAACL-HLT, Companion Volume: Demonstrations, Atlanta, GA, USA, pp. 433-438.
+```
+@InProceedings{N13-3004,
+  author = 	"Chen, Wei-Te
+		and Styler, Will",
+  title = 	"Anafora: A Web-based General Purpose Annotation Tool",
+  booktitle = 	"Proceedings of the 2013 NAACL HLT Demonstration Session",
+  year = 	"2013",
+  publisher = 	"Association for Computational Linguistics",
+  pages = 	"14--19",
+  location = 	"Atlanta, Georgia",
+  url = 	"http://www.aclweb.org/anthology/N13-3004"
+}
+```
+
 
 ### Get Anafora
 
