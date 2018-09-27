@@ -339,7 +339,7 @@ IAnaforaObj.prototype.getPropertyXMLStr = function() {
 			}
 		}
 		else {
-			rStr += '\t\t\t<' + pType.type + '>' + ((element == undefined) ? "" : element)  + '</' + pType.type + '>\n';
+			rStr += '\t\t\t<' + pType.type + '>' + ((element == undefined) ? "" : element.htmlEscape())  + '</' + pType.type + '>\n';
 		}
 	})
 

@@ -8,3 +8,5 @@
 Icon?
 ehthumbs.db
 Thumbs.db
+*.pyc
+src/anafora/tests/testSettings.py
