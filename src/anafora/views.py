@@ -270,15 +270,6 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
     #context = Context(contextContent)
     return render(request, 'anafora/index.html', contextContent)
 
-
-@csrf_protect
-def _annotateNormal(request, projectName="", corpusName="", taskName="", schema="", schemaMode="", isView="", optionVar=""):  # annotatorName="", crossDoc=None):
-    """ start a regular annotation
-
-    @type request:          HttpRequest
-    """
-
-
 def getCompleteAnnotator(request, projectName, corpusName, taskName, schemaName, schemaMode = None, isAdj = None):
     if isSchemaExist(schemaName, schemaMode) != True:
         return HttpResponseNotFound("schema file not found")
@@ -290,8 +281,17 @@ def getCompleteAnnotator(request, projectName, corpusName, taskName, schemaName,
 
     return HttpResponseForbidden("access not allowed")
 
-
 def getInprogressAnnotator(request, projectName, corpusName, taskName, schemaName, modeName = None):
+    """get inprogress annotator by giving project name, corpus name, task name, and schema name. mode name is an option
+
+    @type request:     HTTPRequest
+    @type projectName: str
+    @type corpusName:  str
+    @type taskName:    str
+    @type schemaName:  str
+    @type modeName:    str
+    @rtype:            HttpResponse
+    """
     if isSchemaExist(schemaName, modeName) != True:
         return HttpResponseNotFound("schema file not found")
     if isAdjudicator(request):
@@ -299,7 +299,6 @@ def getInprogressAnnotator(request, projectName, corpusName, taskName, schemaNam
         return HttpResponse(json.dumps(annotatorName))
 
     return HttpResponseForbidden("access not allowed")
-
 
 def getAnnotator(request, projectName, corpusName, taskName, schemaName, schemaMode = None, isAdj = None ):
     """
