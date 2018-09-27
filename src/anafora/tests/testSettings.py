@@ -11,6 +11,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 #DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
@@ -200,8 +201,7 @@ TEST_RUNNER = 'anafora.tests.databaselessTest.DatabaselessTestRunner'
 
 # Assign the anafora project file directory path
 # e.g.  ANAFORA_PROJECT_FILE_ROOT = "/data/home/verbs/student/wech5560/Research/KnowtatorProcessing/data/anaforaProjectFile/"
-ANAFORA_PROJECT_FILE_ROOT = "/data/home/verbs/student/wech5560/Research/anaforaFileDevelop/anaforaProjectFile/"
-#ANAFORA_PROJECT_FILE_ROOT = "/data/home/verbs/student/wech5560/Research/KnowtatorProcessing/data/anaforaProjectFile/"
+ANAFORA_PROJECT_FILE_ROOT = ""
 
 ANAFORA_AUTH_LDAP = True
 
