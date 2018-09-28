@@ -1,6 +1,5 @@
 QUnit.module( "Test Module for stable marriage algorithm", function(hooks) {
 	hooks.before( function() {
-		// 
 		var schemaPath = _setting.root_url + "/anafora/schema/Thyme2v1.Coreference/0";
 		var schemaJSONStr = $.ajax({ type: "GET", url: schemaPath, cache: false, async: false, error: function (xhr, ajaxOptions, thrownError) { console.log("Get schema File: " + schemaPath + " Error");  console.log(xhr.responseText);  }}).responseText;
 
@@ -89,82 +88,6 @@ QUnit.module( "Test Module for stable marriage algorithm", function(hooks) {
 			var ansCSVPath = _setting.root_url + "/static/adjudication//ID185_clinic_543.csv";
 			var ansCSVStr = $.ajax({ type: "GET", url: ansCSVPath, cache: false, async: false, error: function (xhr, ajaxOptions, thrownError) { console.log("Get Answer CSV File: " + ansCSVPath + " Error");  console.log(xhr.responseText);  }}).responseText;
 			subhooks.ansCSVDict = parseAnsCSV(ansCSVStr);
-			/*
-			subhooks.ansDict = {};
-			var ansLineList = ansCSVStr.split("\n");
-			subhooks.numOfGoldEntity = 0;
-			subhooks.numOfComparePairEntity = 0;
-			subhooks.numOfIdenticalEntity = 0;
-			subhooks.numOfStandaloneEntity0 = 0;
-			subhooks.numOfStandaloneEntity1 = 0;
-			subhooks.numOfGoldRelation = 0;
-			subhooks.numOfComparePairRelation = 0;
-			subhooks.numOfIdenticalRelation = 0;
-			subhooks.numOfStandaloneRelation0 = 0;
-			subhooks.numOfStandaloneRelation1 = 0;
-
-			subhooks.preDefineScore = {};
-			
-			ansLineList.forEach(function(ansLine) {
-				ansLine = ansLine.trim();
-				if(ansLine != "") {
-					var ansTerm = ansLine.split(",");
-					if(ansTerm[0] != "") {
-						subhooks.ansDict[ansTerm[0]] = 1.0;
-						if(ansTerm[0].indexOf("@e@") >=0)
-							subhooks.numOfGoldEntity++;
-						else
-							subhooks.numOfGoldRelation++;
-					}
-					else if(ansTerm[1] != "" && ansTerm[2] != "") {
-						if(ansTerm[3] == "") {
-							subhooks.ansDict[ansTerm[1] + "-" + ansTerm[2]] = undefined;
-							if(ansTerm[1].indexOf("@e@") >=0)
-								subhooks.numOfComparePairEntity++;
-							else
-								subhooks.numOfComparePairRelation++;
-						}
-						else {
-							subhooks.ansDict[ansTerm[1] + "-" + ansTerm[2]] = parseFloat(ansTerm[3]);
-							if(ansTerm[1].indexOf("@e@") >=0) {
-								if(subhooks.ansDict[ansTerm[1] + "-" + ansTerm[2]] == 1.0)
-									subhooks.numOfIdenticalEntity++;
-								else
-									subhooks.numOfComparePairEntity++;
-								subhooks.preDefineScore[ansTerm[1] + "-" + ansTerm[2]] = subhooks.ansDict[ansTerm[1] + "-" + ansTerm[2]];
-							}
-							else {
-								if(subhooks.ansDict[ansTerm[1] + "-" + ansTerm[2]] == 1.0)
-									subhooks.numOfIdenticalRelation++;
-								else
-									subhooks.numOfComparePairRelation++;
-							}
-						}
-					}
-					else if(ansTerm[1] != "") {
-						if(ansTerm[3] == "")
-							subhooks.ansDict[ansTerm[1]] = undefined;
-						else
-							subhooks.ansDict[ansTerm[1]] = parseFloat(ansTerm[3]);
-						if(ansTerm[1].indexOf("@e@") >=0)
-							subhooks.numOfStandaloneEntity0++;
-						else
-							subhooks.numOfStandaloneRelation0++;
-
-					}
-					else if(ansTerm[2] != "") {
-						if(ansTerm[3] == "")
-							subhooks.ansDict[ansTerm[2]] = undefined;
-						else
-							subhooks.ansDict[ansTerm[2]] = parseFloat(ansTerm[3]);
-						if(ansTerm[2].indexOf("@e@") >=0)
-							subhooks.numOfStandaloneEntity1++;
-						else
-							subhooks.numOfStandaloneRelation1++;
-					}
-				}
-			});
-			*/
 
 			var annotator0XMLPath = _setting.root_url + "/static/THYMEColonFinal/Train/ID185_clinic_543/ID185_clinic_543.Thyme2v1-Coreference.adwi9965.completed.xml";
 			var annotator0XMLStr = $.ajax({ type: "GET", url: annotator0XMLPath, cache: false, async: false, error: function (xhr, ajaxOptions, thrownError) { console.log("Get Answer Annotator File: " + annotator0XMLPath + " Error");  console.log(xhr.responseText);  }}).responseText;

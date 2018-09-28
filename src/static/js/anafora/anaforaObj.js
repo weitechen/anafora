@@ -7,6 +7,10 @@ Array.prototype.max = function() {
 	return Math.max.apply(null, this);
 }
 
+String.prototype.htmlEscape = function() {
+    return $('<div/>').text(this.toString()).html();
+};
+
 function SpanType(start, end) {
 	this.start = start;
 	this.end = end;
@@ -491,18 +495,6 @@ Relation.comparePairCheck = function(relation0, relation1, preDefineScore) {
 	var propertyWeight = 0;
 	var listScore = 0.0;
 	var listWeight = 0;
-
-	/*
-	if(!(relation0.id == "249@r@ID185_clinic_543@adwi9965" && relation1.id == "264@r@ID185_clinic_543@reganma"))
-		return {"diffProp": diffProp, "matchScore": matchScore };
-	*/
-
-	//console.log("preDefineScore: ");
-	/*
-	Object.keys(preDefineScore).forEach(function(key) {
-		console.log("  preDefineScore[" + key + "] = " + preDefineScore[key].toString());
-	});
-	*/
 
 	var entityCompareFunc = function(entity0, entity1) {
 		if(entity0 === entity1)

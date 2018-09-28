@@ -18,10 +18,6 @@ var subTaskNameList = undefined;
 var subTaskElemList = undefined;
 var previousPosition = undefined;
 
-String.prototype.htmlEscape = function() {
-    return $('<div/>').text(this.toString()).html();
-};
-
 function onLoad() {
 	// Setting errorHAndler;
 

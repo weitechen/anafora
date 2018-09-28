@@ -11,8 +11,6 @@ QUnit.module( "Test Anafora", function(hooks) {
 		hooks.schema = new Schema();
 		hooks.schema.parseSchemaXML(xmlDom);
 
-		//var rawTextPath = _setting.root_url + "/static/THYMEColonFinal/Train/ID185_clinic_543/ID185_clinic_543";
-		//hooks.rawTextStr = $.ajax({ type: "GET", url: rawTextPath, cache: false, async: false, error: function (xhr, ajaxOptions, thrownError) { console.log("Get Raw Text: " + rawTextPath + " Error");  console.log(xhr.responseText);  }}).responseText;
 		var annotator0XMLPath = _setting.root_url + "/static/THYMEColonFinal/Train/ID185_clinic_543/ID185_clinic_543.Thyme2v1-Coreference.adwi9965.completed.xml";
 		var annotator0XMLStr = $.ajax({ type: "GET", url: annotator0XMLPath, cache: false, async: false, error: function (xhr, ajaxOptions, thrownError) { console.log("Get Anafora XML File: " + annotator0XMLPath + " Error");  console.log(xhr.responseText);  }}).responseText;
 		annotator0XMLDOM = $.parseXML(annotator0XMLStr);

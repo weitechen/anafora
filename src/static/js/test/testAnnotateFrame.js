@@ -154,16 +154,10 @@ QUnit.module( "Test AnnotateFrame", function(hooks) {
 			var annotator1XMLStr = $.ajax({ type: "GET", url: annotator1XMLPath, cache: false, async: false, error: function (xhr, ajaxOptions, thrownError) { console.log("Get Answer Annotator File: " + annotator1XMLPath + " Error");  console.log(xhr.responseText);  }}).responseText;
 			subhooks.annotator1XMLDOM = $.parseXML(annotator1XMLStr);
 			subhooks.anaforaProject1 = new AnaforaProject(hooks.schema, "reganma", "ID185_clinic_543");
-			/*
-			var ansCSVPath = _setting.root_url + "/static/adjudication//ID185_clinic_543.csv";
-			var ansCSVStr = $.ajax({ type: "GET", url: ansCSVPath, cache: false, async: false, error: function (xhr, ajaxOptions, thrownError) { console.log("Get Answer CSV File: " + ansCSVPath + " Error");  console.log(xhr.responseText);  }}).responseText;
-			subhooks.ansCSVDict = parseAnsCSV(ansCSVStr);
-			*/
 		});
 
 		subhooks.beforeEach( function() {
 			var htmlElement = $('<div>' + hooks.rawTextStr + '</div>');
-			//.replace(/\</g,"&lt;").replace(/\>/g,"&gt;").replace(/\&/g, "&amp;") + '</div>');
 			$("#attachElement").empty();
 			$("#attachElement").append(htmlElement);
 			subhooks.htmlElement = htmlElement;

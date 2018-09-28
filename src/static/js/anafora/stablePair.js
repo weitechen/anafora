@@ -15,10 +15,7 @@ for(var pIdx; pIdx < relationType.propertyTypeList.length; pIdx++) {
 		var propertyType = relationType.propertyTypeList[pIdx];
 		var matchScore = 0.0;
 		if(propertyType.maxlink == 1) {
-			/*
-			if(rel
-				matchScore =
-			*/
+			;
 		}
 		else {
 			;
@@ -64,8 +61,6 @@ function compareAllAnnotation(annotationList0, annotationList1, sortingFunc, sto
 	allGoldIDList.sort();
 
 	for(var tIdx = 0; tIdx < allGoldIDList.length; tIdx++) {
-		if(goldAnnotationList.length == 69)
-			console.log(69);
 		if(tIdx == allGoldIDList.length - 1 || (allGoldIDList[tIdx] != allGoldIDList[(tIdx + 1)])) {
 			if(tIdx in annotationList0)
 				goldAnnotationList.push(annotationList0[allGoldIDList[tIdx]]);
@@ -248,42 +243,6 @@ function compareAllAnnotation(annotationList0, annotationList1, sortingFunc, sto
 					if(needAddAdjudicationEntity) 
 						needAdjEntityPairList.push([compareRObj, [entity0, entity1]]);
 				}
-
-				/*
-				if(needAddAdjudicationEntity) {
-					var newAdjEntity = undefined;
-					
-					if(entity0.getAdditionalData("comparePair") != undefined || entity1.getAdditionalData("comparePair") != undefined) {
-						var hasAlignedEntity = undefined;
-						[entity1, entity0].forEach(function(tEntity) {
-
-							var comparePairList;
-							if((comparePairList = tEntity.getAdditionalData("comparePair")) != undefined) {
-								;
-								
-							}
-						});
-
-						if(entity0.getAdditionalData("comparePair") != undefined)
-							hasAlignedEntity = entity0;
-						else
-							hasAlignedEntity = entity1;
-					}
-					else {
-						if(spanEqual && diffProp.length == 0 && _self.identicalEntityMarkAsGold) {
-							_self.markGold(entity0);
-							entity1.setAdditionalData("adjudication", "not gold");
-						}
-						var newAdjEntity = new AdjudicationEntity(this.getNewEntityId(), entity0.type, [entity0, entity1], diffProp);
-						this.addAdjEntityToAdjudicationInCompareEntityPair(entity0, entity1, newAdjEntity);
-						this.addAdjEntityToAdjudicationInCompareEntityPair(entity1, entity0, newAdjEntity);
-						this.addAdjAObj(newAdjEntity);
-						if(_self.annotateFrame != undefined)
-							_self.annotateFrame.updatePosIndex(newAdjEntity);
-						_self.addTypeCount(newAdjEntity.type);
-					}
-				}
-				*/
 			}
 			followIdx++;
 		}
@@ -345,7 +304,5 @@ function stableMarraige(list0, list1, matchDictList) {
 			break;
 		}
 	}
-
-
 	return yetDecide;
 }
