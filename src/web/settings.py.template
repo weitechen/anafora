@@ -68,6 +68,9 @@ STATIC_ROOT = ''
 # e.g.  STATIC_URL = '/static/'
 STATIC_URL = '/static/'
 
+# Put the hostname in this list
+ALLOWED_HOSTS =  ['localhost', '127.0.0.1']
+
 #e.g. ROOT_URL = '/~wech5560/anafora'
 ROOT_URL = ''
 # Additional locations of static files
@@ -143,7 +146,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     #'markFalsePositive',
     #'django_qunit',
-    'annotate',
+    'anafora',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -179,7 +182,7 @@ TEST_RUNNER = 'testing.DatabaselessTestRunner'
 
 # Assign the anafora project file directory path
 # e.g.  ANAFORA_PROJECT_FILE_ROOT = "/data/home/verbs/student/wech5560/Research/KnowtatorProcessing/data/anaforaProjectFile/"
-#ANAFORA_PROJECT_FILE_ROOT = ""
+ANAFORA_PROJECT_FILE_ROOT = ""
 
 # Assign the Digest auth group file location
 # e.g.  GROUP_FILE = '/data/anafora-event/site/anafora-event.group'

@@ -4,10 +4,10 @@ from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidde
 from django.shortcuts import render
 from django.conf import settings
 from django.views.decorators.csrf import csrf_protect
-from django.utils.encoding import smart_unicode, smart_str
+from django.utils.encoding import smart_text, smart_str
 import codecs
-from anaforaProjectManager import *
-from projectSetting import *
+from anafora.anaforaProjectManager import *
+from anafora.projectSetting import *
 import subprocess
 import json
 import os, sys
@@ -339,9 +339,9 @@ def getAnaforaXMLFile(request, projectName, corpusName, taskName, schemaName, sc
     account = request.META["REMOTE_USER"] if annotatorName == "" else annotatorName
     anaforaXMLFile = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName)
     if subTaskName == None:
-        anaforaXMLFile = os.path.join(anaforaXMLFile, "%s.%s.%s" % (taskName, reduce(lambda a,b: "%s-%s" % (a,b), (schemaName, ) + ((schemaMode,) if schemaMode != None else ()) + (("Adjudication",) if isAdj != None else ())), account))
+        anaforaXMLFile = os.path.join(anaforaXMLFile, "%s.%s.%s" % (taskName, "-".join((schemaName, ) + ((schemaMode,) if schemaMode != None else ()) + (("Adjudication",) if isAdj != None else ())), account))
     else:
-        anaforaXMLFile = os.path.join(anaforaXMLFile, subTaskName,  "%s.%s.%s" % (subTaskName, reduce(lambda a,b: "%s-%s" % (a,b), (schemaName, ) + ((schemaMode,) if schemaMode != None else ()) + (("Adjudication",) if isAdj != None else ())), account))
+        anaforaXMLFile = os.path.join(anaforaXMLFile, subTaskName,  "%s.%s.%s" % (subTaskName, "-".join((schemaName, ) + ((schemaMode,) if schemaMode != None else ()) + (("Adjudication",) if isAdj != None else ())), account))
 
     if os.path.exists("%s.completed.xml" % anaforaXMLFile):
         anaforaXMLFile = "%s.completed.xml" % anaforaXMLFile
@@ -661,7 +661,7 @@ def getProjectSetting():
         parseFile = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, settings.ANAFORA_PROJECT_SETTING_FILENAME)
         if os.path.isfile(parseFile) != True:
             from django.core.exceptions import ImpoperlyConfigured
-            raise ImproperlyConfigured, "Error loading ANAFORA_PROJECT_SETTING_FILENAME in web/settings.py file. Please check the value of ANAFORA_PROJECT_FILE_ROOT, ANAFORA_PROJECT_SETTING_FILENAME accordingly"
+            raise ImproperlyConfigured("Error loading ANAFORA_PROJECT_SETTING_FILENAME in web/settings.py file. Please check the value of ANAFORA_PROJECT_FILE_ROOT, ANAFORA_PROJECT_SETTING_FILENAME accordingly")
         projectSetting = ProjectSetting()
         projectSetting.parseFromFile(parseFile)
         cache.set('anafora_project_setting', projectSetting)

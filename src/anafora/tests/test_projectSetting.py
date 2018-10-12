@@ -185,7 +185,7 @@ class ProjectSettingTests(TestCase):
 		self.assertEqual(project0.name, "EventWorkshop")
 		self.assertListEqual(project0.admins, ["anaforaadmin"])
 		self.assertEqual(len(project0.allowedSchemas), 4)
-		self.assertTrue(reduce(lambda x,y: x and y, [isinstance(schema, Schema) for schema in project0.allowedSchemas]))
+		self.assertTrue(all([isinstance(schema, Schema) for schema in project0.allowedSchemas]))
 		self.assertEqual(project0.numOfAnnotator, 2)
 		self.assertListEqual(project0.annotators, ["temporal", "verbs", "sharp"])
 		schema0 = ps.getSchema("Temporal")
