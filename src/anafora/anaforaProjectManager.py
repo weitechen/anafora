@@ -104,7 +104,7 @@ class AnaforaProjectManager:
 
                 corpusPath = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName)
                 command_str = "find %s -maxdepth 2 -type f -name '*.%s%s.*.xml' | sed -r 's/^.*\/([^\/]+)\/[^\/]+.xml$/\\1/g' | sort -u" % (corpusPath, mode.getSchemaName(), "-Adjudication" if isAdj else "")
-                taskNameList = check_output(command_str, shell=True)
+                taskNameList = check_output(command_str, shell=True).decode('utf-8')
                 taskName = [tName for tName in taskNameList.split('\n') if tName != '']
                 return taskName
 

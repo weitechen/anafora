@@ -6,6 +6,7 @@ if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "web.settings")
 
     from django.core.management import execute_from_command_line
-    os.environ["REMOTE_USER"] = "admin"
+    import getpass
+    os.environ["REMOTE_USER"] = getpass.getuser()
 
     execute_from_command_line(sys.argv)

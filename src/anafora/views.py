@@ -645,7 +645,7 @@ def isAdjudicator(request):
         return request.META["REMOTE_ADMIN"]
     else:
         testAdjudicator = request.META["REMOTE_USER"]
-        return (grpID in [g.gr_gid for g in grp.getgrall() if testAdjudicator in g.gr_mem])
+        return (grpID in [g.gr_gid for g in grp.getgrall() if testAdjudicator in g.gr_mem] + [pwd.getpwnam(testAdjudicator).pw_gid])
 
 
 def getProjectSetting():
