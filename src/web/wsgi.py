@@ -13,9 +13,24 @@ middleware here, or combine a Django application with an application of another
 framework.
 
 """
-import os
+import os, sys
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "web.settings")
+import site
+
+# need to add virtualenv path
+site.addsitedir('/mnt/code/meampy/lib/python2.7/site-packages')
+site.addsitedir('/mnt/code/meampy/lib/python2.7/dist-packages')
+
+#activate virtualenv
+activate_env=os.path.expanduser("/mnt/code/meampy/bin/activate_this.py")
+execfile(activate_env, dict(__file__=activate_env))
+
+
+if '/home/anafora/git/anafora/src' not in sys.path:
+    sys.path.append('/home/anafora/git/anafora/src')
+    sys.path.append('/home/anafora/git/anafora/src/web')
+
+os.environ["DJANGO_SETTINGS_MODULE"] =  "web.settings"
 
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
@@ -23,6 +38,3 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "web.settings")
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
 
-# Apply WSGI middleware here.
-# from helloworld.wsgi import HelloWorldApplication
-# application = HelloWorldApplication(application)

@@ -32,7 +32,8 @@ AnaforaProjectManager.rootPath = settings.ANAFORA_PROJECT_FILE_ROOT
 projectSetting = None
 
 basicContextContent = {
-    'js': (js_lib + js_anafora) if settings.DEBUG else (js_lib + ["js/out.js"]),
+    # 'js': (js_lib + js_anafora) if settings.DEBUG else (js_lib + ["js/out.js"]),
+    'js': (js_lib + js_anafora),
     'js_schemaSpecific': js_schemaSpecific,
     'css': css,
     'title': 'Anafora',
@@ -253,7 +254,8 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
 
     js_schemaSpecific = {"Coreference": {"adjudication": ["js/anafora/anaforaAdjudicationProjectCoreference.js"]}}
     contextContent = {
-        'js': (js_lib + js_anafora) if settings.DEBUG else (js_lib + ["js/out.js"]),
+        # 'js': (js_lib + js_anafora) if settings.DEBUG else (js_lib + ["js/out.js"]),
+        'js': (js_lib + js_anafora),
         'js_schemaSpecific': js_schemaSpecific,
         'css': css,
         'title': taskName + ' - Anafora',
