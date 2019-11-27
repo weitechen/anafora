@@ -132,7 +132,7 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # Uncomment the next line for Anafora digest auth
-    #'annotate.anaforaAuthMiddleware.AnaforaAuthMiddleware',
+    'anafora.anaforaAuthMiddleware.AnaforaAuthMiddleware',
 )
 
 ROOT_URLCONF = 'web.urls'
@@ -234,6 +234,8 @@ ANAFORA_PROJECT_FILE_ROOT = "/home/anafora/projects"
 # Assign the Digest auth group file location
 GROUP_FILE = '/home/anafora/http/anafora.authgroup'
 #GROUP_FILE = '/data/anafora-event/site/anafora-event.group'
+
+ANAFORA_AUTH_LDAP = None
 
 # Assign the group name for the admin
 ADMIN_GROUPNAME = 'anaforaadmin'
