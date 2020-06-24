@@ -1,18 +1,15 @@
 # Create your views here.
-from django.template import Context, loader
+from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden
 from django.shortcuts import render
-from django.conf import settings
 from django.views.decorators.csrf import csrf_protect
-from django.utils.encoding import smart_unicode, smart_str
 import codecs
-from anaforaProjectManager import *
-from projectSetting import *
+from anafora.anaforaProjectManager import *
+from anafora.projectSetting import *
 import subprocess
 import json
-import os, sys
+import os
 import grp
-import pwd
 from django.core.cache import cache
 import traceback
 
@@ -97,27 +94,26 @@ def authenticate(ps, request, projectName = "", corpusName = "", taskName = "", 
     @rtype:         HttpResponse
     """
     if isAdjudication:
-        #if request.META["REMOTE_ADMIN"] != True:
         if not isAdjudicator(request):
             return HttpResponseForbidden("%s does not have the authenticate right to adjudicate" % request.META["REMOTE_USER"])
 
     if isView:
-        if request.META["REMOTE_ADMIN"] != True:
+        if not request.META["REMOTE_ADMIN"]:
             return HttpResponseForbidden("%s does not have the 'view' right" % request.META["REMOTE_USER"])
 
-    if projectName != "":
-        if os.path.isdir(os.path.join(AnaforaProjectManager.rootPath, projectName)) != True:
+    if projectName:
+        if not os.path.isdir(os.path.join(AnaforaProjectManager.rootPath, projectName)):
             return HttpResponseForbidden("Project Name: '%s' does not exists" % str(projectName))
 
-    if corpusName != "":
-        if os.path.isdir(os.path.join(AnaforaProjectManager.rootPath, projectName, corpusName)) != True:
+    if corpusName:
+        if not os.path.isdir(os.path.join(AnaforaProjectManager.rootPath, projectName, corpusName)):
             return HttpResponseForbidden("Corpus Name: '%s' does not exists" % str(corpusName))
-    if taskName != "":
-        if os.path.isdir(os.path.join(AnaforaProjectManager.rootPath, projectName, corpusName, taskName)) != True:
+    if taskName:
+        if not os.path.isdir(os.path.join(AnaforaProjectManager.rootPath, projectName, corpusName, taskName)):
             return HttpResponseForbidden("Task Name: '%s' does not exists" % str(taskName))
 
-    if schemaName != "":
-        if isSchemaExist(schemaName, schemaMode) != True:
+    if schemaName:
+        if not isSchemaExist(schemaName, schemaMode):
             return HttpResponseNotFound("schema file of schema '%s' is not found" % schemaName)
 
     return None
@@ -217,10 +213,7 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
     def readRawText(rawTextFile, taskName):
         rawText = ""
         with open(rawTextFile) as fhd:
-            try:
-                rawText = fhd.read()
-            except:
-                raise
+            rawText = fhd.read()
         rawTextList[taskName] = rawText.replace("&", "&amp;").replace("<", "&lt;").replace("\r", "&#13;").replace("\n", "&#10;")
 
     if projectName == "":
@@ -240,7 +233,6 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
                 rawTextFile = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName, taskName)
                 readRawText(rawTextFile, taskName)
         except:
-            raise
             return HttpResponseForbidden("raw text file open error: " + rawTextFile)
 
     schemaMap = ps.getSchemaMap()
@@ -270,8 +262,9 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
     #context = Context(contextContent)
     return render(request, 'anafora/index.html', contextContent)
 
+
 def getCompleteAnnotator(request, projectName, corpusName, taskName, schemaName, schemaMode = None, isAdj = None):
-    if isSchemaExist(schemaName, schemaMode) != True:
+    if not isSchemaExist(schemaName, schemaMode):
         return HttpResponseNotFound("schema file not found")
 
     ps = getProjectSetting()
@@ -280,6 +273,7 @@ def getCompleteAnnotator(request, projectName, corpusName, taskName, schemaName,
         return HttpResponse(json.dumps(annotatorName))
 
     return HttpResponseForbidden("access not allowed")
+
 
 def getInprogressAnnotator(request, projectName, corpusName, taskName, schemaName, modeName = None):
     """get inprogress annotator by giving project name, corpus name, task name, and schema name. mode name is an option
@@ -292,7 +286,7 @@ def getInprogressAnnotator(request, projectName, corpusName, taskName, schemaNam
     @type modeName:    str
     @rtype:            HttpResponse
     """
-    if isSchemaExist(schemaName, modeName) != True:
+    if not isSchemaExist(schemaName, modeName):
         return HttpResponseNotFound("schema file not found")
     if isAdjudicator(request):
         annotatorName = AnaforaProjectManager.getInprogressAnnotator(schemaName, projectName, corpusName, taskName)
@@ -300,12 +294,13 @@ def getInprogressAnnotator(request, projectName, corpusName, taskName, schemaNam
 
     return HttpResponseForbidden("access not allowed")
 
+
 def getAnnotator(request, projectName, corpusName, taskName, schemaName, schemaMode = None, isAdj = None ):
     """
     Given project, corpus, taskName and schemaName, return the list of annotator names
     adjudicator permission required
     """
-    if isSchemaExist(schemaName, schemaMode) != True:
+    if not isSchemaExist(schemaName, schemaMode):
         return HttpResponseNotFound("schema file not found")
 
     ps = getProjectSetting()
@@ -328,20 +323,33 @@ def getAnaforaXMLFile(request, projectName, corpusName, taskName, schemaName, sc
     if request.method != "GET":
         return HttpResponseForbidden()
 
-    if isSchemaExist(schemaName, schemaMode) != True:
+    if not isSchemaExist(schemaName, schemaMode):
         return HttpResponseNotFound("schema file not found")
 
     #schema = schema.replace(".", "-")
 
-    if annotatorName != "" and annotatorName != request.META["REMOTE_USER"] and isAdjudicator(request) is not True and annotatorName != "preannotation":
+    if annotatorName != "" and annotatorName != request.META["REMOTE_USER"] and not isAdjudicator(request)\
+            and annotatorName != "preannotation":
         return HttpResponseForbidden("access not allowed")
 
     account = request.META["REMOTE_USER"] if annotatorName == "" else annotatorName
     anaforaXMLFile = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName)
-    if subTaskName == None:
-        anaforaXMLFile = os.path.join(anaforaXMLFile, "%s.%s.%s" % (taskName, reduce(lambda a,b: "%s-%s" % (a,b), (schemaName, ) + ((schemaMode,) if schemaMode != None else ()) + (("Adjudication",) if isAdj != None else ())), account))
+
+    if subTaskName:
+        anaforaXMLFile = os.path.join(anaforaXMLFile,
+                                      subTaskName,
+                                      "%s.%s.%s" % (subTaskName,
+                                                    '-'.join((schemaName, ) +
+                                                             ((schemaMode, ) if schemaMode != None else ()) +
+                                                             (("Adjudication",) if isAdj != None else ())),
+                                                    account))
     else:
-        anaforaXMLFile = os.path.join(anaforaXMLFile, subTaskName,  "%s.%s.%s" % (subTaskName, reduce(lambda a,b: "%s-%s" % (a,b), (schemaName, ) + ((schemaMode,) if schemaMode != None else ()) + (("Adjudication",) if isAdj != None else ())), account))
+        anaforaXMLFile = os.path.join(anaforaXMLFile,
+                                  "%s.%s.%s" % (taskName,
+                                                '-'.join((schemaName, ) +
+                                                         ((schemaMode,) if schemaMode != None else ()) +
+                                                         (("Adjudication",) if isAdj != None else ())),
+                                                account))
 
     if os.path.exists("%s.completed.xml" % anaforaXMLFile):
         anaforaXMLFile = "%s.completed.xml" % anaforaXMLFile
@@ -453,7 +461,7 @@ def getAllTask(request, projectName, corpusName, schemaName, schemaMode = None, 
     if request.method != "GET":
         return HttpResponseForbidden()
 
-    if isSchemaExist(schemaName, schemaMode) != True:
+    if not isSchemaExist(schemaName, schemaMode):
         return HttpResponseNotFound("schema file not found")
 
     ps = getProjectSetting()
@@ -468,7 +476,7 @@ def getAdjudicationTaskFromProjectCorpusName(request, projectName, corpusName, s
     if request.method != "GET":
         return HttpResponseForbidden()
 
-    if isSchemaExist(schemaName, schemaMode) != True:
+    if not isSchemaExist(schemaName, schemaMode):
         return HttpResponseNotFound("schema file not found")
 
     ps = getProjectSetting()
@@ -478,6 +486,7 @@ def getAdjudicationTaskFromProjectCorpusName(request, projectName, corpusName, s
     else:
         return HttpResponseForbidden("access not allowed")
 
+
 def getParentTaskFromProjectCorpusName(request, projectName, corpusName):
     """ For cross document only
     @type request:      HttpRequest
@@ -485,9 +494,9 @@ def getParentTaskFromProjectCorpusName(request, projectName, corpusName):
     @type corpusName:       str
     @rtype:             list of str
     """
-
-    if isSchemaExist(schemaName, schemaMode) != True:
+    if not isSchemaExist(schemaName, schemaMode):
         return HttpResponseNotFound("schema file not found")
+
 
 def getSubTaskFromProjectCorpusTaskName(request, projectName, corpusName, parentTaskName):
     """ Return sub task name
@@ -507,6 +516,7 @@ def getSubTaskFromProjectCorpusTaskName(request, projectName, corpusName, parent
         return HttpResponseNotFound(str(e))
 
     return HttpResponse(json.dumps(subTaskName))
+
 
 def getTaskFromProjectCorpusName(request, projectName, corpusName, schemaName, schemaMode = None, crossDoc=False):
 
@@ -529,12 +539,12 @@ def writeFile(request, projectName, corpusName, taskName, schemaName, schemaMode
     if request.method != "POST":
         return HttpResponseForbidden()
 
-    if isSchemaExist(schemaName, schemaMode) != True:
+    if not isSchemaExist(schemaName, schemaMode):
         return HttpResponseNotFound("schema file not found")
 
     filePath = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName)
 
-    if os.path.exists(filePath) != True:
+    if not os.path.exists(filePath):
         return HttpResponseNotFound("project, corpus or task not found")
 
     fileContent = request.POST.get("fileContent")
@@ -560,16 +570,17 @@ def writeFile(request, projectName, corpusName, taskName, schemaName, schemaMode
 
     return HttpResponse()
 
+
 def saveLogging(request,projectName, corpusName, taskName, schemaName, schemaMode = None, isAdj = None): 
     if request.method != "POST":
         return HttpResponseForbidden()
 
-    if isSchemaExist(schemaName, schemaMode) != True:
+    if not isSchemaExist(schemaName, schemaMode):
         return HttpResponseNotFound("schema file not found")
 
     filePath = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName)
 
-    if os.path.exists(filePath) != True:
+    if not os.path.exists(filePath):
         return HttpResponseNotFound("project, corpus or task not found")
 
     logContent = request.POST.get("logContent")
@@ -580,16 +591,17 @@ def saveLogging(request,projectName, corpusName, taskName, schemaName, schemaMod
 
     return HttpResponse()
 
+
 def setCompleted(request, projectName, corpusName, taskName, schemaName, schemaMode = None, isAdj = None):
     if request.method != "POST":
         return HttpResponseForbidden()
 
-    if isSchemaExist(schemaName, schemaMode) != True:
+    if not isSchemaExist(schemaName, schemaMode):
         return HttpResponseNotFound("schema file not found")
 
     filePath = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName)
 
-    if os.path.exists(filePath) != True:
+    if not os.path.exists(filePath):
         return HttpResponseNotFound("project, corpus or task not found")
 
     fileName = os.path.join(filePath, "%s.%s%s%s.%s" % (taskName, schemaName, "" if schemaMode == None else "-%s" % schemaMode, "" if isAdj == None else "-Adjudication", request.META["REMOTE_USER"]))
@@ -659,9 +671,10 @@ def getProjectSetting():
     projectSetting = cache.get('anafora_project_setting')
     if projectSetting == None:
         parseFile = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, settings.ANAFORA_PROJECT_SETTING_FILENAME)
-        if os.path.isfile(parseFile) != True:
-            from django.core.exceptions import ImpoperlyConfigured
-            raise ImproperlyConfigured, "Error loading ANAFORA_PROJECT_SETTING_FILENAME in web/settings.py file. Please check the value of ANAFORA_PROJECT_FILE_ROOT, ANAFORA_PROJECT_SETTING_FILENAME accordingly"
+        if not os.path.isfile(parseFile):
+            raise ImproperlyConfigured("Error loading ANAFORA_PROJECT_SETTING_FILENAME in web/settings.py file. "
+                                       "Please check the value of ANAFORA_PROJECT_FILE_ROOT, "
+                                       "ANAFORA_PROJECT_SETTING_FILENAME accordingly")
         projectSetting = ProjectSetting()
         projectSetting.parseFromFile(parseFile)
         cache.set('anafora_project_setting', projectSetting)

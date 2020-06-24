@@ -1,4 +1,4 @@
-import sys, os
+import os
 #Django settings for web project.
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

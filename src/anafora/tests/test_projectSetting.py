@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 import os
-#from unittest import TestCase
-from unittest2 import TestCase
+from unittest import TestCase
 from django.conf import settings
-from projectSetting import Schema, Mode, Project, ProjectSetting
+from anafora.projectSetting import Schema, Mode, Project, ProjectSetting
 from django.core.exceptions import ImproperlyConfigured
 from xml.dom.minidom import parseString
-from xml import dom
+
 
 class ModeTests(TestCase):
 	def setUp(self):
@@ -185,7 +184,7 @@ class ProjectSettingTests(TestCase):
 		self.assertEqual(project0.name, "EventWorkshop")
 		self.assertListEqual(project0.admins, ["anaforaadmin"])
 		self.assertEqual(len(project0.allowedSchemas), 4)
-		self.assertTrue(reduce(lambda x,y: x and y, [isinstance(schema, Schema) for schema in project0.allowedSchemas]))
+		self.assertTrue(all([isinstance(schema, Schema) for schema in project0.allowedSchemas]))
 		self.assertEqual(project0.numOfAnnotator, 2)
 		self.assertListEqual(project0.annotators, ["temporal", "verbs", "sharp"])
 		schema0 = ps.getSchema("Temporal")
@@ -269,7 +268,8 @@ class ProjectSettingTests(TestCase):
 		self.assertListEqual(sorted(schema2.modes), sorted(["Anatomy", "Correction", "Coreference"]))
 		for tModeName in schema2.modes:
 			tMode = ps.getMode("Thyme2v1", tModeName)
-			print (tMode, tMode.needPreannotation, tMode.preannotationFromMode) #, None if tMode.preannotationFromMode is None else tMode.preannotationFromMode.name)
+			print((tMode, tMode.needPreannotation, tMode.preannotationFromMode)) #, None if
+			# tMode.preannotationFromMode is None else tMode.preannotationFromMode.name)
 
 	def test_getSchemaMap(self):
 		ps = ProjectSetting()

@@ -10,6 +10,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+ALLOWED_HOSTS = []
+
 #DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
@@ -95,11 +97,15 @@ STATICFILES_FINDERS = (
 SECRET_KEY = ''
 
 # List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            '/home/html/example.com',
+            '/home/html/default',
+        ],
+    },
+]
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
@@ -143,7 +149,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     #'markFalsePositive',
     #'django_qunit',
-    'annotate',
+    'anafora',
 )
 
 # A sample logging configuration. The only tangible logging
