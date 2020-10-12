@@ -5,6 +5,7 @@ from xml.dom.minidom import parseString, Element
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 import itertools
+import pdb
 
 class ProjectSetting(object):
 	def __init__(self):
@@ -21,9 +22,9 @@ class ProjectSetting(object):
 		"""
 		try:
 			with open(filePath) as fhd:
-				psXMLStr = reduce(lambda x,y: x+' '+y, fhd.xreadlines())
+				psXMLStr = ' '.join([l for l in fhd])
 		except IOError as e:
-			raise ImproperlyConfigured, "Can not find setting file '%s', please check your setting of ``ANAFORA_PROJECT_FILE_ROOT'' and ``ANAFORA_PROJECT_SETTING_FILENAME'' in your setting file" % (filePath)
+			raise ImproperlyConfigured("Can not find setting file '%s', please check your setting of ``ANAFORA_PROJECT_FILE_ROOT'' and ``ANAFORA_PROJECT_SETTING_FILENAME'' in your setting file" % (filePath))
 		psDOM = parseString(psXMLStr).childNodes[0]
 		if psDOM.tagName != "setting":
 			raise Exception("Project Setting XML Dom parse error: " + psDOM.toxml())
@@ -316,7 +317,7 @@ class Project(object):
 if __name__ == "__main__":
 
 	if len(sys.argv) < 2:
-		print 'Please validate the XML file with "python projectSetting.py pathToSettingFile"'
+		print('Please validate the XML file with "python projectSetting.py pathToSettingFile"')
 		exit()
 	
 	try:
@@ -325,4 +326,4 @@ if __name__ == "__main__":
 	except:
 		raise
 
-	print 'Validation Success'
+	print('Validation Success')

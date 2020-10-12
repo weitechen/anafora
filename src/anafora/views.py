@@ -4,10 +4,10 @@ from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidde
 from django.shortcuts import render
 from django.conf import settings
 from django.views.decorators.csrf import csrf_protect
-from django.utils.encoding import smart_unicode, smart_str
+# from django.utils.encoding import smart_unicode, smart_str
 import codecs
-from anaforaProjectManager import *
-from projectSetting import *
+from .anaforaProjectManager import *
+from .projectSetting import *
 import subprocess
 import json
 import os, sys
@@ -15,6 +15,8 @@ import grp
 import pwd
 from django.core.cache import cache
 import traceback
+from functools import reduce
+import pdb
 
 css = ["css/style.css", "css/themes/default/style.css"]
 
@@ -108,6 +110,7 @@ def authenticate(ps, request, projectName = "", corpusName = "", taskName = "", 
 
     if projectName != "":
         if os.path.isdir(os.path.join(AnaforaProjectManager.rootPath, projectName)) != True:
+            # pdb.set_trace()
             return HttpResponseForbidden("Project Name: '%s' does not exists" % str(projectName))
 
     if corpusName != "":
@@ -142,8 +145,7 @@ def index(request):
 
     contextContent = basicContextContent
     contextContent['settingVars'] = assignSettingVars(request)
-    # contextContent.update(csrf(request))
-    #context = Context(contextContent)
+
     return render(request, 'anafora/index.html', contextContent)
 
 @csrf_protect
@@ -326,7 +328,6 @@ def getAnaforaXMLFile(request, projectName, corpusName, taskName, schemaName, sc
 
     the default of annotatorName is request.META["REMOTE_USER"]. If annotatorName is assigned, then return this specific annotator's file (annotator permission required) 
     """
-
     if request.method != "GET":
         return HttpResponseForbidden()
 
@@ -340,10 +341,14 @@ def getAnaforaXMLFile(request, projectName, corpusName, taskName, schemaName, sc
 
     account = request.META["REMOTE_USER"] if annotatorName == "" else annotatorName
     anaforaXMLFile = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName)
-    if subTaskName == None:
-        anaforaXMLFile = os.path.join(anaforaXMLFile, "%s.%s.%s" % (taskName, reduce(lambda a,b: "%s-%s" % (a,b), (schemaName, ) + ((schemaMode,) if schemaMode != None else ()) + (("Adjudication",) if isAdj != None else ())), account))
+
+    # if subTaskName == None:
+    schema_mode_str = reduce(lambda a,b: "%s-%s" % (a,b), (schemaName, ) + ((schemaMode,) if schemaMode != None else ()) + (("Adjudication",) if isAdj != None else ()))
+
+    if not subTaskName:
+        anaforaXMLFile = os.path.join(anaforaXMLFile, "%s.%s.%s" % (taskName, schema_mode_str , account))
     else:
-        anaforaXMLFile = os.path.join(anaforaXMLFile, subTaskName,  "%s.%s.%s" % (subTaskName, reduce(lambda a,b: "%s-%s" % (a,b), (schemaName, ) + ((schemaMode,) if schemaMode != None else ()) + (("Adjudication",) if isAdj != None else ())), account))
+        anaforaXMLFile = os.path.join(anaforaXMLFile, subTaskName,  "%s.%s.%s" % (subTaskName, schema_mode_str, account))
 
     if os.path.exists("%s.completed.xml" % anaforaXMLFile):
         anaforaXMLFile = "%s.completed.xml" % anaforaXMLFile
@@ -662,8 +667,8 @@ def getProjectSetting():
     if projectSetting == None:
         parseFile = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, settings.ANAFORA_PROJECT_SETTING_FILENAME)
         if os.path.isfile(parseFile) != True:
-            from django.core.exceptions import ImpoperlyConfigured
-            raise ImproperlyConfigured, "Error loading ANAFORA_PROJECT_SETTING_FILENAME in web/settings.py file. Please check the value of ANAFORA_PROJECT_FILE_ROOT, ANAFORA_PROJECT_SETTING_FILENAME accordingly"
+            from django.core.exceptions import ImproperlyConfigured
+            raise ImproperlyConfigured("Error loading ANAFORA_PROJECT_SETTING_FILENAME in web/settings.py file. Please check the value of ANAFORA_PROJECT_FILE_ROOT, ANAFORA_PROJECT_SETTING_FILENAME accordingly")
         projectSetting = ProjectSetting()
         projectSetting.parseFromFile(parseFile)
         cache.set('anafora_project_setting', projectSetting)

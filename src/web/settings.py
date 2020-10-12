@@ -1,5 +1,9 @@
 import sys, os
+from os.path import dirname
 #Django settings for web project.
+
+BASE_DIR = dirname(dirname(dirname(__file__)))
+PASS_DIR = dirname('/var/www/private/')
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -63,19 +67,22 @@ MEDIA_URL = ''
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_ROOT = '/home/anafora/git/anafora/static'
+# STATIC_ROOT = '/home/anafora/git/anafora/static'
+STATIC_ROOT = os.path.join(BASE_DIR,'static')
 #STATIC_ROOT = '/data/home/verbs/student/wech5560/Research/TemporalPreAnnotation/main/StaticFiles'
 # STATIC_URL = '/static/'
 STATIC_URL = '/anafora/static/'
 
 ROOT_URL = '/anafora'
+
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     # '',
-    '/home/anafora/git/anafora/src/static',
+    # '/home/anafora/git/anafora/src/static',
+    os.path.join(BASE_DIR,'src/static'),
     )
 #    /data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static',
 #    '/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static/css',
@@ -92,13 +99,14 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'hellla293ujdjfl;1393@@9fji'
+with open(os.path.join(PASS_DIR,'anafora_django_secret.txt')) as f:
+    SECRET_KEY = f.read().strip()
 
 # 22May2017 Petr Janata - added TEMPLATES definition that newer versions of Django expect
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ["/home/anafora/git/anafora/src/Templates"],
+        'DIRS': [os.path.join(BASE_DIR,'src/Templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -231,6 +239,9 @@ TEST_RUNNER = 'testing.DatabaselessTestRunner'
 #ANAFORA_PROJECT_FILE_ROOT = ""
 ANAFORA_PROJECT_FILE_ROOT = "/home/anafora/projects"
 
+# Assign the setting file in the project directory
+ANAFORA_PROJECT_SETTING_FILENAME = ".setting.xml"
+
 # Assign the Digest auth group file location
 GROUP_FILE = '/home/anafora/http/anafora.authgroup'
 #GROUP_FILE = '/data/anafora-event/site/anafora-event.group'
@@ -240,8 +251,4 @@ ANAFORA_AUTH_LDAP = None
 # Assign the group name for the admin
 ADMIN_GROUPNAME = 'anaforaadmin'
 
-# Assign the setting file in the project directory
-ANAFORA_PROJECT_SETTING_FILENAME = ".setting.xml"
-
-# 22May2017 Petr Janata - had to add following migration to Django 1.11
 ALLOWED_HOSTS = ['meamcentral.ucdavis.edu']

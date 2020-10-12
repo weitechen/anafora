@@ -14,7 +14,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     url(r'^annotate/', include('anafora.urls')),
     url(r'^anafora/', include('anafora.urls')),
-	url(r'^anaforaTest/', include('anaforaTest.urls')),
+	# url(r'^anaforaTest/', include('anaforaTest.urls')),
     url(r'^$', anafora.views.index),
 #    url(r'^' + settings.STATIC_URL + '(?P<path>.*)$','django.views.static.serve', {'document_root': settings.STATIC_ROOT}  ),
     # Examples:
