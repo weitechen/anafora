@@ -18,17 +18,19 @@ import os, sys
 import site
 
 # need to add virtualenv path
-site.addsitedir('/mnt/code/meampy/lib/python2.7/site-packages')
-site.addsitedir('/mnt/code/meampy/lib/python2.7/dist-packages')
+# site.addsitedir('/mnt/code/meampy/lib/python2.7/site-packages')
+# site.addsitedir('/mnt/code/meampy/lib/python2.7/dist-packages')
+site.addsitedir('/home/anafora/anafora_venv/lib/python3.7/site-packages')
 
 #activate virtualenv
-activate_env=os.path.expanduser("/mnt/code/meampy/bin/activate_this.py")
-execfile(activate_env, dict(__file__=activate_env))
+# activate_env=os.path.expanduser("/mnt/code/meampy/bin/activate_this.py")
+# execfile(activate_env, dict(__file__=activate_env))
 
+root_path = '/home/anafora/git/anafora3'
 
-if '/home/anafora/git/anafora/src' not in sys.path:
-    sys.path.append('/home/anafora/git/anafora/src')
-    sys.path.append('/home/anafora/git/anafora/src/web')
+if os.path.join(root_path,'src') not in sys.path:
+    sys.path.append(os.path.join(root_path,'src'))
+    sys.path.append(os.path.join(root_path,'src/web'))
 
 os.environ["DJANGO_SETTINGS_MODULE"] =  "web.settings"
 

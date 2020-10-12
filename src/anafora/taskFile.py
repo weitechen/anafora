@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from django.core.exceptions import ValidationError
+from functools import reduce
 
 class TaskFile(object):
 	"""
@@ -30,9 +31,9 @@ class TaskFile(object):
 		self.isAdjudication = False
 
 		if len(fileName) <= 4 or fileName[-4:] != ".xml":
-			raise ValidationError, "XML File format error ('%s'). %s" % (str(fileName), TaskFile.formatStr)
+			raise ValidationError("XML File format error ('%s'). %s" % (str(fileName), TaskFile.formatStr))
 		if fileName.count('.') <= 3:
-			raise ValidationError, "XML File format error ('%s'), should be '$taskName.$schemaName.$annotator.(completed/inpgrogress).xml'" % (str(fileName))
+			raise ValidationError("XML File format error ('%s'), should be '$taskName.$schemaName.$annotator.(completed/inpgrogress).xml'" % (str(fileName)))
 
 		taskTerms = fileName.split('.')
 		if taskTerms[-2] == "completed":
@@ -40,7 +41,7 @@ class TaskFile(object):
 		elif taskTerms[-2] == "inprogress":
 			pass
 		else:
-			raise ValidationError, "XML File format error ('%s'): please check the value of 'completed/inprogress'. %s" % (str(fileName), TaskFile.formatStr)
+			raise ValidationError("XML File format error ('%s'): please check the value of 'completed/inprogress'. %s" % (str(fileName), TaskFile.formatStr))
 
 		self.annotator = taskTerms[-3]
 		if self.annotator == "preannotation":
@@ -60,11 +61,11 @@ class TaskFile(object):
 				self.modeName = schemaTerm[1]
 		elif len(schemaTerm) == 3:
 			if schemaTerm[2] != "Adjudication":
-				raise ValidationError, "XML File format error ('%s'): please check the value of your adjudication indicator. %s" % (str(fileName), TaskFile.formatStr)
+				raise ValidationError("XML File format error ('%s'): please check the value of your adjudication indicator. %s" % (str(fileName), TaskFile.formatStr))
 			self.schemaName = schemaTerm[0]
 			self.modeName = schemaTerm[1]
 			self.isAdjudication = True
 		else:
-			raise ValidationError, "XML File format error ('%s'). %s" % (str(fileName), TaskFile.formatStr)
+			raise ValidationError("XML File format error ('%s'). %s" % (str(fileName), TaskFile.formatStr))
 
 		self.taskName = reduce(lambda x,y: '%s.%s' % (x,y), taskTerms[:-4])

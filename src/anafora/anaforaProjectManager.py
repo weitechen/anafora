@@ -1,12 +1,13 @@
 #!/usr/bin/python2.7
 import os, sys
 import glob
-from projectSetting import *
-from taskFile import TaskFile
+from .projectSetting import *
+from .taskFile import TaskFile
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from subprocess import call, check_output
 import re
+import pdb
 
 class AnaforaProjectManager:
 	#rootPath = ""
@@ -104,7 +105,7 @@ class AnaforaProjectManager:
 
 		corpusPath = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName)
 		command_str = "find %s -maxdepth 2 -type f -name '*.%s%s.*.xml' | sed -r 's/^.*\/([^\/]+)\/[^\/]+.xml$/\\1/g' | sort -u" % (corpusPath, mode.getSchemaName(), "-Adjudication" if isAdj else "")
-		taskNameList = check_output(command_str, shell=True)
+		taskNameList = check_output(command_str, shell=True).decode('utf-8')
 		taskName = [tName for tName in taskNameList.split('\n') if tName != '']
 		return taskName
 
@@ -119,9 +120,10 @@ class AnaforaProjectManager:
 		AnaforaProjectManager.checkExist(ps, projectName, corpusName)
 		corpusPath = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName)
 		command_str = "find %s -mindepth 1 -maxdepth 1 -type d | sed -r 's/%s\/([^\/]+)$/\\1/g' | sort -u" % (corpusPath, corpusPath.replace("/", "\\/"))
-		taskNameList = check_output(command_str, shell=True)
+		taskNameList = check_output(command_str, shell=True).decode('utf-8')
 	
 		#"find " + AnaforaProjectManager.rootPath + projectName + "/" + corpusName + "/ -type f -name '*." + schemaName + ".*.xml' | sed 's#\(.*\)/\(.*\)/\(.*\)/.*#\\3#' | sort -u", shell=True )
+		# pdb.set_trace()
 		taskName = [tName for tName in taskNameList.split('\n') if tName != '' and tName[0] != "."]
 
 		return taskName
