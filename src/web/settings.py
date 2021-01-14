@@ -70,10 +70,11 @@ MEDIA_URL = ''
 # STATIC_ROOT = '/home/anafora/git/anafora/static'
 STATIC_ROOT = os.path.join(BASE_DIR,'static')
 #STATIC_ROOT = '/data/home/verbs/student/wech5560/Research/TemporalPreAnnotation/main/StaticFiles'
-# STATIC_URL = '/static/'
-STATIC_URL = '/anafora/static/'
+STATIC_URL = '/static/'
+# STATIC_URL = '/anafora/static/'
 
-ROOT_URL = '/anafora'
+# ROOT_URL = '/anafora'
+ROOT_URL = ''
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -251,4 +252,4 @@ ANAFORA_AUTH_LDAP = None
 # Assign the group name for the admin
 ADMIN_GROUPNAME = 'anaforaadmin'
 
-ALLOWED_HOSTS = ['meamcentral.ucdavis.edu']
+ALLOWED_HOSTS = ['anafora.cmb.ucdavis.edu']
