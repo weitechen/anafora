@@ -83,9 +83,6 @@ def assignSettingVars(request, projectName = None, corpusName = None, taskName =
     if schemaName != None:
         rSettings['schema'] = schemaName
 
-    # Modified on 14Jan2021 to deal with not finding the schema key in the template
-    # rSettings['schema'] = schemaName
-
     return rSettings
 
 def authenticate(ps, request, projectName = "", corpusName = "", taskName = "", schemaName = "", schemaMode = None, isAdjudication = False, isView = False, isCrossDoc = False):
