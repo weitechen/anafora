@@ -4,3 +4,4 @@ DEBUG=True
 ROOT_URL = ''
 INSTALLED_APPS += ('sslserver',)
 
+LOGGING = {}

@@ -110,7 +110,6 @@ def authenticate(ps, request, projectName = "", corpusName = "", taskName = "", 
 
     if projectName != "":
         if os.path.isdir(os.path.join(AnaforaProjectManager.rootPath, projectName)) != True:
-            # pdb.set_trace()
             return HttpResponseForbidden("Project Name: '%s' does not exists" % str(projectName))
 
     if corpusName != "":

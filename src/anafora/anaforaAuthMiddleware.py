@@ -2,16 +2,18 @@ from importlib import import_module
 import time
 
 from django.conf import settings
-from django.utils.cache import patch_vary_headers
-from django.utils.http import cookie_date
+from django.utils.deprecation import MiddlewareMixin
+
 import grp
 
-class AnaforaAuthMiddleware(object):
+
+class AnaforaAuthMiddleware(MiddlewareMixin):
 	groupList = None
 	grpID = None
 	def process_request(self, request):
 		if "REMOTE_USER" not in request.META:
 			raise Exception("The authentication setting in .htaccess file is incorrect")
+
 
 		request.META["REMOTE_ADMIN"] = False
 		if settings.ANAFORA_AUTH_LDAP:
@@ -27,7 +29,7 @@ class AnaforaAuthMiddleware(object):
 				groupFile = settings.GROUP_FILE
 				if AnaforaAuthMiddleware.groupList == None:
 					fhd = open(groupFile)
-					for line in fhd.xreadlines():
+					for line in fhd.readlines():
 						term = line.split(":")
 						if term[0].strip() == settings.ADMIN_GROUPNAME:
 							AnaforaAuthMiddleware.groupList = [t.strip() for t in term[1].split(" ") if t.strip() != ""]
