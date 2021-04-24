@@ -219,7 +219,7 @@ def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMod
 
     def readRawText(rawTextFile, taskName):
         rawText = ""
-        with open(rawTextFile) as fhd:
+        with open(rawTextFile,"r", encoding="utf-8") as fhd:
             try:
                 rawText = fhd.read()
             except:
