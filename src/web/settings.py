@@ -84,6 +84,7 @@ STATICFILES_DIRS = (
     # '',
     # '/home/anafora/git/anafora/src/static',
     os.path.join(BASE_DIR,'src/static'),
+    '/home/anafora/analysis/',
     )
 #    /data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static',
 #    '/data/home/verbs/student/wech5560/Research/anaforaDevelop/src/main/static/css',
