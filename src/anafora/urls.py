@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+	url(r'^(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/read/?$', views.readTaskFile),
 	url(r'^getDir/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?(?:\.(?P<isAdj>Adjudication))?/view(?:/(?P<crossDoc>_crossDoc))?/?$', views.getAllTask),
 	#views.getAllTask),
 	#url(r'^getDir/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?\.Adjudication(?:/(?P<crossDoc>_crossDoc))?/?$', views.getAdjudicationTaskFromProjectCorpusName),
@@ -17,6 +18,7 @@ urlpatterns = [
 	url(r'^xml/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^.]*))?\.(?P<isAdj>Adjudication)/(?P<annotatorName>[^\/]+)(?:/_sub_(?P<subTaskName>[^\/]+))?/?$', views.getAnaforaXMLFile),
 	url(r'^xml/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?(?:/_sub_(?P<subTaskName>[^\/]+))?/?$', views.getAnaforaXMLFile),
 	url(r'^xml/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?/(?P<annotatorName>[^\/]+)(?:/_sub_(?P<subTaskName>[^\/]+))?/?$', views.getAnaforaXMLFile),
+	url(r'^xml/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)/gold/?$', views.getAnaforaXMLFile, {'isGold': True}),
 	url(r'^completeAnnotator/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?(?:\.(?P<isAdj>Adjudication))?/?$', views.getCompleteAnnotator),
 	url(r'^inprogressAnnotator/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?(?:\.(?P<isAdj>Adjudication))?/?$', views.getInprogressAnnotator),
 	url(r'^annotator/(?P<projectName>[^\/]+)/(?P<corpusName>[^\/]+)/(?P<taskName>[^\/]+)/(?P<schemaName>[^\/\.]+)(?:\.(?P<schemaMode>[^\/\.]+))?(?:\.(?P<isAdj>Adjudication))?/?$', views.getAnnotator),

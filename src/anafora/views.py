@@ -183,6 +183,23 @@ def selectCorpus(request, projectName, corpusName):
     return render(request, 'anafora/index.html', contextContent)
 
 @csrf_protect
+def readTaskFile(request, projectName, corpusName, taskName):
+    # Make sure we have the proper permissions
+    ps = getProjectSetting()
+    authResponse = authenticate(ps, request, projectName = projectName, corpusName = corpusName)    
+    # Get the name of the task file
+    taskFile = os.path.join(settings.ANAFORA_PROJECT_FILE_ROOT, projectName, corpusName, taskName, taskName)
+
+    # Read the task file
+    with open(taskFile,"r", encoding="utf-8") as fhd:
+        try:
+            rawText = fhd.read()
+        except:
+            raise
+
+    return HttpResponse(rawText)
+
+@csrf_protect
 def annotateNormal(request, projectName, corpusName, taskName, schema, schemaMode=None, view="", crossDoc="", adjudication="", annotator=None, logging=None ):  # annotatorName="", crossDoc=None):
     if request.method != "GET":
         return HttpResponseForbidden()
@@ -321,7 +338,7 @@ def getAnnotator(request, projectName, corpusName, taskName, schemaName, schemaM
     return HttpResponseForbidden("access not allowed")
 
 
-def getAnaforaXMLFile(request, projectName, corpusName, taskName, schemaName, schemaMode = None, isAdj = None, annotatorName="", subTaskName=""):
+def getAnaforaXMLFile(request, projectName, corpusName, taskName, schemaName, schemaMode = None, isAdj = None, annotatorName="", subTaskName="", isGold=False):
     """
     Given projectName, corpusName, taskName and schema, return the XML data file content
 
@@ -345,7 +362,11 @@ def getAnaforaXMLFile(request, projectName, corpusName, taskName, schemaName, sc
     schema_mode_str = reduce(lambda a,b: "%s-%s" % (a,b), (schemaName, ) + ((schemaMode,) if schemaMode != None else ()) + (("Adjudication",) if isAdj != None else ()))
 
     if not subTaskName:
-        anaforaXMLFile = os.path.join(anaforaXMLFile, "%s.%s.%s" % (taskName, schema_mode_str , account))
+        if isGold:
+            anaforaXMLFile = os.path.join(anaforaXMLFile, "%s.%s.gold" % (taskName, schema_mode_str))
+        else:
+            anaforaXMLFile = os.path.join(anaforaXMLFile, "%s.%s.%s" % (taskName, schema_mode_str , account))
+
     else:
         anaforaXMLFile = os.path.join(anaforaXMLFile, subTaskName,  "%s.%s.%s" % (subTaskName, schema_mode_str, account))
 
